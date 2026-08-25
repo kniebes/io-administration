@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Anmelden{% endblock %}
+
+{% block body %}
+    <main class="login">
+        <h1>Anmelden</h1>
+
+        {% if authenticationError %}
+            <p class="login__error">{{ authenticationError.messageKey|trans(authenticationError.messageData, 'security') }}</p>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}">
+            {# Bei stateless CSRF liefert csrf_token() den Cookie-Namen, den echten Token
+               erzeugt der Stimulus-Controller. Ohne data-controller wird er nicht geladen. #}
+            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+
+            <p>
+                <label for="username">Benutzername</label>
+                <input type="text" id="username" name="_username" value="{{ lastUsername }}" autocomplete="username" required autofocus>
+            </p>
+
+            <p>
+                <label for="password">Passwort</label>
+                <input type="password" id="password" name="_password" autocomplete="current-password" required>
+            </p>
+
+            <p>
+                <button type="submit">Anmelden</button>
+            </p>
+        </form>
+    </main>
+{% endblock %}
