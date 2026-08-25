@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Security;
 
@@ -10,12 +8,13 @@ use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusExce
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * Verhindert die Anmeldung deaktivierter Benutzer.
- */
 final class ActiveUserChecker implements UserCheckerInterface
 {
     public function checkPreAuth(UserInterface $user): void
+    {
+    }
+
+    public function checkPostAuth(UserInterface $user, ?TokenInterface $token = null): void
     {
         if (!$user instanceof User) {
             return;
@@ -24,9 +23,5 @@ final class ActiveUserChecker implements UserCheckerInterface
         if (!$user->isActive()) {
             throw new CustomUserMessageAccountStatusException('Dieses Benutzerkonto ist deaktiviert.');
         }
-    }
-
-    public function checkPostAuth(UserInterface $user, ?TokenInterface $token = null): void
-    {
     }
 }

@@ -19,6 +19,9 @@ security:
             lazy: true
             provider: io_core_users
             user_checker: App\Security\ActiveUserChecker
+            login_throttling:
+                max_attempts: 5        # pro Minute und Benutzername+IP
+                interval: '15 minutes'
             form_login:
                 login_path: app_login
                 check_path: app_login
