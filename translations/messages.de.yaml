@@ -1,0 +1,6 @@
+login:
+    title: Login
+    headline: Login
+    username: Benutzername
+    password: Passwort
+    submit: Anmelden

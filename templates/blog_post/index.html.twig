@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'blogpost.index.title'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/login.css') }}">
+{% endblock %}
+
+{% block body %}
+    <main class="container">
+        <h1>{{ 'blogpost.index.headline'|trans }}</h1>
+
+    </main>
+{% endblock %}
