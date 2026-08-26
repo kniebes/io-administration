@@ -38,6 +38,9 @@
     "kniebes/io-core": {
         "version": "dev-main"
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.10.0"
+    },
     "phpunit/phpunit": {
         "version": "13.3",
         "recipe": {

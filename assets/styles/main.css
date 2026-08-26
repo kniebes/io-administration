@@ -230,9 +230,10 @@ strong {
 
 /* Layout Elements */
 .container {
-    max-width: calc(75ch + 2rem);
+    width: 1000px;
     margin: 4rem auto;
     text-align: left;
+    background: lightblue;
 }
 
 .modal {

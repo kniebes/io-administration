@@ -4,3 +4,11 @@ login:
     username: Benutzername
     password: Passwort
     submit: Anmelden
+
+blogpost:
+    index:
+        headline: BlogPosts
+        head:
+            title: Titel
+            created: Erstellt
+            status: Status

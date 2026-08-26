@@ -5,11 +5,45 @@
 {% block stylesheets %}
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('styles/pages/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/common/data-table.css') }}">
 {% endblock %}
 
 {% block body %}
     <main class="container">
         <h1>{{ 'blogpost.index.headline'|trans }}</h1>
+
+
+        <turbo-frame id="blog-post-list">
+            <div class="count">
+                {{ pagination.getTotalItemCount }}
+            </div>
+            <table class="data">
+                <thead>
+                <tr>
+                    <th{% if pagination.isSorted('p.title') %} class="sorted"{% endif %}>
+                        {{ knp_pagination_sortable(pagination, 'blogpost.index.head.title'|trans, 'p.title') }}
+                    </th>
+                    <th>{{ 'blogpost.index.head.status'|trans }}</th>
+                    <th{% if pagination.isSorted('a.creted') %} class="sorted"{% endif %}>
+                        {{ knp_pagination_sortable(pagination, 'blogpost.index.head.created'|trans, 'p.created') }}
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for post in pagination %}
+                    <tr {% if loop.index is odd %}class="color"{% endif %}>
+                        <td><a data-turbo-frame="_top" href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a></td>
+                        <td>{{ post.status.name }}</td>
+                        <td>{{ post.created | date('Y-m-d H:i:s') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="page-navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        </turbo-frame>
 
     </main>
 {% endblock %}
