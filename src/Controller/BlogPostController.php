@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Event\SavedBlogPostEvent;
 use App\Form\BlogPostFormType;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Repository\BlogPostRepository;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +28,7 @@ final class BlogPostController extends AbstractController
         private readonly PaginatorInterface $paginator,
         private readonly BlogPostRepository $blogPostRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
     )
     {
     }
@@ -56,6 +60,7 @@ final class BlogPostController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($blogPost);
             $this->entityManager->flush();
+            $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
 
             return $this->redirectToRoute(route: 'blog_post_edit', parameters: ['id' => $blogPost->getId()]);
         }
@@ -77,8 +82,11 @@ final class BlogPostController extends AbstractController
             $this->entityManager->flush();
 
             if ($this->isTurboStreamRequest($request)) {
+                $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
                 return $this->renderSaveInfoStream(request: $request, success: true, form: $form, blogPost: $blogPost);
             }
+
+            $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
 
             return $this->redirectToRoute(route: 'blog_post_edit', parameters: ['id' => $blogPost->getId()]);
         }
