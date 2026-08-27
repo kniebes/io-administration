@@ -21,3 +21,9 @@
         {% include 'blog_post/_images_picker.html.twig' with {form: form} %}
     </template>
 </turbo-stream>
+
+<turbo-stream action="update" target="blog-post-tags-picker">
+    <template>
+        {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+    </template>
+</turbo-stream>

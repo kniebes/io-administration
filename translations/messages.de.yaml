@@ -30,6 +30,10 @@ blogpost:
         placeholder: Bitte wählen
         submit: Speichern
         cancel: Abbrechen
+        tags_picker:
+            placeholder: Tag suchen oder anlegen
+            create: '%term% anlegen'
+            remove: Tag entfernen
         modal:
             header:
                 summary: Zusammenfassung

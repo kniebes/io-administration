@@ -1,0 +1,31 @@
+{% macro tag_row(rowForm) %}
+    <span class="tag-picker__item" data-tag-picker-target="item">
+        <span class="tag-picker__label" data-tag-picker-target="itemLabel">{{ rowForm.vars.tagTerm|default(rowForm.vars.value) }}</span>
+        {{ form_widget(rowForm, {attr: {hidden: true}}) }}
+        <button type="button" class="tag-picker__remove" data-action="tag-picker#remove" aria-label="{{ 'blogpost.form.tags_picker.remove'|trans }}">&times;</button>
+    </span>
+{% endmacro %}
+
+<div class="tag-picker"
+     data-controller="tag-picker"
+     data-tag-picker-index-value="{{ form.tags|length }}"
+     data-tag-picker-search-url-value="{{ path('tag_search') }}"
+     data-tag-picker-create-label-value="{{ 'blogpost.form.tags_picker.create'|trans }}"
+     data-tag-picker-prototype-value="{{ _self.tag_row(form.tags.vars.prototype)|e('html_attr') }}"
+>
+    <div class="tag-picker__chips" data-tag-picker-target="list">
+        {% for tagRow in form.tags %}
+            {{ _self.tag_row(tagRow) }}
+        {% endfor %}
+    </div>
+
+    <input type="text"
+           autocomplete="off"
+           placeholder="{{ 'blogpost.form.tags_picker.placeholder'|trans }}"
+           data-tag-picker-target="input"
+           data-action="input->tag-picker#search keydown->tag-picker#keydown"
+    >
+
+    <div class="tag-picker__suggestions" data-tag-picker-target="suggestions"></div>
+</div>
+{% do form.tags.setRendered %}

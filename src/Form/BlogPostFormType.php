@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Kniebes\IoCore\Entity\Blog;
@@ -11,6 +12,7 @@ use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Entity\BlogPostType;
 use Kniebes\IoCore\Entity\Category;
 use Kniebes\IoCore\Entity\Image;
+use Kniebes\IoCore\Entity\Tag;
 use Kniebes\IoCore\Enum\BlogPostStatus;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -26,6 +28,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class BlogPostFormType extends AbstractType
 {
@@ -33,6 +36,7 @@ final class BlogPostFormType extends AbstractType
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly SluggerInterface $slugger,
     )
     {
     }
@@ -42,6 +46,7 @@ final class BlogPostFormType extends AbstractType
         $blogPost = $options['data'] ?? null;
         $customFieldItems = [];
         $existingImages = [];
+        $existingTagIds = [];
 
         if ($blogPost instanceof BlogPost) {
             foreach ($blogPost->getCustomFields() as $key => $value) {
@@ -50,6 +55,10 @@ final class BlogPostFormType extends AbstractType
 
             foreach ($blogPost->getImages() as $image) {
                 $existingImages[] = $image;
+            }
+
+            foreach ($blogPost->getTags() as $tag) {
+                $existingTagIds[] = (string) $tag->getId();
             }
         }
 
@@ -130,9 +139,19 @@ final class BlogPostFormType extends AbstractType
                 'mapped' => false,
                 'data' => $customFieldItems,
             ])
-            ->add('tags', TagAutocompleteType::class, [
+            ->add('tags', CollectionType::class, [
                 'label' => 'blogpost.form.tags',
+                'entry_type' => HiddenType::class,
+                'entry_options' => [
+                    'label' => false,
+                    'required' => false,
+                ],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'prototype' => true,
                 'required' => false,
+                'mapped' => false,
+                'data' => $existingTagIds,
             ])
             ->add('categories', EntityType::class, [
                 'class' => Category::class,
@@ -192,6 +211,26 @@ final class BlogPostFormType extends AbstractType
                 return;
             }
 
+            $tags = [];
+
+            foreach ($event->getForm()->get('tags') as $tagRow) {
+                $tag = $this->resolveTag((string) ($tagRow->getData() ?? ''));
+
+                if ($tag instanceof Tag && !in_array($tag, $tags, true)) {
+                    $tags[] = $tag;
+                }
+            }
+
+            $blogPost->setTags(new ArrayCollection($tags));
+        });
+
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
+            $blogPost = $event->getData();
+
+            if (!$blogPost instanceof BlogPost) {
+                return;
+            }
+
             $customFields = [];
 
             foreach ($event->getForm()->get('customFields')->getData() ?? [] as $item) {
@@ -232,6 +271,34 @@ final class BlogPostFormType extends AbstractType
                 }
             }
         }
+
+        $tagIds = [];
+
+        foreach ($view->children['tags']->children as $tagRowView) {
+            $value = (string) ($tagRowView->vars['value'] ?? '');
+
+            if (ctype_digit($value)) {
+                $tagIds[] = (int) $value;
+            }
+        }
+
+        if ($tagIds === []) {
+            return;
+        }
+
+        $tagTermsById = [];
+
+        foreach ($this->entityManager->getRepository(Tag::class)->findBy(['id' => $tagIds]) as $tag) {
+            $tagTermsById[$tag->getId()] = $tag->getTerm();
+        }
+
+        foreach ($view->children['tags']->children as $tagRowView) {
+            $value = (string) ($tagRowView->vars['value'] ?? '');
+
+            if (ctype_digit($value) && isset($tagTermsById[(int) $value])) {
+                $tagRowView->vars['tagTerm'] = $tagTermsById[(int) $value];
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -239,5 +306,41 @@ final class BlogPostFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => BlogPost::class,
         ]);
+    }
+
+    private function resolveTag(string $value): ?Tag
+    {
+        if (ctype_digit($value)) {
+            $tag = $this->entityManager->find(Tag::class, (int) $value);
+
+            if ($tag instanceof Tag) {
+                return $tag;
+            }
+        }
+
+        $term = trim($value);
+
+        if ($term === '') {
+            return null;
+        }
+
+        $slug = $this->slugger->slug($term)->lower()->toString();
+        $tag = $this->entityManager->getRepository(Tag::class)->findOneBy(['slug' => $slug]);
+
+        if ($tag instanceof Tag) {
+            return $tag;
+        }
+
+        $now = new DateTimeImmutable();
+        $tag = (new Tag())
+            ->setTerm($term)
+            ->setSlug($slug)
+            ->setCreated($now)
+            ->setUpdated($now);
+
+        $this->entityManager->persist($tag);
+        $this->entityManager->flush();
+
+        return $tag;
     }
 }

@@ -71,21 +71,89 @@
     flex-grow: 1;
 }
 
-#taxonomie-settings .ts-wrapper.multi .ts-control [data-value] {
-    text-shadow: none;
-    border-radius: 3px;
-    border: none;
-    color: var(--text-color);
-    background: var(--tag-background-color);
-    font-weight: 600;
-    box-shadow: none;
+.tag-picker {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+    font-family: ui-monospace, monospace;
 }
 
-#taxonomie-settings .ts-control {
-    border: 1px solid var(--default-border-color);
-    box-shadow: none;
-    border-radius: var(--default-border-radius);
+.tag-picker__chips {
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
+}
+
+.tag-picker__chips:not(:has(*)) {
+    display: none;
+}
+
+.tag-picker__item {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 0 2px 6px;
+    color: var(--text-color);
+    background: var(--tag-background-color);
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.tag-picker__remove {
+    width: auto;
+    padding: 0 6px;
+    margin-left: 6px;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    border-left: 1px solid var(--default-border-color);
+    border-radius: 0 2px 2px 0;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.tag-picker__remove:hover {
+    background: rgba(0, 0, 0, .05);
+}
+
+.tag-picker__suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    margin-top: .25rem;
+}
+
+.tag-picker__suggestions:not(:empty) {
+    background-color: var(--surface-color);
+    border: 1px solid var(--default-border-color);
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+}
+
+.tag-picker__suggestion {
+    display: block;
+    width: 100%;
+    padding: 5px 8px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.tag-picker__suggestion:hover,
+.tag-picker__suggestion:focus {
+    background-color: var(--tag-background-color);
+}
+
+.tag-picker__suggestion.create {
+    opacity: .6;
 }
 
 .checkbox-elements,

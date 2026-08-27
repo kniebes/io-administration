@@ -76,7 +76,9 @@
                 <header>{{ 'blogpost.form.modal.header.taxonomy'|trans }}</header>
                 <fieldset>
                     <legend>{{ 'blogpost.form.modal.legend.tags'|trans }}</legend>
-                    {{ form_row(form.tags) }}
+                    <div id="blog-post-tags-picker">
+                        {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+                    </div>
                 </fieldset>
                 <fieldset>
                     <legend>{{ 'blogpost.form.modal.legend.categories'|trans }}</legend>
