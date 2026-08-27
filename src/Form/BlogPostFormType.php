@@ -11,7 +11,6 @@ use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Entity\BlogPostType;
 use Kniebes\IoCore\Entity\Category;
 use Kniebes\IoCore\Entity\Image;
-use Kniebes\IoCore\Entity\Tag;
 use Kniebes\IoCore\Enum\BlogPostStatus;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -27,16 +26,12 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final class BlogPostFormType extends AbstractType
 {
     private const int IMAGE_CHOICE_LIMIT = 50;
 
     public function __construct(
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly EntityManagerInterface $entityManager,
     )
     {
@@ -135,18 +130,9 @@ final class BlogPostFormType extends AbstractType
                 'mapped' => false,
                 'data' => $customFieldItems,
             ])
-            ->add('tags', EntityType::class, [
-                'class' => Tag::class,
-                'choice_label' => 'term',
+            ->add('tags', TagAutocompleteType::class, [
                 'label' => 'blogpost.form.tags',
-                'multiple' => true,
                 'required' => false,
-                'attr' => [
-                    'data-controller' => 'tag-autocomplete',
-                    'data-tag-autocomplete-search-url-value' => $this->urlGenerator->generate('ux_entity_autocomplete', ['alias' => 'tag']),
-                    'data-tag-autocomplete-create-url-value' => $this->urlGenerator->generate('tag_create'),
-                    'data-tag-autocomplete-csrf-token-value' => $this->csrfTokenManager->getToken('tag-create')->getValue(),
-                ],
             ])
             ->add('categories', EntityType::class, [
                 'class' => Category::class,
