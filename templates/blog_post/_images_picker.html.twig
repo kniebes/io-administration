@@ -5,7 +5,7 @@
          data-action="dragstart->images-picker#dragStart dragover->images-picker#dragOver drop->images-picker#drop dragend->images-picker#dragEnd"
     >
         <span class="images-picker__handle">::</span>
-        <span data-images-picker-target="itemLabel">{{ rowForm.vars.data ? rowForm.vars.data.url : '' }}</span>
+        <span data-images-picker-target="itemLabel">{{ rowForm.vars.imageUrl|default('') }}</span>
         {{ form_widget(rowForm, {attr: {hidden: true}}) }}
         <button type="button" data-action="images-picker#remove">{{ 'blogpost.form.custom_fields.remove'|trans }}</button>
     </div>
@@ -16,7 +16,7 @@
      data-images-picker-index-value="{{ form.images|length }}"
      data-images-picker-prototype-value="{{ _self.image_row(form.images.vars.prototype)|e('html_attr') }}"
 >
-    <select data-images-picker-target="picker" data-action="change->images-picker#add">
+    <select class="default-input" data-images-picker-target="picker" data-action="change->images-picker#add">
         <option value="">{{ 'blogpost.form.placeholder'|trans }}</option>
         {% for image in form.images.vars.recentImages %}
             <option value="{{ image.id }}" data-url="{{ image.url }}">{{ image.url }}</option>
@@ -29,3 +29,4 @@
         {% endfor %}
     </div>
 </div>
+{% do form.images.setRendered %}

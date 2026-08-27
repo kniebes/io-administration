@@ -12,14 +12,17 @@
     <main class="container" data-controller="modal">
         <h1>{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}</h1>
 
-
-
         {{ form_start(form) }}
         <div class="wrapper">
             <div class="editor">
-                {{ form_row(form.title) }}
-                {{ form_row(form.slug) }}
-                {{ form_row(form.content) }}
+                <fieldset>
+                    <p>{{ form_row(form.title) }}</p>
+                    <p>{{ form_row(form.slug) }}</p>
+                </fieldset>
+
+                <fieldset>
+                    <p>{{ form_row(form.content) }}</p>
+                </fieldset>
             </div>
 
             <div class="sidebar">
@@ -55,11 +58,15 @@
         <aside class="backdrop" id="post-settings">
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.post'|trans }}</header>
-                {{ form_row(form.blog) }}
-                {{ form_row(form.blogPostType) }}
-                {{ form_row(form.status) }}
-                {{ form_row(form.isVisibleOnRss) }}
-                {{ form_row(form.isVisibleOnWeb) }}
+                <fieldset>
+                    <p>{{ form_row(form.blog) }}</p>
+                    <p>{{ form_row(form.blogPostType) }}</p>
+                    <p>{{ form_row(form.status) }}</p>
+                </fieldset>
+                <fieldset>
+                    <p>{{ form_row(form.isVisibleOnRss) }}</p>
+                    <p>{{ form_row(form.isVisibleOnWeb) }}</p>
+                </fieldset>
                 <footer>
                     <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
                     <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
@@ -70,8 +77,12 @@
         <aside class="backdrop" id="taxonomie-settings">
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.taxonomy'|trans }}</header>
-                {{ form_row(form.tags) }}
-                {{ form_row(form.categories) }}
+                <fieldset>
+                    {{ form_row(form.tags) }}
+                </fieldset>
+                <fieldset>
+                    <p>{{ form_row(form.categories) }}</p>
+                </fieldset>
                 <footer>
                     <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
                     <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>

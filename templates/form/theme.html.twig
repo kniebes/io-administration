@@ -1,0 +1,24 @@
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+    {{ form_label(form) }}
+    {{ form_errors(form) }}
+    {{ form_widget(form) }}
+{% endblock %}
+
+
+{% block checkbox_row %}
+    <div class="checkbox">
+        {{ form_widget(form) }}
+        {{ form_label(form) }}
+        {{ form_errors(form) }}
+    </div>
+{% endblock %}
+
+
+{% block choice_widget_expanded %}
+    <div class="checkbox">
+        {{ form_widget(form) }}
+        {{ form_errors(form) }}
+    </div>
+{% endblock %}

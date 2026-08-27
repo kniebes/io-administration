@@ -21,6 +21,10 @@
     padding: 1rem;
 }
 
+.images-picker > select {
+    margin-bottom: 1rem;
+}
+
 .images-picker__item {
     display: flex;
     align-items: center;
@@ -46,4 +50,10 @@
     color: var(--text-color);
     background: var(--button-background-color);
     box-shadow: none;
+}
+
+#blog_post_form_categories {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
 }

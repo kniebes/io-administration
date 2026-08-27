@@ -6,8 +6,6 @@ namespace App\Form;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Kniebes\IoCore\Entity\Blog;
 use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Entity\BlogPostType;
@@ -20,6 +18,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -59,6 +58,19 @@ final class BlogPostFormType extends AbstractType
             }
         }
 
+        // Convenience list for the picker <select>, capped for usability with many images
+        // (the live system has 2000+).
+        $recentImages = $this->entityManager->getRepository(Image::class)
+            ->createQueryBuilder('image')
+            ->orderBy('image.created', 'DESC')
+            ->setMaxResults(self::IMAGE_CHOICE_LIMIT)
+            ->getQuery()
+            ->getResult();
+
+        $existingImageIds = array_map(static fn (Image $image): string => (string) $image->getId(), $existingImages);
+
+        $builder->setAttribute('recentImages', $recentImages);
+
         $builder
             ->add('title', TextType::class, [
                 'label' => 'blogpost.form.title',
@@ -75,6 +87,7 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.blog',
                 'required' => false,
                 'placeholder' => 'blogpost.form.placeholder',
+                'attr' => ['class' => 'default-input']
             ])
             ->add('blogPostType', EntityType::class, [
                 'class' => BlogPostType::class,
@@ -82,11 +95,13 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.blog_post_type',
                 'required' => false,
                 'placeholder' => 'blogpost.form.placeholder',
+                'attr' => ['class' => 'default-input']
             ])
             ->add('status', EnumType::class, [
                 'class' => BlogPostStatus::class,
                 'label' => 'blogpost.form.status',
                 'empty_data' => BlogPostStatus::Draft->value,
+                'attr' => ['class' => 'default-input']
             ])
             ->add('isVisibleOnRss', CheckboxType::class, [
                 'label' => 'blogpost.form.is_visible_on_rss',
@@ -140,30 +155,28 @@ final class BlogPostFormType extends AbstractType
             ])
             ->add('images', CollectionType::class, [
                 'label' => 'blogpost.form.images',
-                'entry_type' => EntityType::class,
+                // Rows carry only the image ID, resolved to an actual Image entity in the
+                // SUBMIT listener below (same approach as "customFields"). An EntityType per
+                // row would need its own choice list to validate against, and with 2000+
+                // images that either means loading everything or repeating the same capped
+                // "recent" query once per row for no benefit, since the value is looked up
+                // directly here anyway.
+                'entry_type' => HiddenType::class,
                 'entry_options' => [
-                    'class' => Image::class,
-                    'choice_label' => 'url',
                     'label' => false,
-                    'placeholder' => 'blogpost.form.placeholder',
                     'required' => false,
-                    // Unrestricted and unlimited: a row holds one already-chosen image, so it must
-                    // always resolve correctly regardless of what the picker <select> currently offers.
-                    'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository
-                        ->createQueryBuilder('image')
-                        ->orderBy('image.created', 'DESC'),
                 ],
                 'allow_add' => true,
                 'allow_delete' => true,
                 'prototype' => true,
                 'required' => false,
                 'mapped' => false,
-                'data' => $existingImages,
+                'data' => $existingImageIds,
             ]);
 
         $builder->get('images')->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
             foreach ($event->getForm() as $name => $imageRow) {
-                if ($imageRow->getData() === null) {
+                if (($imageRow->getData() ?? '') === '') {
                     $event->getForm()->remove($name);
                 }
             }
@@ -179,7 +192,11 @@ final class BlogPostFormType extends AbstractType
             $images = [];
 
             foreach ($event->getForm()->get('images') as $imageRow) {
-                $images[] = $imageRow->getData();
+                $image = $this->entityManager->find(Image::class, (int) $imageRow->getData());
+
+                if ($image instanceof Image) {
+                    $images[] = $image;
+                }
             }
 
             // Rebuilding via setImages() (rather than relying on the default add/remove
@@ -211,18 +228,39 @@ final class BlogPostFormType extends AbstractType
 
     public function finishView(FormView $view, FormInterface $form, array $options): void
     {
-        // Separate from the "images" field's own (unrestricted) choices: this is only a
-        // convenience list for the picker <select>, capped for usability with many images.
         // Children views only exist once the whole tree has been built, so this must run
         // in finishView() (after children), not buildView() (before children).
-        $recentImages = $this->entityManager->getRepository(Image::class)
-            ->createQueryBuilder('image')
-            ->orderBy('image.created', 'DESC')
-            ->setMaxResults(self::IMAGE_CHOICE_LIMIT)
-            ->getQuery()
-            ->getResult();
+        $view->children['images']->vars['recentImages'] = $form->getConfig()->getAttribute('recentImages');
 
-        $view->children['images']->vars['recentImages'] = $recentImages;
+        // Rows only carry a raw ID (see buildForm()), so the display URL has to be looked
+        // up separately here. This is done per row by its own current value, not by array
+        // position: after a submit (e.g. when this view is reused to render the turbo-stream
+        // response right after saving), row count and order can differ from the
+        // pre-submission snapshot taken in buildForm(), which would silently pair a row with
+        // the wrong image if matched by index instead.
+        $imageIds = [];
+
+        foreach ($view->children['images']->children as $imageRowView) {
+            if (($imageRowView->vars['value'] ?? '') !== '') {
+                $imageIds[] = (int) $imageRowView->vars['value'];
+            }
+        }
+
+        if ($imageIds !== []) {
+            $imageUrlsById = [];
+
+            foreach ($this->entityManager->getRepository(Image::class)->findBy(['id' => $imageIds]) as $image) {
+                $imageUrlsById[$image->getId()] = $image->getUrl();
+            }
+
+            foreach ($view->children['images']->children as $imageRowView) {
+                $value = $imageRowView->vars['value'] ?? '';
+
+                if ($value !== '' && isset($imageUrlsById[(int) $value])) {
+                    $imageRowView->vars['imageUrl'] = $imageUrlsById[(int) $value];
+                }
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -11,16 +11,26 @@ export default class extends Controller {
             return;
         }
 
+        const alreadySelected = Array.from(this.listTarget.querySelectorAll('input[type="hidden"]')).some(
+            (input) => input.value === option.value,
+        );
+
+        if (alreadySelected) {
+            this.pickerTarget.value = '';
+
+            return;
+        }
+
         const newItem = this.prototypeValue.replace(/__name__/g, String(this.indexValue));
 
         this.listTarget.insertAdjacentHTML('beforeend', newItem);
         this.indexValue += 1;
 
         const item = this.listTarget.lastElementChild;
-        const select = item.querySelector('select');
+        const input = item.querySelector('input[type="hidden"]');
         const label = item.querySelector('[data-images-picker-target="itemLabel"]');
 
-        select.value = option.value;
+        input.value = option.value;
         label.textContent = option.dataset.url;
 
         this.pickerTarget.value = '';
@@ -73,10 +83,10 @@ export default class extends Controller {
         const items = this.listTarget.querySelectorAll('[data-images-picker-target="item"]');
 
         items.forEach((item, index) => {
-            const select = item.querySelector('select');
+            const input = item.querySelector('input[type="hidden"]');
 
-            select.name = select.name.replace(/\[images]\[\d+]/, `[images][${index}]`);
-            select.id = select.id.replace(/_images_\d+/, `_images_${index}`);
+            input.name = input.name.replace(/\[images]\[\d+]/, `[images][${index}]`);
+            input.id = input.id.replace(/_images_\d+/, `_images_${index}`);
         });
 
         this.indexValue = items.length;
