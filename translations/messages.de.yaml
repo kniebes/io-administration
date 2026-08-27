@@ -8,7 +8,36 @@ login:
 blogpost:
     index:
         headline: BlogPosts
+        add_button: Neuer BlogPost
         head:
             title: Titel
             created: Erstellt
             status: Status
+    form:
+        title_new: Neuer BlogPost
+        title: Titel
+        slug: Slug
+        blog: Blog
+        blog_post_type: Typ
+        status: Status
+        is_visible_on_rss: Sichtbar im RSS-Feed
+        is_visible_on_web: Sichtbar im Web
+        summary: Zusammenfassung
+        content: Inhalt
+        tags: Tags
+        categories: Kategorien
+        images: Bilder
+        placeholder: Bitte wählen
+        submit: Speichern
+        custom_fields:
+            label: Zusatzfelder
+            key: Schlüssel
+            value: Wert
+            add: Zusatzfeld hinzufügen
+            remove: Entfernen
+        delete:
+            button: BlogPost löschen
+        save_info:
+            success: 'Zuletzt gespeichert: %date%'
+            error: Speichern fehlgeschlagen. Bitte Eingaben prüfen.
+            none: ''

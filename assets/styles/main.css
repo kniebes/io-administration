@@ -59,7 +59,7 @@
     --source-zettelkasten-color: rgb(167, 236, 204);
 
     /* Sizes */
-    --content-width: min(75ch, 100%);
+    --content-width: 75ch;
 }
 
 @media only screen and (prefers-color-scheme: dark) {
@@ -140,6 +140,7 @@ body {
 }
 
 /* Forms */
+.default-input,
 input[type="text"],
 input[type="number"],
 input[type="date"],
@@ -151,7 +152,8 @@ button {
     font-family: ui-monospace, monospace;
     background-color: var(--default-input-background-color);
     padding: 1ch;
-    width: var(--content-width);
+    max-width: var(--content-width);
+    width: calc(100% - 2ch);
     border: none;
     border-radius: var(--default-border-radius);
     box-shadow: var(--default-box-shadow);

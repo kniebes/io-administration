@@ -1,0 +1,12 @@
+{% if success is defined and success %}
+    <p class="save-info save-info--success">{{ 'blogpost.form.save_info.success'|trans({'%date%': savedAt|date('d.m.Y H:i:s')}) }}</p>
+{% elseif errors is defined and errors|length > 0 %}
+    <p class="save-info error">{{ 'blogpost.form.save_info.error'|trans }}</p>
+    <ul class="save-info error">
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="save-info">{{ 'blogpost.form.save_info.none'|trans }}</p>
+{% endif %}

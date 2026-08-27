@@ -1,0 +1,36 @@
+#blog-post-save-info {
+    height: 30px;
+    margin-bottom: 1rem;
+}
+
+.custom-fields__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.wrapper {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+}
+
+.editor {
+    background: grey;
+    padding: 1rem;
+}
+
+.sidebar {
+    background: darkgray;
+    padding: 1rem;
+}
+
+.modal {
+    display: none;
+}
+
+.modal-toggle {
+    display: flex;
+    flex-direction: column;
+    margin: 1rem 0;
+}

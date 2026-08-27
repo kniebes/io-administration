@@ -1,9 +1,104 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ blogPost.title }}{% endblock %}
+{% block title %}{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/blog-post-form.css') }}">
+{% endblock %}
 
 {% block body %}
     <main class="container">
-        <h1>{{ blogPost.title }}</h1>
+        <h1>{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}</h1>
+
+        <div id="blog-post-save-info">
+            {% include 'blog_post/_save_info.html.twig' with {
+                success: blogPost and blogPost.id and blogPost.updated is not null,
+                savedAt: blogPost ? blogPost.updated : null,
+            } %}
+        </div>
+
+        {{ form_start(form) }}
+        <div class="wrapper">
+            <div class="editor">
+                {{ form_row(form.title) }}
+                {{ form_row(form.slug) }}
+                {{ form_row(form.content) }}
+            </div>
+
+            <div class="sidebar">
+                <p>
+                    <button type="submit">{{ 'blogpost.form.submit'|trans }}</button>
+                </p>
+
+                <a href="#" class="modal-toggle default-input" data-modal="post-settings">
+                    <span>{{ blogPost.status.name }}</span>
+                    <span>{{ blogPost.blog.name|default('') }}</span>
+                    <span>{{ blogPost.blogPostType.name|default('') }}</span>
+                </a>
+
+                <a href="#" class="modal-toggle default-input" data-modal="taxonomie-settings">
+                    {% for tag in blogPost.tags %}{{ tag.term }}{% endfor %}
+                </a>
+
+                <a href="#" class="modal-toggle default-input" data-modal="image-settings">
+                    {% for tag in blogPost.images %}{{ tag.url }}{% endfor %}
+                </a>
+
+                <a href="#" class="modal-toggle default-input" data-modal="custom-fields-settings">
+                    {% for key,value in blogPost.customFields %}{{ key }}{% endfor %}
+                </a>
+
+                {% if blogPost and blogPost.id %}
+                    <form method="post" action="{{ path('blog_post_delete', {id: blogPost.id}) }}">
+                        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('delete-blog-post-' ~ blogPost.id) }}">
+                        <button type="submit">{{ 'blogpost.form.delete.button'|trans }}</button>
+                    </form>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="modal">
+            {{ form_row(form.summary) }}
+        </div>
+
+        <div class="modal" id="post-settings">
+            {{ form_row(form.blog) }}
+            {{ form_row(form.blogPostType) }}
+            {{ form_row(form.status) }}
+            {{ form_row(form.isVisibleOnRss) }}
+            {{ form_row(form.isVisibleOnWeb) }}
+            <p>
+                <button type="submit">{{ 'blogpost.form.submit'|trans }}</button>
+            </p>
+        </div>
+
+        <div class="modal" id="taxonomie-settings">
+            {{ form_row(form.tags) }}
+            {{ form_row(form.categories) }}
+            <p>
+                <button type="submit">{{ 'blogpost.form.submit'|trans }}</button>
+            </p>
+        </div>
+
+        <div class="modal" id="image-settings">
+            {{ form_row(form.images) }}
+            <p>
+                <button type="submit">{{ 'blogpost.form.submit'|trans }}</button>
+            </p>
+        </div>
+
+        <div class="modal" id="custom-fields-settings">
+            <div id="blog-post-custom-fields">
+                {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}
+            </div>
+            <p>
+                <button type="submit">{{ 'blogpost.form.submit'|trans }}</button>
+            </p>
+        </div>
+
+        {{ form_end(form) }}
+
     </main>
 {% endblock %}
