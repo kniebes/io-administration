@@ -29,6 +29,22 @@ blogpost:
         images: Bilder
         placeholder: Bitte wählen
         submit: Speichern
+        cancel: Abbrechen
+        modal:
+            header:
+                summary: Zusammenfassung
+                post: BlogPost
+                taxonomy: Taxonomy
+                images: Bilder
+                custom_fields: Zusatzfelder
+        modal_toggle:
+            status: Status
+            blog_name: Blogname
+            post_type: Beitragsart
+            tags: Tags
+            images: Bilder
+            custom_fields: Zusatzfelder
+            summary: Zusammenfassung
         custom_fields:
             label: Zusatzfelder
             key: Schlüssel
@@ -37,7 +53,7 @@ blogpost:
             remove: Entfernen
         delete:
             button: BlogPost löschen
+            confirm: BlogPost wirklich unwiderruflich löschen?
         save_info:
-            success: 'Zuletzt gespeichert: %date%'
+            success: 'Gespeichert: %date%'
             error: Speichern fehlgeschlagen. Bitte Eingaben prüfen.
-            none: ''

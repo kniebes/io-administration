@@ -23,11 +23,13 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final class BlogPostFormType extends AbstractType
 {
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly CsrfTokenManagerInterface $csrfTokenManager,
     )
     {
     }
@@ -70,6 +72,7 @@ final class BlogPostFormType extends AbstractType
             ->add('status', EnumType::class, [
                 'class' => BlogPostStatus::class,
                 'label' => 'blogpost.form.status',
+                'empty_data' => BlogPostStatus::Draft->value,
             ])
             ->add('isVisibleOnRss', CheckboxType::class, [
                 'label' => 'blogpost.form.is_visible_on_rss',
@@ -110,6 +113,7 @@ final class BlogPostFormType extends AbstractType
                     'data-controller' => 'tag-autocomplete',
                     'data-tag-autocomplete-search-url-value' => $this->urlGenerator->generate('ux_entity_autocomplete', ['alias' => 'tag']),
                     'data-tag-autocomplete-create-url-value' => $this->urlGenerator->generate('tag_create'),
+                    'data-tag-autocomplete-csrf-token-value' => $this->csrfTokenManager->getToken('tag-create')->getValue(),
                 ],
             ])
             ->add('categories', EntityType::class, [

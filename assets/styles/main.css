@@ -173,6 +173,15 @@ button[type="submit"] {
     cursor: pointer;
 }
 
+.close {
+    background: var(--submit-background-color);
+    color: var(--submit-text-color);
+    width: auto;
+    padding: 1ch;
+    transition: all .2s ease-in;
+    cursor: pointer;
+}
+
 textarea {
     font-size: 15px;
     font-weight: 400;
@@ -235,19 +244,12 @@ strong {
     width: 1000px;
     margin: 4rem auto;
     text-align: left;
-    background: lightblue;
 }
 
-.modal {
-    height: auto;
-    max-height: calc(100vh - 160px);
-    margin: 1rem 2rem;
-    padding: 50px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: var(--modal-background-color);
-    border-radius: var(--default-border-radius);
-    box-shadow: var(--default-box-shadow);
-    transition: all 3s ease-in;
+.default-width {
+    width: 1000px;
 }
+
+
+/* Modal */
 

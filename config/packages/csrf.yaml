@@ -1,4 +1,7 @@
-# Enable stateless CSRF protection for forms and logins/logouts
+# Enable stateless CSRF protection for logins/logouts.
+# Symfony Forms (token_id: submit) and the tag-create endpoint use classic,
+# session-based CSRF instead - the stateless/Origin-based check proved unreliable
+# for the BlogPost form and its fetch()-based tag-create endpoint.
 framework:
     form:
         csrf_protection:
@@ -6,7 +9,5 @@ framework:
 
     csrf_protection:
         stateless_token_ids:
-            - submit
             - authenticate
             - logout
-            - tag-create

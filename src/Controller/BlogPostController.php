@@ -61,7 +61,7 @@ final class BlogPostController extends AbstractController
         }
 
         if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
-            return $this->renderSaveInfoStream(request: $request, success: false, form: $form);
+            return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
         return $this->render(view: 'blog_post/edit.html.twig', parameters: ['form' => $form, 'blogPost' => $blogPost]);
@@ -84,7 +84,7 @@ final class BlogPostController extends AbstractController
         }
 
         if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
-            return $this->renderSaveInfoStream(request: $request, success: false, form: $form);
+            return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
         return $this->render(view: 'blog_post/edit.html.twig', parameters: ['form' => $form, 'blogPost' => $blogPost]);
@@ -115,7 +115,7 @@ final class BlogPostController extends AbstractController
         Request $request,
         bool $success,
         FormInterface $form,
-        ?BlogPost $blogPost = null,
+        BlogPost $blogPost,
     ): Response
     {
         $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
@@ -128,8 +128,9 @@ final class BlogPostController extends AbstractController
 
         return $this->render(view: 'blog_post/_save_info.stream.html.twig', parameters: [
             'form' => $form,
+            'blogPost' => $blogPost,
             'success' => $success,
-            'savedAt' => $blogPost?->getUpdated(),
+            'savedAt' => $blogPost->getUpdated(),
             'errors' => $errors,
         ]);
     }

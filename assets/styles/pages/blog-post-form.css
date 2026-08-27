@@ -1,13 +1,11 @@
-#blog-post-save-info {
-    height: 30px;
-    margin-bottom: 1rem;
-}
-
 .custom-fields__item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
 }
 
 .wrapper {
@@ -16,21 +14,18 @@
 }
 
 .editor {
-    background: grey;
     padding: 1rem;
 }
 
 .sidebar {
-    background: darkgray;
     padding: 1rem;
 }
 
-.modal {
-    display: none;
-}
-
-.modal-toggle {
-    display: flex;
-    flex-direction: column;
-    margin: 1rem 0;
+#taxonomie-settings .ts-wrapper.multi .ts-control [data-value] {
+    text-shadow: none;
+    border-radius: 3px;
+    border: none;
+    color: var(--text-color);
+    background: var(--button-background-color);
+    box-shadow: none;
 }

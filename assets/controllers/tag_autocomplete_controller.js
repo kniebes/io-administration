@@ -1,10 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 import TomSelect from 'tom-select';
 
-const CSRF_COOKIE_NAME = 'csrf-token';
-
 export default class extends Controller {
-    static values = { searchUrl: String, createUrl: String };
+    static values = { searchUrl: String, createUrl: String, csrfToken: String };
 
     connect() {
         this.tomSelect = new TomSelect(this.element, {
@@ -28,13 +26,11 @@ export default class extends Controller {
     }
 
     createTag(input, callback) {
-        const csrfToken = this.generateCsrfDoubleSubmitCookie();
-
         fetch(this.createUrlValue, {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ term: input, _csrf_token: csrfToken }),
+            body: JSON.stringify({ term: input, _csrf_token: this.csrfTokenValue }),
         })
             .then((response) => {
                 if (!response.ok) {
@@ -48,16 +44,5 @@ export default class extends Controller {
                 console.error(error);
                 callback();
             });
-    }
-
-    // Same double-submit strategy as assets/controllers/csrf_protection_controller.js, adapted
-    // for a plain fetch() call (which triggers no "submit" event to hook into).
-    generateCsrfDoubleSubmitCookie() {
-        const csrfToken = btoa(String.fromCharCode.apply(null, crypto.getRandomValues(new Uint8Array(18))));
-        const cookie = `${CSRF_COOKIE_NAME}_${csrfToken}=${CSRF_COOKIE_NAME}; path=/; samesite=strict`;
-
-        document.cookie = window.location.protocol === 'https:' ? `__Host-${cookie}; secure` : cookie;
-
-        return csrfToken;
     }
 }

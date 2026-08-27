@@ -2,7 +2,7 @@
     <div class="custom-fields__item" data-collection-target="item">
         {{ form_row(rowForm.key) }}
         {{ form_row(rowForm.value) }}
-        <button type="button" data-action="collection#remove">{{ 'blogpost.form.custom_fields.remove'|trans }}</button>
+        <button class="close" type="button" data-action="collection#remove">{{ 'blogpost.form.custom_fields.remove'|trans }}</button>
     </div>
 {% endmacro %}
 
