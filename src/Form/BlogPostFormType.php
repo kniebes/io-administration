@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Kniebes\IoCore\Entity\Blog;
 use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Entity\BlogPostType;
@@ -21,15 +24,20 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final class BlogPostFormType extends AbstractType
 {
+    private const int IMAGE_CHOICE_LIMIT = 50;
+
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
+        private readonly EntityManagerInterface $entityManager,
     )
     {
     }
@@ -121,15 +129,37 @@ final class BlogPostFormType extends AbstractType
                 'choice_label' => 'term',
                 'label' => 'blogpost.form.categories',
                 'multiple' => true,
+                'expanded' => true,
                 'required' => false,
             ])
-            ->add('images', EntityType::class, [
-                'class' => Image::class,
-                'choice_label' => 'url',
+            ->add('images', CollectionType::class, [
                 'label' => 'blogpost.form.images',
-                'multiple' => true,
+                'entry_type' => EntityType::class,
+                'entry_options' => [
+                    'class' => Image::class,
+                    'choice_label' => 'url',
+                    'label' => false,
+                    'placeholder' => 'blogpost.form.placeholder',
+                    'required' => false,
+                    // Unrestricted and unlimited: a row holds one already-chosen image, so it must
+                    // always resolve correctly regardless of what the picker <select> currently offers.
+                    'query_builder' => static fn (EntityRepository $repository): QueryBuilder => $repository
+                        ->createQueryBuilder('image')
+                        ->orderBy('image.created', 'DESC'),
+                ],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'prototype' => true,
                 'required' => false,
             ]);
+
+        $builder->get('images')->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
+            foreach ($event->getForm() as $name => $imageRow) {
+                if ($imageRow->getData() === null) {
+                    $event->getForm()->remove($name);
+                }
+            }
+        });
 
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
             $blogPost = $event->getData();
@@ -150,6 +180,22 @@ final class BlogPostFormType extends AbstractType
 
             $blogPost->setCustomFields($customFields);
         });
+    }
+
+    public function finishView(FormView $view, FormInterface $form, array $options): void
+    {
+        // Separate from the "images" field's own (unrestricted) choices: this is only a
+        // convenience list for the picker <select>, capped for usability with many images.
+        // Children views only exist once the whole tree has been built, so this must run
+        // in finishView() (after children), not buildView() (before children).
+        $recentImages = $this->entityManager->getRepository(Image::class)
+            ->createQueryBuilder('image')
+            ->orderBy('image.created', 'DESC')
+            ->setMaxResults(self::IMAGE_CHOICE_LIMIT)
+            ->getQuery()
+            ->getResult();
+
+        $view->children['images']->vars['recentImages'] = $recentImages;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
