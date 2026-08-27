@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -46,10 +47,15 @@ final class BlogPostFormType extends AbstractType
     {
         $blogPost = $options['data'] ?? null;
         $customFieldItems = [];
+        $existingImages = [];
 
         if ($blogPost instanceof BlogPost) {
             foreach ($blogPost->getCustomFields() as $key => $value) {
                 $customFieldItems[] = ['key' => (string) $key, 'value' => $value];
+            }
+
+            foreach ($blogPost->getImages() as $image) {
+                $existingImages[] = $image;
             }
         }
 
@@ -151,6 +157,8 @@ final class BlogPostFormType extends AbstractType
                 'allow_delete' => true,
                 'prototype' => true,
                 'required' => false,
+                'mapped' => false,
+                'data' => $existingImages,
             ]);
 
         $builder->get('images')->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
@@ -159,6 +167,25 @@ final class BlogPostFormType extends AbstractType
                     $event->getForm()->remove($name);
                 }
             }
+        });
+
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
+            $blogPost = $event->getData();
+
+            if (!$blogPost instanceof BlogPost) {
+                return;
+            }
+
+            $images = [];
+
+            foreach ($event->getForm()->get('images') as $imageRow) {
+                $images[] = $imageRow->getData();
+            }
+
+            // Rebuilding via setImages() (rather than relying on the default add/remove
+            // diffing) is what actually persists reordering: comparing old vs. new
+            // collection only detects additions/removals, not a pure order change.
+            $blogPost->setImages(new ArrayCollection($images));
         });
 
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {

@@ -79,34 +79,11 @@
             </div>
         </aside>
 
-        {% macro image_row(rowForm) %}
-            <div class="images-picker__item" data-images-picker-target="item">
-                <span data-images-picker-target="itemLabel">{{ rowForm.vars.data ? rowForm.vars.data.url : '' }}</span>
-                {{ form_widget(rowForm, {attr: {hidden: true}}) }}
-                <button type="button" data-action="images-picker#remove">{{ 'blogpost.form.custom_fields.remove'|trans }}</button>
-            </div>
-        {% endmacro %}
-
         <aside class="backdrop" id="image-settings">
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.images'|trans }}</header>
-                <div class="images-picker"
-                     data-controller="images-picker"
-                     data-images-picker-index-value="{{ form.images|length }}"
-                     data-images-picker-prototype-value="{{ _self.image_row(form.images.vars.prototype)|e('html_attr') }}"
-                >
-                    <select data-images-picker-target="picker" data-action="change->images-picker#add">
-                        <option value="">{{ 'blogpost.form.placeholder'|trans }}</option>
-                        {% for image in form.images.vars.recentImages %}
-                            <option value="{{ image.id }}" data-url="{{ image.url }}">{{ image.url }}</option>
-                        {% endfor %}
-                    </select>
-
-                    <div data-images-picker-target="list">
-                        {% for imageRow in form.images %}
-                            {{ _self.image_row(imageRow) }}
-                        {% endfor %}
-                    </div>
+                <div id="blog-post-images-picker">
+                    {% include 'blog_post/_images_picker.html.twig' with {form: form} %}
                 </div>
                 <footer>
                     <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>

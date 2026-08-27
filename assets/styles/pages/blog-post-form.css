@@ -26,6 +26,17 @@
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.5rem;
+    cursor: grab;
+}
+
+.images-picker__item.dragging {
+    opacity: 0.4;
+}
+
+.images-picker__handle {
+    cursor: grab;
+    user-select: none;
+    color: var(--text-color);
 }
 
 #taxonomie-settings .ts-wrapper.multi .ts-control [data-value] {

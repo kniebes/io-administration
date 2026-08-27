@@ -29,5 +29,56 @@ export default class extends Controller {
     remove(event) {
         event.preventDefault();
         event.target.closest('[data-images-picker-target="item"]').remove();
+        this.reindex();
+    }
+
+    dragStart(event) {
+        this.draggedItem = event.currentTarget;
+        event.dataTransfer.effectAllowed = 'move';
+        this.draggedItem.classList.add('dragging');
+    }
+
+    dragOver(event) {
+        event.preventDefault();
+
+        const target = event.currentTarget;
+
+        if (!this.draggedItem || target === this.draggedItem) {
+            return;
+        }
+
+        const rect = target.getBoundingClientRect();
+        const isAfter = event.clientY - rect.top > rect.height / 2;
+
+        target.parentElement.insertBefore(this.draggedItem, isAfter ? target.nextSibling : target);
+    }
+
+    drop(event) {
+        event.preventDefault();
+    }
+
+    dragEnd() {
+        if (this.draggedItem) {
+            this.draggedItem.classList.remove('dragging');
+            this.draggedItem = null;
+        }
+
+        this.reindex();
+    }
+
+    // Renumbers every row's hidden <select> name/id sequentially to match the current
+    // DOM order. Without this, the submitted array keys would still reflect the
+    // original render order, not a reorder done purely via drag & drop in the browser.
+    reindex() {
+        const items = this.listTarget.querySelectorAll('[data-images-picker-target="item"]');
+
+        items.forEach((item, index) => {
+            const select = item.querySelector('select');
+
+            select.name = select.name.replace(/\[images]\[\d+]/, `[images][${index}]`);
+            select.id = select.id.replace(/_images_\d+/, `_images_${index}`);
+        });
+
+        this.indexValue = items.length;
     }
 }
