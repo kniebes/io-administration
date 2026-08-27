@@ -12,7 +12,7 @@ services:
         exclude:
             - '../src/Model/'
 
-    App\Service\IoTag\ioTagEncoder:
+    App\Service\IoTag\IoTagEncoder:
         arguments:
             - !tagged_iterator app.io_tag_encoder
 

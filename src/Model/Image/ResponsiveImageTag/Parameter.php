@@ -44,13 +44,12 @@ class Parameter
         return $this->caption;
     }
 
-    public function getLink(): string
+    public function getLink(): ?string
     {
         return $this->link;
     }
 
-
-    public function getFigureClass(): string
+    public function getFigureClass(): ?string
     {
         return $this->figureClass;
     }

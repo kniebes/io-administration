@@ -76,9 +76,6 @@ export default class extends Controller {
         this.reindex();
     }
 
-    // Renumbers every row's hidden <select> name/id sequentially to match the current
-    // DOM order. Without this, the submitted array keys would still reflect the
-    // original render order, not a reorder done purely via drag & drop in the browser.
     reindex() {
         const items = this.listTarget.querySelectorAll('[data-images-picker-target="item"]');
 

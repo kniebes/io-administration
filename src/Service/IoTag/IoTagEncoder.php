@@ -4,7 +4,7 @@ namespace App\Service\IoTag;
 
 use App\Service\IoTag\Encoder\Interface\IoTagEncoderInterface;
 
-class ioTagEncoder
+class IoTagEncoder
 {
     /**
      * @param iterable<IoTagEncoderInterface> $handlers

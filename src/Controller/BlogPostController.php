@@ -48,7 +48,6 @@ final class BlogPostController extends AbstractController
     #[Route('/blogpost/add', name: 'blog_post_add', methods: ['GET', 'POST'])]
     public function add(Request $request): Response
     {
-        // published_date ist in der Datenbank NOT NULL, obwohl der PHP-Typ nullable ist
         $blogPost = (new BlogPost())
             ->setTitle('')
             ->setSlug('')

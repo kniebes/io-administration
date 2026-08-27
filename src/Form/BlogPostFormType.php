@@ -58,8 +58,6 @@ final class BlogPostFormType extends AbstractType
             }
         }
 
-        // Convenience list for the picker <select>, capped for usability with many images
-        // (the live system has 2000+).
         $recentImages = $this->entityManager->getRepository(Image::class)
             ->createQueryBuilder('image')
             ->orderBy('image.created', 'DESC')
@@ -160,12 +158,6 @@ final class BlogPostFormType extends AbstractType
             ])
             ->add('images', CollectionType::class, [
                 'label' => 'blogpost.form.images',
-                // Rows carry only the image ID, resolved to an actual Image entity in the
-                // SUBMIT listener below (same approach as "customFields"). An EntityType per
-                // row would need its own choice list to validate against, and with 2000+
-                // images that either means loading everything or repeating the same capped
-                // "recent" query once per row for no benefit, since the value is looked up
-                // directly here anyway.
                 'entry_type' => HiddenType::class,
                 'entry_options' => [
                     'label' => false,
@@ -204,9 +196,6 @@ final class BlogPostFormType extends AbstractType
                 }
             }
 
-            // Rebuilding via setImages() (rather than relying on the default add/remove
-            // diffing) is what actually persists reordering: comparing old vs. new
-            // collection only detects additions/removals, not a pure order change.
             $blogPost->setImages(new ArrayCollection($images));
         });
 
@@ -233,16 +222,7 @@ final class BlogPostFormType extends AbstractType
 
     public function finishView(FormView $view, FormInterface $form, array $options): void
     {
-        // Children views only exist once the whole tree has been built, so this must run
-        // in finishView() (after children), not buildView() (before children).
         $view->children['images']->vars['recentImages'] = $form->getConfig()->getAttribute('recentImages');
-
-        // Rows only carry a raw ID (see buildForm()), so the display URL has to be looked
-        // up separately here. This is done per row by its own current value, not by array
-        // position: after a submit (e.g. when this view is reused to render the turbo-stream
-        // response right after saving), row count and order can differ from the
-        // pre-submission snapshot taken in buildForm(), which would silently pair a row with
-        // the wrong image if matched by index instead.
         $imageIds = [];
 
         foreach ($view->children['images']->children as $imageRowView) {

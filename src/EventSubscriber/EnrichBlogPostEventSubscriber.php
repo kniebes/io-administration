@@ -3,7 +3,8 @@
 namespace App\EventSubscriber;
 
 use App\Event\SavedBlogPostEvent;
-use App\Service\IoTag\ioTagEncoder;
+use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
+use App\Service\IoTag\IoTagEncoder;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Kniebes\IoCore\Entity\BlogPost;
@@ -15,10 +16,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class EnrichBlogPostEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly ioTagEncoder $ioTagEncoder,
+        private readonly IoTagEncoder $ioTagEncoder,
         private readonly CommonMarkConverter $converter,
         private readonly Connection $connection,
         private readonly EntityManagerInterface $entityManager,
+        private readonly ErrorLoggerInterface $errorLogger,
     )
     {
     }
@@ -46,7 +48,10 @@ class EnrichBlogPostEventSubscriber implements EventSubscriberInterface
                 $contentEncoded = $this->ioTagEncoder->encode($content);
                 $contentEncoded = $this->converter->convert($contentEncoded)->getContent();
             } catch (CommonMarkException $e) {
-                die($e->getMessage());
+                $this->errorLogger->log(
+                    subject: 'enrichContent:content - '.$e->getMessage(),
+                    message: $e->getTraceAsString()
+                );
             }
         }
 
@@ -56,7 +61,10 @@ class EnrichBlogPostEventSubscriber implements EventSubscriberInterface
                 $summaryEncoded = $this->ioTagEncoder->encode($summary);
                 $summaryEncoded = $this->converter->convert($summaryEncoded)->getContent();
             } catch (CommonMarkException $e) {
-                die($e->getMessage());
+                $this->errorLogger->log(
+                    subject: 'enrichContent:summary - '.$e->getMessage(),
+                    message: $e->getTraceAsString()
+                );
             }
         }
 

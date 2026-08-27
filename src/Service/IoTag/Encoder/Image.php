@@ -75,7 +75,7 @@ class Image implements IoTagEncoderInterface
 
         return $this->responsiveImageTag->create(new Parameter(
             image: $image,
-            baseVersion: '104',
+            baseVersion: '1024',
             hasLink: $hasLink,
             hasExif: $hasExif,
             caption: $caption,

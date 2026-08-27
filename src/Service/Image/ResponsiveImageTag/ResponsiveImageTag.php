@@ -24,11 +24,9 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
         $srcset = [];
         if ($hasVersions) {
             foreach ($this->getResolution() as $res) {
-                $srcset[] = sprintf('%s %dw', $this->getVersionUrl($image, (string)$res), $res);
+                $srcset[] = sprintf('%s %dw', $this->getVersionUrl($parameter->getImage(), (string)$res), $res);
             }
         }
-
-
 
         $style = '';
         if (!empty($parameter->getImage()->getAspectRatio())) {
@@ -36,7 +34,7 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
         }
         $srcsetAttr = '';
         if (!empty($srcset)) {
-            $sizes = sprintf('(max-width: %dpx) 100vw, %dpx', $parameter->getBaseVersion(), $baseVersion);
+            $sizes = sprintf('(max-width: %dpx) 100vw, %dpx', $parameter->getBaseVersion(), $parameter->getBaseVersion());
             $srcsetAttr = sprintf(' srcset="%s" sizes="%s"', implode(', ', $srcset), $sizes);
         }
         $tag = sprintf(
@@ -50,17 +48,17 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
         );
 
         if ($parameter->isHasLink()) {
-            if (empty($link)) {
+            if (empty($parameter->getLink())) {
                 $link = $this->getVersionUrl($parameter->getImage());
             }
-            $tag = sprintf('<a href="%s" aria-label="Bild in größerer Version anzeigen">%s</a>', $link, $tag);
+            $tag = sprintf('<a href="%s" aria-label="Bild in größerer Version anzeigen">%s</a>', $parameter->getLink(), $tag);
         }
 
         $generatedCaption = [];
         $figcaptionClass = [];
 
-        if (!empty($caption)) {
-            $generatedCaption[] = $caption;
+        if (!empty($parameter->getCaption())) {
+            $generatedCaption[] = $parameter->getCaption();
             $figcaptionClass[] = 'cap';
         }
 
@@ -105,7 +103,7 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
             return sprintf(
                 '<figure style="view-transition-name: figure-%d"%s>%s<figcaption class="%s">%s</figcaption></figure>',
                 $parameter->getImage()->getId(),
-                (!empty($figureClass) ? ' class="'.$figureClass.'"' : ''),
+                (!empty($parameter->getFigureClass()) ? ' class="'.$parameter->getFigureClass().'"' : ''),
                 $tag,
                 implode(' ', $figcaptionClass),
                 implode(' ', $generatedCaption)
@@ -183,7 +181,7 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
     /**
      * @throws Exception
      */
-    protected function getVersionPath($image, string $version = null): string
+    protected function getVersionPath($image, ?string $version = null): string
     {
         $photoBasedir = $this->getPhotoDomainDir();
         if (empty($version)) {
@@ -205,7 +203,7 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
     /**
      * @throws Exception
      */
-    protected function getVersionUrl(Image $image, string $version = null): string
+    protected function getVersionUrl(Image $image, ?string $version = null): string
     {
         if (empty($version)) {
             return sprintf('https://%s%s', $image->getDomain(), $image->getUrl());

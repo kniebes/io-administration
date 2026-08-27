@@ -4,12 +4,13 @@ namespace App\Service\IoTag\Encoder;
 
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\Image\ImageService;
+use App\Service\IoTag\Encoder\Interface\IoTagEncoderInterface;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Kniebes\IoCore\Entity\Image;
 use Kniebes\IoCore\Repository\ImageRepository;
 
-class Gallery
+class Gallery implements IoTagEncoderInterface
 {
     public function __construct(
         private readonly ImageRepository $imageRepository,
