@@ -29,6 +29,7 @@ blogpost:
         images: Bilder
         placeholder: Bitte wählen
         submit: Speichern
+        submit_in_progress: Schreiben…
         cancel: Abbrechen
         tags_picker:
             placeholder: Tag suchen oder anlegen
