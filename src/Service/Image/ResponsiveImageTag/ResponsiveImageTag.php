@@ -48,10 +48,11 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
         );
 
         if ($parameter->isHasLink()) {
-            if (empty($parameter->getLink())) {
+            $link = $parameter->getLink();
+            if (empty($link)) {
                 $link = $this->getVersionUrl($parameter->getImage());
             }
-            $tag = sprintf('<a href="%s" aria-label="Bild in größerer Version anzeigen">%s</a>', $parameter->getLink(), $tag);
+            $tag = sprintf('<a href="%s" aria-label="Bild in größerer Version anzeigen">%s</a>', $link, $tag);
         }
 
         $generatedCaption = [];
@@ -110,7 +111,7 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
             );
         }
 
-        return sprintf('<figure style="view-transition-name: figure-%d"%s>%s</figure>', $parameter->getImage()->getId(), (!empty($figureClass) ? ' class="'.$figureClass.'"' : ''), $tag);
+        return sprintf('<figure style="view-transition-name: figure-%d"%s>%s</figure>', $parameter->getImage()->getId(), (!empty($parameter->getFigureClass()) ? ' class="'.$parameter->getFigureClass().'"' : ''), $tag);
     }
 
     protected function getImageSize(Image $image, string $baseVersion): array
