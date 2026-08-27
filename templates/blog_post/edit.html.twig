@@ -15,14 +15,9 @@
         {{ form_start(form) }}
         <div class="wrapper">
             <div class="editor">
-                <fieldset>
-                    <p>{{ form_row(form.title) }}</p>
-                    <p>{{ form_row(form.slug) }}</p>
-                </fieldset>
-
-                <fieldset>
-                    <p>{{ form_row(form.content) }}</p>
-                </fieldset>
+                <p>{{ form_row(form.title) }}</p>
+                <p>{{ form_row(form.slug) }}</p>
+                <p>{{ form_row(form.content) }}</p>
             </div>
 
             <div class="sidebar">
@@ -59,13 +54,15 @@
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.post'|trans }}</header>
                 <fieldset>
+                    <legend>{{ 'blogpost.form.modal.legend.settings'|trans }}</legend>
                     <p>{{ form_row(form.blog) }}</p>
                     <p>{{ form_row(form.blogPostType) }}</p>
                     <p>{{ form_row(form.status) }}</p>
                 </fieldset>
-                <fieldset>
-                    <p>{{ form_row(form.isVisibleOnRss) }}</p>
-                    <p>{{ form_row(form.isVisibleOnWeb) }}</p>
+                <fieldset class="checkbox-elements">
+                    <legend>{{ 'blogpost.form.modal.legend.visibility'|trans }}</legend>
+                    {{ form_row(form.isVisibleOnRss) }}
+                    {{ form_row(form.isVisibleOnWeb) }}
                 </fieldset>
                 <footer>
                     <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
@@ -78,9 +75,11 @@
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.taxonomy'|trans }}</header>
                 <fieldset>
+                    <legend>{{ 'blogpost.form.modal.legend.tags'|trans }}</legend>
                     {{ form_row(form.tags) }}
                 </fieldset>
                 <fieldset>
+                    <legend>{{ 'blogpost.form.modal.legend.categories'|trans }}</legend>
                     <p>{{ form_row(form.categories) }}</p>
                 </fieldset>
                 <footer>

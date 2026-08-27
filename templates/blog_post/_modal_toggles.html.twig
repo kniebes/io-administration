@@ -4,21 +4,21 @@
     {% if blogPost.blogPostType %}<span>{{ 'blogpost.form.modal_toggle.post_type'|trans }}: {{ blogPost.blogPostType.name }}</span>{% endif %}
 </a>
 
-<a href="#" class="modal-toggle default-input" data-modal="taxonomie-settings" data-action="click->modal#open">
-    <h3>{{ 'blogpost.form.modal_toggle.tags'|trans }}</h3>
+<a href="#" class="{% if blogPost.tags|length == 0 and blogPost.categories|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="taxonomie-settings" data-action="click->modal#open">
+    <h3>{{ 'blogpost.form.modal_toggle.taxonomy'|trans }}</h3>
     {% for tag in blogPost.tags %}<span>{{ tag.term }}</span>{% endfor %}
 </a>
 
-<a href="#" class="modal-toggle default-input" data-modal="image-settings" data-action="click->modal#open">
+<a href="#" class="{% if blogPost.images|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="image-settings" data-action="click->modal#open">
     <h3>{{ 'blogpost.form.modal_toggle.images'|trans }}</h3>
     {% for image in blogPost.images %}<span>{{ image.url }}</span>{% endfor %}
 </a>
 
-<a href="#" class="modal-toggle default-input" data-modal="custom-fields-settings" data-action="click->modal#open">
+<a href="#" class="{% if blogPost.customFields|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="custom-fields-settings" data-action="click->modal#open">
     <h3>{{ 'blogpost.form.modal_toggle.custom_fields'|trans }}</h3>
     {% for key, value in blogPost.customFields %}<span>{{ key }}</span>{% endfor %}
 </a>
 
-<a href="#" class="modal-toggle default-input" data-modal="summary-settings" data-action="click->modal#open">
+<a href="#" class="{% if blogPost.summary|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="summary-settings" data-action="click->modal#open">
     <h3>{{ 'blogpost.form.modal_toggle.summary'|trans }}</h3>
 </a>

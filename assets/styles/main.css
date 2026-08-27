@@ -13,6 +13,8 @@
 
     --main-navigation-background-color: rgba(232, 232, 232, .8);
     --main-navigation-border-color: var(--background-color);
+    --active-checkbox-background-color: #d0ffd0;
+
 
     /* Text */
     --text-color: #333;
@@ -36,7 +38,7 @@
     --submit-text-color: white;
 
     /* Akzente */
-    --tag-background-color: #efefef;
+    --tag-background-color: #d0ffd0;
     --warning-color: red;
     --rss-only-color: orange;
 
@@ -175,6 +177,7 @@ button[type="submit"] {
 
 button {
     cursor: pointer;
+    width: auto;
 }
 
 .close {
@@ -192,6 +195,11 @@ textarea {
     line-height: 30px;
 }
 
+textarea.autogrow {
+    overflow-y: auto;
+    max-height: calc(100vh - 520px);
+}
+
 label {
     font-weight: 600;
     display: block;
@@ -202,10 +210,23 @@ label {
 
 .checkbox label {
     display: inline-block;
+    padding: .2rem .7rem;
+    border-radius: var(--default-border-radius);
+}
+
+.checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox input[type="checkbox"]:checked + label {
+    background-color: var(--active-checkbox-background-color);
 }
 
 fieldset {
     margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--default-border-color);
+    border-radius: var(--default-border-radius);
 }
 
 fieldset p {

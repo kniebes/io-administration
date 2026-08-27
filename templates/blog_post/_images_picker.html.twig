@@ -1,11 +1,11 @@
 {% macro image_row(rowForm) %}
-    <div class="images-picker__item"
+    <div class="images-picker__item default-input"
          data-images-picker-target="item"
          draggable="true"
          data-action="dragstart->images-picker#dragStart dragover->images-picker#dragOver drop->images-picker#drop dragend->images-picker#dragEnd"
     >
         <span class="images-picker__handle">::</span>
-        <span data-images-picker-target="itemLabel">{{ rowForm.vars.imageUrl|default('') }}</span>
+        <span class="images-picker__label"data-images-picker-target="itemLabel">{{ rowForm.vars.imageUrl|default('') }}</span>
         {{ form_widget(rowForm, {attr: {hidden: true}}) }}
         <button type="button" data-action="images-picker#remove">{{ 'blogpost.form.custom_fields.remove'|trans }}</button>
     </div>

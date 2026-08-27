@@ -119,6 +119,11 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.content',
                 'required' => true,
                 'empty_data' => '',
+                'attr' => [
+                    'class' => 'autogrow',
+                    'data-controller' => 'autogrow',
+                    'data-action' => 'input->autogrow#resize',
+                ],
             ])
             ->add('customFields', CollectionType::class, [
                 'label' => 'blogpost.form.custom_fields.label',

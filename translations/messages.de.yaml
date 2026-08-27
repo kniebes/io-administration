@@ -37,11 +37,16 @@ blogpost:
                 taxonomy: Taxonomy
                 images: Bilder
                 custom_fields: Zusatzfelder
+            legend:
+                settings: Einstellungen
+                visibility: Sichtbarkeit
+                tags: Tags
+                categories: Kategorien
         modal_toggle:
             status: Status
             blog_name: Blogname
             post_type: Beitragsart
-            tags: Tags
+            taxonomy: Taxonomie
             images: Bilder
             custom_fields: Zusatzfelder
             summary: Zusammenfassung

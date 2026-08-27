@@ -1,11 +1,31 @@
 .custom-fields__item {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-areas: "key remove" "value value";
+    grid-template-columns: 3fr auto;
+    grid-template-rows: auto auto;
     gap: 0.25rem;
     margin-bottom: 1rem;
-    padding: 1rem;
-    border-radius: var(--default-border-radius);
-    box-shadow: var(--default-box-shadow);
+}
+
+.custom-fields__item .key {
+    grid-area: key;
+}
+
+.custom-fields__item .value {
+    grid-area: value;
+}
+
+.custom-fields__item .value textarea {
+    max-width: inherit;
+}
+
+.custom-fields__item .remove {
+    grid-area: remove;
+    align-self: end;
+}
+
+.custom-fields__item .remove button {
+    width: auto;
 }
 
 .wrapper {
@@ -15,6 +35,10 @@
 
 .editor {
     padding: 1rem;
+}
+
+.editor p {
+    margin-bottom: 2rem;
 }
 
 .sidebar {
@@ -34,7 +58,7 @@
 }
 
 .images-picker__item.dragging {
-    opacity: 0.4;
+    opacity: 0.8;
 }
 
 .images-picker__handle {
@@ -43,15 +67,28 @@
     color: var(--text-color);
 }
 
+.images-picker__label {
+    flex-grow: 1;
+}
+
 #taxonomie-settings .ts-wrapper.multi .ts-control [data-value] {
     text-shadow: none;
     border-radius: 3px;
     border: none;
     color: var(--text-color);
-    background: var(--button-background-color);
+    background: var(--tag-background-color);
+    font-weight: 600;
     box-shadow: none;
 }
 
+#taxonomie-settings .ts-control {
+    border: 1px solid var(--default-border-color);
+    box-shadow: none;
+    border-radius: var(--default-border-radius);
+    gap: 10px;
+}
+
+.checkbox-elements,
 #blog_post_form_categories {
     display: flex;
     gap: 20px;
