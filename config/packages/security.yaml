@@ -3,7 +3,6 @@ security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
-    # Die User-Entity liegt im geteilten Bundle kniebes/io-core.
     providers:
         io_core_users:
             entity:
@@ -30,7 +29,6 @@ security:
                 enable_csrf: true
                 default_target_path: dashboard
             logout:
-                # Muss mit / beginnen, sonst erzeugt der LogoutRouteLoader keine Route.
                 path: /logout
                 target: app_login
                 enable_csrf: true
