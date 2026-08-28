@@ -13,6 +13,12 @@
 
         <p>Angemeldet als <strong>{{ currentUser.userIdentifier }}</strong>.</p>
 
+        <p>
+            <a href="{{ path('blog_post_index') }}">BogPosts</a>
+
+        </p>
+
+
         {# Logout muss POST sein: der LogoutListener liest den CSRF-Token nur aus dem Request-Body. #}
         <form method="post" action="{{ logout_path('main') }}">
             <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('logout') }}">

@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="{{ asset('styles/pages/blog-post-form.css') }}">
 {% endblock %}
 
+{% block breadcrumb_elements %}
+<li><a href="{{ path('blog_post_index') }}">{{ 'breadcrumb.blog_post_index'|trans }}</a></li>
+<li><span>{% if blogPost.title %}{{ blogPost.title }}{% else %}{{ 'breadcrumb.blog_post_add'|trans }}{% endif %}</span></li>
+{% endblock %}
+
+
 {% block body %}
     <main class="container" data-controller="modal">
         <h1>{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}</h1>

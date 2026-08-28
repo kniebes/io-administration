@@ -5,6 +5,15 @@ login:
     password: Passwort
     submit: Anmelden
 
+breadcrumb:
+    dashboard: Home
+    blog_post_index: Blogposts
+    blog_post_add: Neuer Post
+
+navigation:
+    blog_post_index: Blogposts
+    blog_post_add: Neuer Blogpost
+
 blogpost:
     index:
         headline: BlogPosts

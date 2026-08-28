@@ -233,6 +233,73 @@ fieldset p {
     margin-bottom: 1rem;
 }
 
+/* Breadcrumb */
+.breadcrumb {
+    max-width: 1000px;
+    text-align: left;
+    margin: 2rem auto;
+}
+
+.breadcrumb > ul {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+}
+
+.breadcrumb li.separator {
+    margin: 0.3rem 0;
+    border-bottom: 1px solid var(--default-border-color);
+}
+
+.breadcrumb > ul > li {
+    margin: 0 .5rem 0 0;
+}
+
+.breadcrumb > ul > li > a:after {
+    content: '»';
+    padding-left: .5rem;
+}
+
+.breadcrumb > ul > li > ul {
+    display: none;
+    padding: .5rem;
+}
+
+.breadcrumb > ul > li > ul > li {
+    text-align: left;
+}
+
+.breadcrumb > ul > li > ul > li a {
+    display: block;
+    padding: .3rem .7rem;
+    color: var(--text-color);
+}
+
+.breadcrumb > ul > li:hover > ul {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    list-style: none;
+    justify-content: start;
+    background: var(--surface-color);
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+    z-index: 10;
+}
+
+.breadcrumb a, .breadcrumb span {
+    text-decoration: none;
+    color: var(--muted-text-color);
+    font-size: .8rem;
+    transition: background 0.3s ease;
+    border-radius: var(--default-border-radius);
+}
+
+.breadcrumb a:hover {
+    background: var(--hover-background-color);
+}
+
+
 /* Text */
 h1 {
     font-size: 180%;

@@ -6,14 +6,12 @@ namespace App\Controller;
 
 use App\Event\SavedBlogPostEvent;
 use App\Form\BlogPostFormType;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Repository\BlogPostRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,7 +66,10 @@ final class BlogPostController extends AbstractController
             return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
-        return $this->render(view: 'blog_post/edit.html.twig', parameters: ['form' => $form, 'blogPost' => $blogPost]);
+        return $this->render(view: 'blog_post/edit.html.twig', parameters: [
+            'form' => $form,
+            'blogPost' => $blogPost,
+        ]);
     }
 
     #[Route('/blogpost/edit/{id}', name: 'blog_post_edit', methods: ['GET', 'POST'])]
@@ -94,7 +95,10 @@ final class BlogPostController extends AbstractController
             return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
-        return $this->render(view: 'blog_post/edit.html.twig', parameters: ['form' => $form, 'blogPost' => $blogPost]);
+        return $this->render(view: 'blog_post/edit.html.twig', parameters: [
+            'form' => $form,
+            'blogPost' => $blogPost,
+        ]);
     }
 
     #[Route('/blogpost/delete/{id}', name: 'blog_post_delete', methods: ['POST'])]
