@@ -11,6 +11,7 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Model/'
+            - '../src/DependencyInjection/'
 
     App\Service\IoTag\IoTagEncoder:
         arguments:
@@ -24,10 +25,9 @@ services:
     App\Service\ErrorLogger\Interface\ErrorLoggerInterface:
         class:  App\Service\ErrorLogger\EmailNotification
 
-    App\Service\Navigation\Interface\NavigationServiceInterface:
-        class: App\Service\Navigation\NavigationService
+    App\Service\Navigation\NavigationService:
         arguments:
-            - !tagged_iterator app.navigation_aware
+            $navigationItems: []
 
-    #App\Service\Navigation\NavigationService:
+    App\Service\Navigation\Interface\NavigationServiceInterface: '@App\Service\Navigation\NavigationService'
 

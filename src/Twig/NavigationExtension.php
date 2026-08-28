@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\Navigation\Interface\NavigationServiceInterface;
 use ArrayIterator;
 use Twig\Extension\AbstractExtension;
@@ -10,7 +11,8 @@ use Twig\TwigFunction;
 class NavigationExtension extends AbstractExtension
 {
     public function __construct(
-        private readonly NavigationServiceInterface $navigationService
+        private readonly NavigationServiceInterface $navigationService,
+        private readonly ErrorLoggerInterface $errorLogger,
     )
     {
     }
@@ -24,6 +26,12 @@ class NavigationExtension extends AbstractExtension
 
     public function getNavigationElements(): ArrayIterator
     {
-        return $this->navigationService->getNavigationItems();
+        try {
+            return $this->navigationService->getNavigationItems();
+        } catch (\Exception $e) {
+            $this->errorLogger->log(subject: 'Navigation Error', message: $e->getMessage());
+
+            return new ArrayIterator();
+        }
     }
 }

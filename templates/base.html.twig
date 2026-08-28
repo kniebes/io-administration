@@ -23,10 +23,16 @@
                     {% for navigationElement in getNavigationElements() %}
                         <li><a href="{{ path(navigationElement.routeName) }}">{{ navigationElement.title|trans }}</a></li>
                     {% endfor %}
+                    <li>
+                        <form method="post" action="{{ logout_path('main') }}">
+                            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('logout') }}">
+                            <button type="submit">Abmelden</button>
+                        </form>
+                    </li>
                 </ul>
             </li>
-            {% block breadcrumb_elements %}
-            {% endblock %}
+            {% block breadcrumb_elements %}{% endblock %}
+
         </ul>
     </div>
 {% endblock %}

@@ -275,7 +275,8 @@ fieldset p {
     color: var(--text-color);
 }
 
-.breadcrumb > ul > li:hover > ul {
+.breadcrumb > ul > li:hover > ul,
+.breadcrumb > ul > li:focus-within > ul {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -299,6 +300,11 @@ fieldset p {
     background: var(--hover-background-color);
 }
 
+.breadcrumb button {
+    padding: .1rem .3rem;
+    margin-left: .5rem;
+    font-size: .75rem;
+}
 
 /* Text */
 h1 {

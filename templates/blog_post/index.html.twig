@@ -17,8 +17,6 @@
     <main class="container">
         <h1>{{ 'blogpost.index.headline'|trans }}</h1>
 
-        <p><a href="{{ path('blog_post_add') }}">{{ 'blogpost.index.add_button'|trans }}</a></p>
-
         <turbo-frame id="blog-post-list">
             <div class="count">
                 {{ pagination.getTotalItemCount }}

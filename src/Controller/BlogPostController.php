@@ -6,8 +6,6 @@ namespace App\Controller;
 
 use App\Event\SavedBlogPostEvent;
 use App\Form\BlogPostFormType;
-use App\Model\Navigation\NavigationItem;
-use App\Service\Navigation\Interface\NavigationAware;
 use Doctrine\ORM\EntityManagerInterface;
 use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Repository\BlogPostRepository;
@@ -22,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\Turbo\TurboBundle;
 
 #[IsGranted('ROLE_USER')]
-final class BlogPostController extends AbstractController implements NavigationAware
+final class BlogPostController extends AbstractController
 {
     public function __construct(
         private readonly PaginatorInterface $paginator,
@@ -33,15 +31,13 @@ final class BlogPostController extends AbstractController implements NavigationA
     {
     }
 
-    public function getNavigationItems(): array
-    {
-        return [
-            new NavigationItem(title: 'navigation.blog_post_add', routeName: 'blog_post_add', position: 0),
-            new NavigationItem(title: 'navigation.blog_post_index', routeName: 'blog_post_index', position: 10),
-        ];
-    }
-
-    #[Route('/blogposts', name: 'blog_post_index')]
+    #[Route(
+        path: '/blogposts',
+        name: 'blog_post_index',
+        options: [
+            'navigation' => ['title' => 'navigation.blog_post_index', 'position' => 10]
+        ]
+    )]
     public function index(Request $request): Response
     {
         $pagination = $this->paginator->paginate(
@@ -53,7 +49,14 @@ final class BlogPostController extends AbstractController implements NavigationA
         return $this->render(view: 'blog_post/index.html.twig', parameters: ['pagination' => $pagination]);
     }
 
-    #[Route('/blogpost/add', name: 'blog_post_add', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/blogpost/add',
+        name: 'blog_post_add',
+        options: [
+            'navigation' => ['title' => 'navigation.blog_post_add', 'position' => 0]
+        ],
+        methods: ['GET', 'POST']
+    )]
     public function add(Request $request): Response
     {
         $blogPost = (new BlogPost())
@@ -82,7 +85,11 @@ final class BlogPostController extends AbstractController implements NavigationA
         ]);
     }
 
-    #[Route('/blogpost/edit/{id}', name: 'blog_post_edit', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/blogpost/edit/{id}',
+        name: 'blog_post_edit',
+        methods: ['GET', 'POST']
+    )]
     public function edit(Request $request, BlogPost $blogPost): Response
     {
         $form = $this->createForm(type: BlogPostFormType::class, data: $blogPost);
@@ -111,7 +118,11 @@ final class BlogPostController extends AbstractController implements NavigationA
         ]);
     }
 
-    #[Route('/blogpost/delete/{id}', name: 'blog_post_delete', methods: ['POST'])]
+    #[Route(
+        path: '/blogpost/delete/{id}',
+        name: 'blog_post_delete',
+        methods: ['POST']
+    )]
     public function delete(Request $request, BlogPost $blogPost): Response
     {
         $isValidToken = $this->isCsrfTokenValid(

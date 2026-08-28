@@ -29,6 +29,9 @@ class NavigationItemCollection extends ArrayCollection
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getSorted(): ArrayIterator
     {
         $iterator = $this->getIterator();
