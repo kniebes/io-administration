@@ -36,8 +36,8 @@ final class BlogPostController extends AbstractController implements NavigationA
     public function getNavigationItems(): array
     {
         return [
-            new NavigationItem(title: 'navigation.blog_post_add', routeName: 'blog_post_add', position: 1),
-            new NavigationItem(title: 'navigation.blog_post_index', routeName: 'blog_post_index', position: 1),
+            new NavigationItem(title: 'navigation.blog_post_add', routeName: 'blog_post_add', position: 0),
+            new NavigationItem(title: 'navigation.blog_post_index', routeName: 'blog_post_index', position: 10),
         ];
     }
 
