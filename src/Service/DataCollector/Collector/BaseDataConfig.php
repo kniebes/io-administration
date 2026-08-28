@@ -11,6 +11,7 @@ class BaseDataConfig
         #[Autowire(env: 'SITE_SUB_TITLE')] public string $subtitle,
         #[Autowire(env: 'SITE_DOMAIN')] public string $domain,
         #[Autowire(env: 'SITE_CONTACT_EMAIL')] public string $contactEmail,
+        #[Autowire(env: 'json:SITE_SOCIAL_LINKS')] public array $socialLinks,
     )
     {
     }
