@@ -1349,7 +1349,7 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:kniebes/io-core.git",
-                "reference": "24c5f9c8af9ebc667fc4be995ac3ddc3220c6177"
+                "reference": "ebd97d6ba022ec019c38280334af6e1ef63c0c52"
             },
             "require": {
                 "doctrine/dbal": "^4.4",
@@ -1379,7 +1379,7 @@
                 }
             ],
             "description": "Gemeinsame Klassen der IO-Projekte, ausgeliefert als Symfony-Bundle",
-            "time": "2026-08-28T09:59:13+00:00"
+            "time": "2026-08-28T13:23:58+00:00"
         },
         {
             "name": "knplabs/knp-components",

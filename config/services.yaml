@@ -31,3 +31,7 @@ services:
 
     App\Service\Navigation\Interface\NavigationServiceInterface: '@App\Service\Navigation\NavigationService'
 
+    App\Service\DataCollector\Interface\DataCollectorServiceInterface:
+        class: App\Service\DataCollector\DataCollectorService
+        arguments:
+            - !tagged_iterator app.data_collector
