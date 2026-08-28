@@ -7,7 +7,7 @@ security:
     providers:
         io_core_users:
             entity:
-                class: Kniebes\IoCore\Entity\User
+                class: App\Entity\User
                 property: username
 
     firewalls:

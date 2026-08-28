@@ -7,8 +7,8 @@ use App\Service\Image\ImageService;
 use App\Service\IoTag\Encoder\Interface\IoTagEncoderInterface;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-use Kniebes\IoCore\Entity\Image;
-use Kniebes\IoCore\Repository\ImageRepository;
+use App\Entity\Image;
+use App\Repository\ImageRepository;
 
 class Gallery implements IoTagEncoderInterface
 {

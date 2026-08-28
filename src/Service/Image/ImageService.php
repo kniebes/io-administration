@@ -2,7 +2,7 @@
 
 namespace App\Service\Image;
 
-use Kniebes\IoCore\Entity\Image;
+use App\Entity\Image;
 
 class ImageService
 {

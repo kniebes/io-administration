@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Entity;
 
-use Kniebes\IoCore\Entity\User;
+use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
 final class UserTest extends TestCase

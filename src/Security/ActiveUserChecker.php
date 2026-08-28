@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use Kniebes\IoCore\Entity\User;
+use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;

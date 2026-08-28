@@ -6,7 +6,7 @@ use App\Model\DataCollector\BlogPostRequestData;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
-use Kniebes\IoCore\Repository\BlogPostRepository;
+use App\Repository\BlogPostRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 

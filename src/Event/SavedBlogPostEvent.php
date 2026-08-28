@@ -2,8 +2,8 @@
 
 namespace App\Event;
 
-use Kniebes\IoCore\Entity\Blog;
-use Kniebes\IoCore\Entity\BlogPost;
+use App\Entity\Blog;
+use App\Entity\BlogPost;
 use Symfony\Contracts\EventDispatcher\Event;
 
 final class SavedBlogPostEvent extends Event

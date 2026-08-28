@@ -2,7 +2,7 @@
 
 namespace App\Model\Image\ResponsiveImageTag;
 
-use Kniebes\IoCore\Entity\Image;
+use App\Entity\Image;
 
 class Parameter
 {

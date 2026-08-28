@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use Kniebes\IoCore\Entity\User;
-use Kniebes\IoCore\Repository\UserRepository;
+use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;

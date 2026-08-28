@@ -10,6 +10,7 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            - '../src/Entity/'
             - '../src/Model/'
             - '../src/DependencyInjection/'
 

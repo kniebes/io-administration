@@ -35,9 +35,6 @@
             "migrations/.gitignore"
         ]
     },
-    "kniebes/io-core": {
-        "version": "dev-main"
-    },
     "knplabs/knp-paginator-bundle": {
         "version": "v6.10.0"
     },

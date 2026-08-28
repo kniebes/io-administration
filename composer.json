@@ -10,7 +10,6 @@
         "doctrine/doctrine-bundle": "^3.3",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
-        "kniebes/io-core": "dev-main",
         "knplabs/knp-paginator-bundle": "^6.10",
         "league/commonmark": "^2.10",
         "phpdocumentor/reflection-docblock": "^6.0",
@@ -55,10 +54,6 @@
             "symfony/runtime": true
         },
         "bump-after-update": true,
-        "preferred-install": {
-            "kniebes/*": "source",
-            "*": "dist"
-        },
         "sort-packages": true
     },
     "autoload": {
@@ -99,12 +94,6 @@
     "conflict": {
         "symfony/symfony": "*"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "git@github.com:kniebes/io-core.git"
-        }
-    ],
     "extra": {
         "symfony": {
             "allow-contrib": false,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7be01333534a30cc099ac0b66106db22",
+    "content-hash": "1e1e3e7efbe4e729ef4521c04fe37015",
     "packages": [
         {
             "name": "composer/semver",
@@ -1342,44 +1342,6 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
-        },
-        {
-            "name": "kniebes/io-core",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:kniebes/io-core.git",
-                "reference": "ebd97d6ba022ec019c38280334af6e1ef63c0c52"
-            },
-            "require": {
-                "doctrine/dbal": "^4.4",
-                "doctrine/doctrine-bundle": "^3.3",
-                "doctrine/orm": "^3.6",
-                "doctrine/persistence": "^4.2",
-                "php": ">=8.4",
-                "symfony/config": "^8.1",
-                "symfony/dependency-injection": "^8.1",
-                "symfony/http-kernel": "^8.1",
-                "symfony/security-core": "^8.1"
-            },
-            "default-branch": true,
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Kniebes\\IoCore\\": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Markus Kniebes",
-                    "email": "m@kniebes.to"
-                }
-            ],
-            "description": "Gemeinsame Klassen der IO-Projekte, ausgeliefert als Symfony-Bundle",
-            "time": "2026-08-28T13:23:58+00:00"
         },
         {
             "name": "knplabs/knp-components",
@@ -10802,9 +10764,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "kniebes/io-core": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -5,7 +5,7 @@ namespace App\Service\Image\ResponsiveImageTag;
 use App\Model\Image\ResponsiveImageTag\Parameter;
 use App\Service\Image\ResponsiveImageTag\Interface\ResponsiveImageTagInterface;
 use Exception;
-use Kniebes\IoCore\Entity\Image;
+use App\Entity\Image;
 use Throwable;
 
 class ResponsiveImageTag implements ResponsiveImageTagInterface

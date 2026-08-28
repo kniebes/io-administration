@@ -6,8 +6,8 @@ use App\Model\Image\ResponsiveImageTag\Parameter;
 use App\Service\Image\ResponsiveImageTag\Interface\ResponsiveImageTagInterface;
 use App\Service\IoTag\Encoder\Interface\IoTagEncoderInterface;
 use Exception;
-use Kniebes\IoCore\Repository\ImageRepository;
-use \Kniebes\IoCore\Entity\Image as ImageEntity;
+use App\Repository\ImageRepository;
+use \App\Entity\Image as ImageEntity;
 
 class Image implements IoTagEncoderInterface
 {
