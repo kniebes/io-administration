@@ -8,13 +8,21 @@ use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 
 class BaseDataCollector implements DataCollectorInterface
 {
+    public function __construct(
+        private readonly BaseDataConfig $baseDataConfig,
+    )
+    {
+    }
+
     public function collect(RequestDataInterface $requestData, ResponseDataBag $data): void
     {
-        $data->setData('base_data', $this->getBaseData());
+        $data->setData('baseData', $this->getBaseData());
     }
 
     private function getBaseData(): array
     {
-        return [];
+        $reflectionClass = new \ReflectionClass($this->baseDataConfig);
+
+        return get_object_vars($this->baseDataConfig);
     }
 }

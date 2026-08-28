@@ -6,6 +6,8 @@ use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use App\Service\DataCollector\Interface\DataCollectorServiceInterface;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 readonly class DataCollectorService implements DataCollectorServiceInterface
 {
@@ -13,7 +15,8 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
      * @param iterable<DataCollectorInterface> $handlers
      */
     public function __construct(
-        private iterable $handlers
+        private iterable $handlers,
+        private readonly LoggerInterface $logger,
     )
     {
     }
@@ -22,7 +25,14 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
     {
         $data = new  ResponseDataBag();
         foreach ($this->handlers as $handler) {
-            $handler->collect(requestData: $requestData, data: $data);
+            try {
+                $handler->collect(requestData: $requestData, data: $data);
+            } catch (Throwable $throwable) {
+                $this->logger->critical(
+                    message: $throwable->getMessage(),
+                    context: ['trace' => $throwable->getTraceAsString()]
+                );
+            }
         }
 
         return $data;

@@ -23,11 +23,12 @@ class ApiController extends AbstractController
         path:'/api/{method}',
         name: 'api',
         requirements: ['method' => '[a-z\-]+'],
-        methods: ['GET'],
+        methods: ['POST'],
     )]
     public function index(string $method, Request $request): Response
     {
         $data = $this->apiService->collectData(method: $method, request: $request);
-        return new JsonResponse([$data]);
+
+        return new JsonResponse($data);
     }
 }

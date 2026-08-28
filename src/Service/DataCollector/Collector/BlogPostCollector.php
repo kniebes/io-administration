@@ -19,6 +19,9 @@ class BlogPostCollector implements DataCollectorInterface
     {
     }
 
+    /**
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function collect(RequestDataInterface $requestData, ResponseDataBag $data): void
     {
         if ($requestData instanceof BlogPostRequestData) {
@@ -31,6 +34,9 @@ class BlogPostCollector implements DataCollectorInterface
         }
     }
 
+    /**
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     protected function collectById(ResponseDataBag $data, int $id): void
     {
         $blogPost = $this->blogPostRepository->find($id);
@@ -39,9 +45,12 @@ class BlogPostCollector implements DataCollectorInterface
         }
 
         $serializedBlogPost = $this->serializer->serialize($blogPost, 'json', ['groups' => ['blog_post:read']]);
-        $data->setData('blog_post', json_decode($serializedBlogPost, true));
+        $data->setData('blogPost', json_decode($serializedBlogPost, true));
     }
 
+    /**
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     protected function collectBySlug(ResponseDataBag $data, BlogPostRequestData $requestData): void
     {
         $blogPost = $this->blogPostRepository->findBy(['slug' => $requestData->getSlug()]);
@@ -50,6 +59,6 @@ class BlogPostCollector implements DataCollectorInterface
         }
 
         $serializedBlogPost = $this->serializer->serialize($blogPost, 'json', ['groups' => ['blog_post:read']]);
-        $data->setData('blog_post', json_decode($serializedBlogPost, true));
+        $data->setData('blogPost', json_decode($serializedBlogPost, true));
     }
 }
