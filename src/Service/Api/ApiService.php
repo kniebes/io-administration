@@ -3,6 +3,7 @@
 namespace App\Service\Api;
 
 use App\Model\DataCollector\BlogPostRequestData;
+use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Interface\DataCollectorServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
@@ -14,7 +15,7 @@ readonly class ApiService
     ) {
     }
 
-    public function collectData(string $method, Request $request): array
+    public function collectData(string $method, Request $request): ResponseDataBag
     {
         return match ($method) {
             'blog-post' => $this->getBlogPost($request),
@@ -22,16 +23,11 @@ readonly class ApiService
         };
     }
 
-    protected function getBlogPost(Request $request): array
+    protected function getBlogPost(Request $request): ResponseDataBag
     {
         $requestData = $this->createBlogPostRequestData($request);
 
-        $result = $this->dataCollectorService->collect($requestData);
-        if (empty($result->getData())) {
-            throw new NotFoundResourceException();
-        }
-
-        return $result->getData();
+        return  $this->dataCollectorService->collect($requestData);
     }
 
     protected function createBlogPostRequestData(Request $request): BlogPostRequestData

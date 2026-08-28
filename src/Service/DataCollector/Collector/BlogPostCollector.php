@@ -10,11 +10,11 @@ use App\Repository\BlogPostRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class BlogPostCollector implements DataCollectorInterface
+readonly class BlogPostCollector implements DataCollectorInterface
 {
     public function __construct(
-        private readonly BlogPostRepository $blogPostRepository,
-        private readonly SerializerInterface $serializer,
+        private BlogPostRepository $blogPostRepository,
+        private SerializerInterface $serializer,
     )
     {
     }

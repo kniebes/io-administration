@@ -5,6 +5,9 @@ namespace App\Model\DataCollector;
 class ResponseDataBag
 {
     private array $data = [];
+    private array $errors = [];
+
+    private bool $hasErrors = false;
 
     public function getData(): array
     {
@@ -25,5 +28,21 @@ class ResponseDataBag
     public function replaceData(string $key, array $data): void
     {
         $this->data[$key] = $data;
+    }
+
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+
+    public function addError(string $errors): void
+    {
+        $this->errors[] = $errors;
+        $this->hasErrors = true;
+    }
+
+    public function hasErrors(): bool
+    {
+        return $this->hasErrors;
     }
 }

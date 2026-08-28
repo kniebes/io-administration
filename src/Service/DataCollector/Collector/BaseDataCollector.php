@@ -6,10 +6,10 @@ use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 
-class BaseDataCollector implements DataCollectorInterface
+readonly class BaseDataCollector implements DataCollectorInterface
 {
     public function __construct(
-        private readonly BaseDataConfig $baseDataConfig,
+        private BaseDataConfig $baseDataConfig,
     )
     {
     }
@@ -21,8 +21,6 @@ class BaseDataCollector implements DataCollectorInterface
 
     private function getBaseData(): array
     {
-        $reflectionClass = new \ReflectionClass($this->baseDataConfig);
-
         return get_object_vars($this->baseDataConfig);
     }
 }

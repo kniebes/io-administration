@@ -6,6 +6,9 @@ use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+/**
+ * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+ */
 #[AutoconfigureTag('app.data_collector')]
 interface DataCollectorInterface
 {

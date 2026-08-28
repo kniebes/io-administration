@@ -16,9 +16,7 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
      */
     public function __construct(
         private iterable $handlers,
-        private readonly LoggerInterface $logger,
-    )
-    {
+    ) {
     }
 
     public function collect(RequestDataInterface $requestData): ResponseDataBag
@@ -28,10 +26,7 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
             try {
                 $handler->collect(requestData: $requestData, data: $data);
             } catch (Throwable $throwable) {
-                $this->logger->critical(
-                    message: $throwable->getMessage(),
-                    context: ['trace' => $throwable->getTraceAsString()]
-                );
+                $data->addError($throwable->getMessage());
             }
         }
 
