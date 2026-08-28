@@ -15,7 +15,7 @@ class NavigationItemCollection extends ArrayCollection
     public function add(mixed $element): void
     {
         if (!$element instanceof NavigationItem) {
-            throw new \RuntimeException('Illegal element type: '.get_class($element));
+            throw new \RuntimeException('Illegal element type: '.get_debug_type($element));
         }
 
         parent::add($element);

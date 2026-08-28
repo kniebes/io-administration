@@ -28,7 +28,7 @@ security:
                 username_parameter: _username
                 password_parameter: _password
                 enable_csrf: true
-                default_target_path: app_dashboard
+                default_target_path: dashboard
             logout:
                 # Muss mit / beginnen, sonst erzeugt der LogoutRouteLoader keine Route.
                 path: /logout
