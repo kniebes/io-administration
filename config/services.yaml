@@ -24,3 +24,10 @@ services:
     App\Service\ErrorLogger\Interface\ErrorLoggerInterface:
         class:  App\Service\ErrorLogger\EmailNotification
 
+    App\Service\Navigation\Interface\NavigationServiceInterface:
+        class: App\Service\Navigation\NavigationService
+        arguments:
+            - !tagged_iterator app.navigation_aware
+
+    #App\Service\Navigation\NavigationService:
+

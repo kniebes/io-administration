@@ -6,6 +6,8 @@ namespace App\Controller;
 
 use App\Event\SavedBlogPostEvent;
 use App\Form\BlogPostFormType;
+use App\Model\Navigation\NavigationItem;
+use App\Service\Navigation\Interface\NavigationAware;
 use Doctrine\ORM\EntityManagerInterface;
 use Kniebes\IoCore\Entity\BlogPost;
 use Kniebes\IoCore\Repository\BlogPostRepository;
@@ -20,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\Turbo\TurboBundle;
 
 #[IsGranted('ROLE_USER')]
-final class BlogPostController extends AbstractController
+final class BlogPostController extends AbstractController implements NavigationAware
 {
     public function __construct(
         private readonly PaginatorInterface $paginator,
@@ -29,6 +31,14 @@ final class BlogPostController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
     )
     {
+    }
+
+    public function getNavigationItems(): array
+    {
+        return [
+            new NavigationItem(title: 'navigation.blog_post_add', routeName: 'blog_post_add', position: 1),
+            new NavigationItem(title: 'navigation.blog_post_index', routeName: 'blog_post_index', position: 1),
+        ];
     }
 
     #[Route('/blogposts', name: 'blog_post_index')]

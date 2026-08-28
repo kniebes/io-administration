@@ -20,8 +20,9 @@
         <ul>
             <li><a href="{{ path('dashboard') }}">{{ 'breadcrumb.dashboard'|trans }}</a>
                 <ul>
-                    <li><a href="{{ path('blog_post_add') }}">{{ 'navigation.blog_post_add'|trans }}</a></li>
-                    <li><a href="{{ path('blog_post_index') }}">{{ 'navigation.blog_post_index'|trans }}</a></li>
+                    {% for navigationElement in getNavigationElements() %}
+                        <li><a href="{{ path(navigationElement.routeName) }}">{{ navigationElement.title|trans }}</a></li>
+                    {% endfor %}
                 </ul>
             </li>
             {% block breadcrumb_elements %}
