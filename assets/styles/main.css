@@ -13,6 +13,8 @@
 
     --main-navigation-background-color: rgba(232, 232, 232, .8);
     --main-navigation-border-color: var(--background-color);
+    --active-checkbox-background-color: #d0ffd0;
+
 
     /* Text */
     --text-color: #333;
@@ -36,7 +38,7 @@
     --submit-text-color: white;
 
     /* Akzente */
-    --tag-background-color: #efefef;
+    --tag-background-color: #d0ffd0;
     --warning-color: red;
     --rss-only-color: orange;
 
@@ -59,7 +61,7 @@
     --source-zettelkasten-color: rgb(167, 236, 204);
 
     /* Sizes */
-    --content-width: min(75ch, 100%);
+    --content-width: 75ch;
 }
 
 @media only screen and (prefers-color-scheme: dark) {
@@ -140,6 +142,7 @@ body {
 }
 
 /* Forms */
+.default-input,
 input[type="text"],
 input[type="number"],
 input[type="date"],
@@ -151,7 +154,8 @@ button {
     font-family: ui-monospace, monospace;
     background-color: var(--default-input-background-color);
     padding: 1ch;
-    width: var(--content-width);
+    max-width: var(--content-width);
+    width: calc(100% - 2ch);
     border: none;
     border-radius: var(--default-border-radius);
     box-shadow: var(--default-box-shadow);
@@ -171,16 +175,135 @@ button[type="submit"] {
     cursor: pointer;
 }
 
+button {
+    cursor: pointer;
+    width: auto;
+}
+
+.close {
+    background: var(--submit-background-color);
+    color: var(--submit-text-color);
+    width: auto;
+    padding: 1ch;
+    transition: all .2s ease-in;
+    cursor: pointer;
+}
+
 textarea {
     font-size: 15px;
     font-weight: 400;
     line-height: 30px;
 }
 
+textarea.autogrow {
+    overflow-y: auto;
+    max-height: calc(100vh - 520px);
+}
+
 label {
     font-weight: 600;
     display: block;
     margin-bottom: .4rem;
+    user-select: none;
+    cursor: pointer;
+}
+
+.checkbox label {
+    display: inline-block;
+    padding: .2rem .7rem;
+    border-radius: var(--default-border-radius);
+}
+
+.checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox input[type="checkbox"]:checked + label {
+    background-color: var(--active-checkbox-background-color);
+}
+
+fieldset {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--default-border-color);
+    border-radius: var(--default-border-radius);
+}
+
+fieldset p {
+    margin-bottom: 1rem;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    max-width: 1000px;
+    text-align: left;
+    margin: 2rem auto;
+}
+
+.breadcrumb > ul {
+    display: flex;
+    flex-direction: row;
+    list-style-type: none;
+}
+
+.breadcrumb li.separator {
+    margin: 0.3rem 0;
+    border-bottom: 1px solid var(--default-border-color);
+}
+
+.breadcrumb > ul > li {
+    margin: 0 .5rem 0 0;
+}
+
+.breadcrumb > ul > li > a:after {
+    content: '»';
+    padding-left: .5rem;
+}
+
+.breadcrumb > ul > li > ul {
+    display: none;
+    padding: .5rem;
+}
+
+.breadcrumb > ul > li > ul > li {
+    text-align: left;
+}
+
+.breadcrumb > ul > li > ul > li a {
+    display: block;
+    padding: .3rem .7rem;
+    color: var(--text-color);
+}
+
+.breadcrumb > ul > li:hover > ul,
+.breadcrumb > ul > li:focus-within > ul {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    list-style: none;
+    justify-content: start;
+    background: var(--surface-color);
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+    z-index: 10;
+}
+
+.breadcrumb a, .breadcrumb span {
+    text-decoration: none;
+    color: var(--muted-text-color);
+    font-size: .8rem;
+    transition: background 0.3s ease;
+    border-radius: var(--default-border-radius);
+}
+
+.breadcrumb a:hover {
+    background: var(--hover-background-color);
+}
+
+.breadcrumb button {
+    padding: .1rem .3rem;
+    margin-left: .5rem;
+    font-size: .75rem;
 }
 
 /* Text */
@@ -233,19 +356,12 @@ strong {
     width: 1000px;
     margin: 4rem auto;
     text-align: left;
-    background: lightblue;
 }
 
-.modal {
-    height: auto;
-    max-height: calc(100vh - 160px);
-    margin: 1rem 2rem;
-    padding: 50px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    background-color: var(--modal-background-color);
-    border-radius: var(--default-border-radius);
-    box-shadow: var(--default-box-shadow);
-    transition: all 3s ease-in;
+.default-width {
+    width: 1000px;
 }
+
+
+/* Modal */
 

@@ -1,9 +1,136 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ blogPost.title }}{% endblock %}
+{% block title %}{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/pages/blog-post-form.css') }}">
+{% endblock %}
+
+{% block breadcrumb_elements %}
+<li><a href="{{ path('blog_post_index') }}">{{ 'breadcrumb.blog_post_index'|trans }}</a></li>
+<li><span>{% if blogPost.title %}{{ blogPost.title }}{% else %}{{ 'breadcrumb.blog_post_add'|trans }}{% endif %}</span></li>
+{% endblock %}
+
 
 {% block body %}
-    <main class="container">
-        <h1>{{ blogPost.title }}</h1>
+    <main class="container" data-controller="modal">
+        <h1>{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}</h1>
+
+        {{ form_start(form) }}
+        <div class="wrapper">
+            <div class="editor">
+                <p>{{ form_row(form.title) }}</p>
+                <p>{{ form_row(form.slug) }}</p>
+                <p>{{ form_row(form.content) }}</p>
+            </div>
+
+            <div class="sidebar">
+                <p>
+                    <button type="submit" data-turbo-submits-with="{{ 'blogpost.form.submit_in_progress'|trans }}">{{ 'blogpost.form.submit'|trans }}</button>
+                </p>
+
+                <div id="blog-post-modal-toggles">
+                    {% include 'blog_post/_modal_toggles.html.twig' with {blogPost: blogPost} %}
+                </div>
+
+                <div id="blog-post-save-info">
+                    {% include 'blog_post/_save_info.html.twig' with {
+                        success: blogPost and blogPost.id and blogPost.updated is not null,
+                        savedAt: blogPost ? blogPost.updated : null,
+                    } %}
+                </div>
+            </div>
+
+        </div>
+
+        <aside class="backdrop" id="summary-settings">
+            <div class="modal default-width">
+                <header>{{ 'blogpost.form.modal.header.summary'|trans }}</header>
+                {{ form_row(form.summary) }}
+                <footer>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="post-settings">
+            <div class="modal default-width">
+                <header>{{ 'blogpost.form.modal.header.post'|trans }}</header>
+                <fieldset>
+                    <legend>{{ 'blogpost.form.modal.legend.settings'|trans }}</legend>
+                    <p>{{ form_row(form.blog) }}</p>
+                    <p>{{ form_row(form.blogPostType) }}</p>
+                    <p>{{ form_row(form.status) }}</p>
+                </fieldset>
+                <fieldset class="checkbox-elements">
+                    <legend>{{ 'blogpost.form.modal.legend.visibility'|trans }}</legend>
+                    {{ form_row(form.isVisibleOnRss) }}
+                    {{ form_row(form.isVisibleOnWeb) }}
+                </fieldset>
+                <footer>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="taxonomie-settings">
+            <div class="modal default-width">
+                <header>{{ 'blogpost.form.modal.header.taxonomy'|trans }}</header>
+                <fieldset>
+                    <legend>{{ 'blogpost.form.modal.legend.tags'|trans }}</legend>
+                    <div id="blog-post-tags-picker">
+                        {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>{{ 'blogpost.form.modal.legend.categories'|trans }}</legend>
+                    <p>{{ form_row(form.categories) }}</p>
+                </fieldset>
+                <footer>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="image-settings">
+            <div class="modal default-width">
+                <header>{{ 'blogpost.form.modal.header.images'|trans }}</header>
+                <div id="blog-post-images-picker">
+                    {% include 'blog_post/_images_picker.html.twig' with {form: form} %}
+                </div>
+                <footer>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="custom-fields-settings">
+            <div class="modal default-width">
+                <header>{{ 'blogpost.form.modal.header.custom_fields'|trans }}</header>
+                <div id="blog-post-custom-fields">
+                    {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}
+                </div>
+                <footer>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        {{ form_end(form) }}
+{#
+        {% if blogPost and blogPost.id %}
+            <form method="post" action="{{ path('blog_post_delete', {id: blogPost.id}) }}" data-turbo-confirm="{{ 'blogpost.form.delete.confirm'|trans }}">
+                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('delete-blog-post-' ~ blogPost.id) }}">
+                <button type="submit">{{ 'blogpost.form.delete.button'|trans }}</button>
+            </form>
+        {% endif %}
+#}
     </main>
 {% endblock %}

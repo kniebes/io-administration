@@ -1,0 +1,29 @@
+<turbo-stream action="update" target="blog-post-save-info">
+    <template>
+        {% include 'blog_post/_save_info.html.twig' %}
+    </template>
+</turbo-stream>
+
+<turbo-stream action="update" target="blog-post-custom-fields">
+    <template>
+        {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}
+    </template>
+</turbo-stream>
+
+<turbo-stream action="update" target="blog-post-modal-toggles">
+    <template>
+        {% include 'blog_post/_modal_toggles.html.twig' with {blogPost: blogPost} %}
+    </template>
+</turbo-stream>
+
+<turbo-stream action="update" target="blog-post-images-picker">
+    <template>
+        {% include 'blog_post/_images_picker.html.twig' with {form: form} %}
+    </template>
+</turbo-stream>
+
+<turbo-stream action="update" target="blog-post-tags-picker">
+    <template>
+        {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+    </template>
+</turbo-stream>

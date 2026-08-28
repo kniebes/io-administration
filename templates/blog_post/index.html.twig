@@ -8,10 +8,14 @@
     <link rel="stylesheet" href="{{ asset('styles/common/data-table.css') }}">
 {% endblock %}
 
+{% block breadcrumb_elements %}
+<li><span>{{ 'breadcrumb.blog_post_index'|trans }}</span></li>
+{% endblock %}
+
+
 {% block body %}
     <main class="container">
         <h1>{{ 'blogpost.index.headline'|trans }}</h1>
-
 
         <turbo-frame id="blog-post-list">
             <div class="count">
