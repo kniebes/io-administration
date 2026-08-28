@@ -237,8 +237,9 @@ final class BlogPostFormType extends AbstractType
                 if (($item['key'] ?? '') === '') {
                     continue;
                 }
-
-                $customFields[$item['key']] = $item['value'] ?? '';
+                $key = $item['key'];
+                $key = preg_replace('/[^A-Za-z0-9]/', '_', $key);
+                $customFields[$key] = $item['value'] ?? '';
             }
 
             $blogPost->setCustomFields($customFields);
