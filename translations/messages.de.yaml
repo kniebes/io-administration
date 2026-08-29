@@ -15,6 +15,10 @@ navigation:
     blog_post_add: Neuer Blogpost
 
 blogpost:
+    status:
+        published: Veröffentlicht
+        hidden: Versteckt
+        draft: Entwurf
     index:
         headline: BlogPosts
         add_button: Neuer BlogPost

@@ -24,6 +24,7 @@
             <table class="data">
                 <thead>
                 <tr>
+                    <th class="status"></th>
                     <th{% if pagination.isSorted('p.title') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.title'|trans, 'p.title') }}
                     </th>
@@ -37,8 +38,9 @@
                 <tbody>
                 {% for post in pagination %}
                     <tr {% if loop.index is odd %}class="color"{% endif %}>
+                        <td class="status {{ post.status.value }}"></td>
                         <td class="title"><a data-turbo-frame="_top" href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a></td>
-                        <td>{{ post.status.name }}</td>
+                        <td>{{ ('blogpost.status.'~post.status.value)|trans }}</td>
                         <td class="datetime">{{ post.created | date('Y-m-d H:i:s') }}</td>
                         <td class="actions">
                             <a data-turbo-frame="_top"

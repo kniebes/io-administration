@@ -49,6 +49,28 @@ table.data td.title {
     width: 100%;
 }
 
+table.data th.status,
+table.data td.status {
+    padding: 0 2px;
+    border-spacing: 0;
+}
+
+table.data td.status {
+    background-color: var(--status-default-color);
+}
+
+table.data td.status.draft {
+    background-color: var(--status-draft-color);
+}
+
+table.data td.status.hidden {
+    background-color: var(--status-hidden-color);
+}
+
+table.data td.status.published {
+    background-color: var(--status-published-color);
+}
+
 table.data td.datetime {
     white-space: nowrap;
 }

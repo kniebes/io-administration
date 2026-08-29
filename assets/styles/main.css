@@ -44,7 +44,7 @@
 
     /* Status */
     --status-default-color: gray;
-    --status-pending-color: grey;
+    --status-draft-color: grey;
     --status-hidden-color: salmon;
     --status-published-color: lightgreen;
     --status-published-background-color: lightgreen;
