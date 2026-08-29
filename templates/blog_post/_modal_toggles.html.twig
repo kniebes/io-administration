@@ -2,6 +2,10 @@
     <span>{{ 'blogpost.form.modal_toggle.status'|trans }}: {{ ('blogpost.status.'~blogPost.status.value)|trans }}</span>
     {% if blogPost.blog %}<span>{{ 'blogpost.form.modal_toggle.blog_name'|trans }}: {{ blogPost.blog.name }}</span>{% endif %}
     {% if blogPost.blogPostType %}<span>{{ 'blogpost.form.modal_toggle.post_type'|trans }}: {{ blogPost.blogPostType.name }}</span>{% endif %}
+    <span>
+        {% if blogPost.isVisibleOnRss %} RSS {% endif %}
+        {% if blogPost.isVisibleOnWeb %} WEB {% endif %}
+    </span>
 </a>
 
 <a href="#" class="{% if blogPost.tags|length == 0 and blogPost.categories|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="taxonomie-settings" data-action="click->modal#open">
