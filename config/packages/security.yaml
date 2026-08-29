@@ -14,6 +14,13 @@ security:
             # Ensure dev tools and static assets are always allowed
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+
+        content_api:
+            pattern: ^/content-api
+            stateless: true
+            entry_point: App\Security\ContentApiEntryPoint
+            access_token:
+                token_handler: App\Security\ContentApiTokenHandler
         main:
             lazy: true
             provider: io_core_users
@@ -36,7 +43,7 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: PUBLIC_ACCESS }
+        - { path: ^/content-api, roles: ROLE_API }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

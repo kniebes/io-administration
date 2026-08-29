@@ -23,8 +23,8 @@ class ApiController extends AbstractController
     }
 
     #[Route(
-        path:'/api/{method}',
-        name: 'api',
+        path:'/content-api/{method}',
+        name: 'content_api',
         requirements: ['method' => '[a-z\-]+'],
         methods: ['POST'],
     )]
