@@ -22,6 +22,10 @@ blogpost:
             title: Titel
             created: Erstellt
             status: Status
+            actions: Aktionen
+        action:
+            edit: BlogPost bearbeiten
+            delete: BlogPost löschen
     form:
         title_new: Neuer BlogPost
         title: Titel

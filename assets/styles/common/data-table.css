@@ -45,6 +45,47 @@ table.data  a {
     text-decoration: none;
 }
 
+table.data td.title {
+    width: 100%;
+}
+
+table.data td.datetime {
+    white-space: nowrap;
+}
+
+table.data td.actions {
+    text-align: right;
+    white-space: nowrap;
+    width: 1%;
+}
+
+table.data td.actions form {
+    display: inline-block;
+    margin-left: 1ch;
+}
+
+table.data td.actions a,
+table.data td.actions button.delete {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    width: auto;
+    color: var(--muted-text-color);
+    transition: color .2s ease-in;
+}
+
+table.data td.actions a:hover {
+    color: var(--text-color);
+}
+
+table.data td.actions button.delete:hover {
+    color: var(--warning-color);
+}
+
 .page-navigation {
     text-align: center;
 }

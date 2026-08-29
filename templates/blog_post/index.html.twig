@@ -31,14 +31,35 @@
                     <th{% if pagination.isSorted('a.creted') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.created'|trans, 'p.created') }}
                     </th>
+                    <th class="right">{{ 'blogpost.index.head.actions'|trans }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for post in pagination %}
                     <tr {% if loop.index is odd %}class="color"{% endif %}>
-                        <td><a data-turbo-frame="_top" href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a></td>
+                        <td class="title"><a data-turbo-frame="_top" href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a></td>
                         <td>{{ post.status.name }}</td>
-                        <td>{{ post.created | date('Y-m-d H:i:s') }}</td>
+                        <td class="datetime">{{ post.created | date('Y-m-d H:i:s') }}</td>
+                        <td class="actions">
+                            <a data-turbo-frame="_top"
+                               href="{{ path('blog_post_edit', {id: post.id}) }}"
+                               title="{{ 'blogpost.index.action.edit'|trans }}"
+                               aria-label="{{ 'blogpost.index.action.edit'|trans }}">
+                                {{ ux_icon('lucide:pencil', {'aria-hidden': 'true'}) }}
+                            </a>
+                            <form method="post"
+                                  data-turbo-frame="_top"
+                                  action="{{ path('blog_post_delete', {id: post.id}) }}"
+                                  data-turbo-confirm="{{ 'blogpost.form.delete.confirm'|trans }}">
+                                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('delete-blog-post-' ~ post.id) }}">
+                                <button type="submit"
+                                        class="delete"
+                                        title="{{ 'blogpost.index.action.delete'|trans }}"
+                                        aria-label="{{ 'blogpost.index.action.delete'|trans }}">
+                                    {{ ux_icon('lucide:trash-2', {'aria-hidden': 'true'}) }}
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
