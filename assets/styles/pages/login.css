@@ -1,0 +1,9 @@
+.login {
+    max-width: calc(75ch + 2rem);
+    margin: 4rem auto;
+    text-align: left;
+}
+
+.login p {
+    margin: 2rem 0;
+}

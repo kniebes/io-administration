@@ -1,0 +1,24 @@
+{% macro custom_field_row(rowForm) %}
+    <fieldset class="custom-fields__item" data-collection-target="item">
+        <div class="key">{{ form_row(rowForm.key) }}</div>
+        <div class="value">{{ form_row(rowForm.value) }}</div>
+        <div class="remove"><button type="button" data-action="collection#remove">{{ 'blogpost.form.custom_fields.remove'|trans }}</button></div>
+    </fieldset>
+{% endmacro %}
+
+<div class="custom-fields"
+     data-controller="collection"
+     data-collection-index-value="{{ form.customFields|length }}"
+     data-collection-prototype-value="{{ _self.custom_field_row(form.customFields.vars.prototype)|e('html_attr') }}"
+>
+    <label>{{ 'blogpost.form.custom_fields.label'|trans }}</label>
+
+    <div data-collection-target="list">
+        {% for customField in form.customFields %}
+            {{ _self.custom_field_row(customField) }}
+        {% endfor %}
+    </div>
+
+    <button type="button" data-action="collection#add">{{ 'blogpost.form.custom_fields.add'|trans }}</button>
+</div>
+{% do form.customFields.setRendered %}

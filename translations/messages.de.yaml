@@ -1,0 +1,78 @@
+login:
+    title: Login
+    headline: Login
+    username: Benutzername
+    password: Passwort
+    submit: Anmelden
+
+breadcrumb:
+    dashboard: Home
+    blog_post_index: Blogposts
+    blog_post_add: Neuer Post
+
+navigation:
+    blog_post_index: Blogposts
+    blog_post_add: Neuer Blogpost
+
+blogpost:
+    index:
+        headline: BlogPosts
+        add_button: Neuer BlogPost
+        head:
+            title: Titel
+            created: Erstellt
+            status: Status
+    form:
+        title_new: Neuer BlogPost
+        title: Titel
+        slug: Slug
+        blog: Blog
+        blog_post_type: Typ
+        status: Status
+        is_visible_on_rss: Sichtbar im RSS-Feed
+        is_visible_on_web: Sichtbar im Web
+        summary: Zusammenfassung
+        content: Inhalt
+        tags: Tags
+        categories: Kategorien
+        images: Bilder
+        placeholder: Bitte wählen
+        submit: Speichern
+        submit_in_progress: Schreiben…
+        cancel: Abbrechen
+        tags_picker:
+            placeholder: Tag suchen oder anlegen
+            create: '%term% anlegen'
+            remove: Tag entfernen
+        modal:
+            header:
+                summary: Zusammenfassung
+                post: BlogPost
+                taxonomy: Taxonomy
+                images: Bilder
+                custom_fields: Zusatzfelder
+            legend:
+                settings: Einstellungen
+                visibility: Sichtbarkeit
+                tags: Tags
+                categories: Kategorien
+        modal_toggle:
+            status: Status
+            blog_name: Blogname
+            post_type: Beitragsart
+            taxonomy: Taxonomie
+            images: Bilder
+            custom_fields: Zusatzfelder
+            summary: Zusammenfassung
+        custom_fields:
+            label: Zusatzfelder
+            key: Schlüssel
+            value: Wert
+            add: Zusatzfeld hinzufügen
+            remove: Entfernen
+        delete:
+            button: BlogPost löschen
+            confirm: BlogPost wirklich unwiderruflich löschen?
+        save_info:
+            success: 'Gespeichert: %date%'
+            error: Speichern fehlgeschlagen. Bitte Eingaben prüfen.

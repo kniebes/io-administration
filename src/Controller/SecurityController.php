@@ -11,15 +11,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 final class SecurityController extends AbstractController
 {
-    /**
-     * Es gibt bewusst keine Logout-Action: die Route erzeugt der LogoutRouteLoader,
-     * der LogoutListener faengt die Anfrage vor jedem Controller ab.
-     */
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser() !== null) {
-            return $this->redirectToRoute('app_dashboard');
+            return $this->redirectToRoute('dashboard');
         }
 
         return $this->render(
