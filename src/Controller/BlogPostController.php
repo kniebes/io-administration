@@ -76,7 +76,7 @@ final class BlogPostController extends AbstractController
         }
 
         if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
-            return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
+            return $this->renderEditStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
         return $this->render(view: 'blog_post/edit.html.twig', parameters: [
@@ -100,7 +100,7 @@ final class BlogPostController extends AbstractController
 
             if ($this->isTurboStreamRequest($request)) {
                 $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
-                return $this->renderSaveInfoStream(request: $request, success: true, form: $form, blogPost: $blogPost);
+                return $this->renderEditStream(request: $request, success: true, form: $form, blogPost: $blogPost);
             }
 
             $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
@@ -109,7 +109,7 @@ final class BlogPostController extends AbstractController
         }
 
         if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
-            return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
+            return $this->renderEditStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
         return $this->render(view: 'blog_post/edit.html.twig', parameters: [
@@ -143,7 +143,7 @@ final class BlogPostController extends AbstractController
         return $request->getPreferredFormat() === TurboBundle::STREAM_FORMAT;
     }
 
-    private function renderSaveInfoStream(
+    private function renderEditStream(
         Request $request,
         bool $success,
         FormInterface $form,
@@ -158,7 +158,7 @@ final class BlogPostController extends AbstractController
             $errors[] = $error->getMessage();
         }
 
-        return $this->render(view: 'blog_post/_save_info.stream.html.twig', parameters: [
+        return $this->render(view: 'blog_post/_edit.stream.html.twig', parameters: [
             'form' => $form,
             'blogPost' => $blogPost,
             'success' => $success,

@@ -4,6 +4,12 @@
     </template>
 </turbo-stream>
 
+<turbo-stream action="update" target="blog-post-slug">
+    <template>
+        {{ form_row(form.slug) }}
+    </template>
+</turbo-stream>
+
 <turbo-stream action="update" target="blog-post-custom-fields">
     <template>
         {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}
