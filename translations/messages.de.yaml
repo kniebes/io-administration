@@ -15,13 +15,36 @@ navigation:
     blog_post_add: Neuer Blogpost
 
 blogpost:
+    status:
+        published: Veröffentlicht
+        hidden: Versteckt
+        draft: Entwurf
     index:
+        count: 'Anzahl der Posts: %count%'
         headline: BlogPosts
         add_button: Neuer BlogPost
+        filter:
+            search_query: Suchbegriff
+            status: Alle Status
+            blog: Alle Blogs
+            blog_post_type: Alle Typen
+            aria:
+                search_query: Suchbegriff
+                status: Status
+                blog: Blog
+                blog_post_type: Typ
+            submit: Filtern
+            reset: Filter löschen
+            legend: Filter
         head:
             title: Titel
             created: Erstellt
             status: Status
+            actions: Aktionen
+            blog: Blog
+        action:
+            edit: BlogPost bearbeiten
+            delete: BlogPost löschen
     form:
         title_new: Neuer BlogPost
         title: Titel
@@ -37,6 +60,7 @@ blogpost:
         categories: Kategorien
         images: Bilder
         placeholder: Bitte wählen
+        publish_requirement: Zum Veröffentlichen werden Blog und Typ benötigt.
         submit: Speichern
         submit_in_progress: Schreiben…
         cancel: Abbrechen

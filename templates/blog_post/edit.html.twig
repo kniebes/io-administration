@@ -16,13 +16,13 @@
 
 {% block body %}
     <main class="container" data-controller="modal">
-        <h1>{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}</h1>
+{#        <h1>{{ blogPost and blogPost.id ? blogPost.title : 'blogpost.form.title_new'|trans }}</h1>#}
 
         {{ form_start(form) }}
         <div class="wrapper">
             <div class="editor">
                 <p>{{ form_row(form.title) }}</p>
-                <p>{{ form_row(form.slug) }}</p>
+                <p id="blog-post-slug">{{ form_row(form.slug) }}</p>
                 <p>{{ form_row(form.content) }}</p>
             </div>
 
@@ -56,12 +56,13 @@
             </div>
         </aside>
 
-        <aside class="backdrop" id="post-settings">
+        <aside class="backdrop" id="post-settings" data-controller="publish-guard">
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.post'|trans }}</header>
                 <fieldset>
                     <legend>{{ 'blogpost.form.modal.legend.settings'|trans }}</legend>
                     <p>{{ form_row(form.status) }}</p>
+                    <p data-publish-guard-target="hint" hidden>{{ 'blogpost.form.publish_requirement'|trans }}</p>
                     <p>{{ form_row(form.blog) }}</p>
                     <p>{{ form_row(form.blogPostType) }}</p>
                 </fieldset>

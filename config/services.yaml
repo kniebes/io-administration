@@ -11,6 +11,7 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Entity/'
+            - '../src/Event/'
             - '../src/Model/'
             - '../src/DependencyInjection/'
 

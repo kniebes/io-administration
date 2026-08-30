@@ -44,7 +44,7 @@
 
     /* Status */
     --status-default-color: gray;
-    --status-pending-color: grey;
+    --status-draft-color: grey;
     --status-hidden-color: salmon;
     --status-published-color: lightgreen;
     --status-published-background-color: lightgreen;
@@ -148,6 +148,7 @@ input[type="number"],
 input[type="date"],
 input[type="url"],
 input[type="password"],
+input[type="search"],
 textarea,
 button {
     display: block;
@@ -233,11 +234,35 @@ fieldset p {
     margin-bottom: 1rem;
 }
 
+/* Filter Form */
+.filter input[type="search"] {
+    max-width: inherit;
+    width: 100%;
+}
+
+.filter button[type="submit"] {
+    font-size: .75rem;
+}
+
+.filter .filter-action {
+    display: flex;
+    justify-content: end;
+    gap: 1rem;
+    margin: 1rem 0 0 0;
+}
+
+.filter .filter-form-elements {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
 /* Breadcrumb */
 .breadcrumb {
     max-width: 1000px;
     text-align: left;
     margin: 2rem auto;
+    font-size: .9rem;
 }
 
 .breadcrumb > ul {
@@ -291,18 +316,21 @@ fieldset p {
 .breadcrumb a, .breadcrumb span {
     text-decoration: none;
     color: var(--muted-text-color);
-    font-size: .8rem;
     transition: background 0.3s ease;
     border-radius: var(--default-border-radius);
 }
 
-.breadcrumb a:hover {
+.breadcrumb span {
+    font-weight: 800;
+}
+
+.breadcrumb > ul > li > ul a:hover {
     background: var(--hover-background-color);
 }
 
 .breadcrumb button {
     padding: .1rem .3rem;
-    margin: .3rem 0 0 .5rem;
+    margin: .7rem 0 0 .5rem;
     font-size: .75rem;
 }
 
@@ -361,7 +389,4 @@ strong {
 .default-width {
     width: 1000px;
 }
-
-
-/* Modal */
 

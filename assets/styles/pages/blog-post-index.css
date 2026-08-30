@@ -1,0 +1,7 @@
+.count {
+    font-weight: 800;
+    margin: 2rem 0;
+    padding: 1rem;
+    border: 1px solid var(--default-border-color);
+    border-radius: var(--default-border-radius);
+}

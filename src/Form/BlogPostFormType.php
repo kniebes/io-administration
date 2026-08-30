@@ -81,6 +81,7 @@ final class BlogPostFormType extends AbstractType
             ])
             ->add('slug', TextType::class, [
                 'label' => 'blogpost.form.slug',
+                'required' => false,
                 'empty_data' => '',
             ])
             ->add('blog', EntityType::class, [
@@ -89,7 +90,11 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.blog',
                 'required' => false,
                 'placeholder' => 'blogpost.form.placeholder',
-                'attr' => ['class' => 'default-input']
+                'attr' => [
+                    'class' => 'default-input',
+                    'data-publish-guard-target' => 'blog',
+                    'data-action' => 'change->publish-guard#update',
+                ]
             ])
             ->add('blogPostType', EntityType::class, [
                 'class' => BlogPostType::class,
@@ -97,13 +102,21 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.blog_post_type',
                 'required' => false,
                 'placeholder' => 'blogpost.form.placeholder',
-                'attr' => ['class' => 'default-input']
+                'attr' => [
+                    'class' => 'default-input',
+                    'data-publish-guard-target' => 'blogPostType',
+                    'data-action' => 'change->publish-guard#update',
+                ]
             ])
             ->add('status', EnumType::class, [
                 'class' => BlogPostStatus::class,
                 'label' => 'blogpost.form.status',
                 'empty_data' => BlogPostStatus::Draft->value,
-                'attr' => ['class' => 'default-input']
+                'attr' => [
+                    'class' => 'default-input',
+                    'data-publish-guard-target' => 'status',
+                    'data-action' => 'change->publish-guard#update',
+                ]
             ])
             ->add('isVisibleOnRss', CheckboxType::class, [
                 'label' => 'blogpost.form.is_visible_on_rss',
@@ -176,74 +189,11 @@ final class BlogPostFormType extends AbstractType
                 'data' => $existingImageIds,
             ]);
 
-        $builder->get('images')->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
-            foreach ($event->getForm() as $name => $imageRow) {
-                if (($imageRow->getData() ?? '') === '') {
-                    $event->getForm()->remove($name);
-                }
-            }
-        });
-
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
-            $blogPost = $event->getData();
-
-            if (!$blogPost instanceof BlogPost) {
-                return;
-            }
-
-            $images = [];
-
-            foreach ($event->getForm()->get('images') as $imageRow) {
-                $image = $this->entityManager->find(Image::class, (int) $imageRow->getData());
-
-                if ($image instanceof Image) {
-                    $images[] = $image;
-                }
-            }
-
-            $blogPost->setImages(new ArrayCollection($images));
-        });
-
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
-            $blogPost = $event->getData();
-
-            if (!$blogPost instanceof BlogPost) {
-                return;
-            }
-
-            $tags = [];
-
-            foreach ($event->getForm()->get('tags') as $tagRow) {
-                $tag = $this->resolveTag((string) ($tagRow->getData() ?? ''));
-
-                if ($tag instanceof Tag && !in_array($tag, $tags, true)) {
-                    $tags[] = $tag;
-                }
-            }
-
-            $blogPost->setTags(new ArrayCollection($tags));
-        });
-
-        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event): void {
-            $blogPost = $event->getData();
-
-            if (!$blogPost instanceof BlogPost) {
-                return;
-            }
-
-            $customFields = [];
-
-            foreach ($event->getForm()->get('customFields')->getData() ?? [] as $item) {
-                if (($item['key'] ?? '') === '') {
-                    continue;
-                }
-                $key = $item['key'];
-                $key = preg_replace('/[^A-Za-z0-9]/', '_', $key);
-                $customFields[$key] = $item['value'] ?? '';
-            }
-
-            $blogPost->setCustomFields($customFields);
-        });
+        $builder->get('images')->addEventListener(FormEvents::SUBMIT, $this->removeEmptyImageRows(...));
+        $builder->addEventListener(FormEvents::SUBMIT, $this->applySubmittedImages(...));
+        $builder->addEventListener(FormEvents::SUBMIT, $this->applySubmittedTags(...));
+        $builder->addEventListener(FormEvents::SUBMIT, $this->applySubmittedCustomFields(...));
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, $this->fillEmptySlugFromTitle(...));
     }
 
     public function finishView(FormView $view, FormInterface $form, array $options): void
@@ -307,6 +257,101 @@ final class BlogPostFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => BlogPost::class,
         ]);
+    }
+
+    private function removeEmptyImageRows(FormEvent $event): void
+    {
+        foreach ($event->getForm() as $name => $imageRow) {
+            if (($imageRow->getData() ?? '') === '') {
+                $event->getForm()->remove($name);
+            }
+        }
+    }
+
+    private function applySubmittedImages(FormEvent $event): void
+    {
+        $blogPost = $event->getData();
+
+        if (!$blogPost instanceof BlogPost) {
+            return;
+        }
+
+        $images = [];
+
+        foreach ($event->getForm()->get('images') as $imageRow) {
+            $image = $this->entityManager->find(Image::class, (int) $imageRow->getData());
+
+            if ($image instanceof Image) {
+                $images[] = $image;
+            }
+        }
+
+        $blogPost->setImages(new ArrayCollection($images));
+    }
+
+    private function applySubmittedTags(FormEvent $event): void
+    {
+        $blogPost = $event->getData();
+
+        if (!$blogPost instanceof BlogPost) {
+            return;
+        }
+
+        $tags = [];
+
+        foreach ($event->getForm()->get('tags') as $tagRow) {
+            $tag = $this->resolveTag((string) ($tagRow->getData() ?? ''));
+
+            if ($tag instanceof Tag && !in_array($tag, $tags, true)) {
+                $tags[] = $tag;
+            }
+        }
+
+        $blogPost->setTags(new ArrayCollection($tags));
+    }
+
+    private function applySubmittedCustomFields(FormEvent $event): void
+    {
+        $blogPost = $event->getData();
+
+        if (!$blogPost instanceof BlogPost) {
+            return;
+        }
+
+        $customFields = [];
+
+        foreach ($event->getForm()->get('customFields')->getData() ?? [] as $item) {
+            if (($item['key'] ?? '') === '') {
+                continue;
+            }
+            $key = $item['key'];
+            $key = preg_replace('/[^A-Za-z0-9]/', '_', $key);
+            $customFields[$key] = $item['value'] ?? '';
+        }
+
+        $blogPost->setCustomFields($customFields);
+    }
+
+    private function fillEmptySlugFromTitle(FormEvent $event): void
+    {
+        $data = $event->getData();
+
+        if (!is_array($data)) {
+            return;
+        }
+
+        if (trim((string) ($data['slug'] ?? '')) !== '') {
+            return;
+        }
+
+        $title = trim((string) ($data['title'] ?? ''));
+
+        if ($title === '') {
+            return;
+        }
+
+        $data['slug'] = $this->slugger->slug($title)->lower()->toString();
+        $event->setData($data);
     }
 
     private function resolveTag(string $value): ?Tag

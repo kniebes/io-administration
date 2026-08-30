@@ -95,7 +95,7 @@ class BlogPost
     private Collection $categories;
 
     /** @var Collection<int, BlogPostImageMapping> */
-    #[ORM\OneToMany(mappedBy: 'blogPost', targetEntity: BlogPostImageMapping::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: BlogPostImageMapping::class, mappedBy: 'blogPost', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $blogPostImages;
 

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Event\SavedBlogPostEvent;
+use App\Event\BlogPostPostSaveEvent;
+use App\Event\BlogPostPreSaveEvent;
 use App\Form\BlogPostFormType;
+use App\Form\Filter\BlogPostFilterType;
+use App\Model\Filter\BlogPostFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BlogPost;
 use App\Repository\BlogPostRepository;
@@ -40,13 +43,24 @@ final class BlogPostController extends AbstractController
     )]
     public function index(Request $request): Response
     {
+        $filter = new BlogPostFilter();
+        $filterForm = $this->createForm(type: BlogPostFilterType::class, data: $filter);
+        $filterForm->handleRequest($request);
+
+        if ($filterForm->isSubmitted() && $filterForm->get('reset')->isClicked()) {
+            return $this->redirectToRoute(route: 'blog_post_index');
+        }
+
         $pagination = $this->paginator->paginate(
-            target: $this->blogPostRepository->createSearchQuery(),
+            target: $this->blogPostRepository->createFilterQuery($filter),
             page: $request->query->getInt('page', 1),
             limit: 10
         );
 
-        return $this->render(view: 'blog_post/index.html.twig', parameters: ['pagination' => $pagination]);
+        return $this->render(view: 'blog_post/index.html.twig', parameters: [
+            'pagination' => $pagination,
+            'filterForm' => $filterForm,
+        ]);
     }
 
     #[Route(
@@ -59,7 +73,7 @@ final class BlogPostController extends AbstractController
     )]
     public function add(Request $request): Response
     {
-        $blogPost = (new BlogPost())
+        $blogPost = new BlogPost()
             ->setTitle('')
             ->setSlug('')
             ->setContent('');
@@ -68,15 +82,22 @@ final class BlogPostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $preSaveEvent = new BlogPostPreSaveEvent($blogPost);
+            $this->eventDispatcher->dispatch($preSaveEvent);
             $this->entityManager->persist($blogPost);
             $this->entityManager->flush();
-            $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
+            $this->eventDispatcher->dispatch(
+                new BlogPostPostSaveEvent(
+                    blogPost: $blogPost,
+                    isFirstTimePublished: $preSaveEvent->isFirstTimePublished()
+                )
+            );
 
             return $this->redirectToRoute(route: 'blog_post_edit', parameters: ['id' => $blogPost->getId()]);
         }
 
         if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
-            return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
+            return $this->renderEditStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
         return $this->render(view: 'blog_post/edit.html.twig', parameters: [
@@ -96,20 +117,25 @@ final class BlogPostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $preSaveEvent = new BlogPostPreSaveEvent($blogPost);
+            $this->eventDispatcher->dispatch($preSaveEvent);
             $this->entityManager->flush();
+            $this->eventDispatcher->dispatch(
+                new BlogPostPostSaveEvent(
+                    blogPost: $blogPost,
+                    isFirstTimePublished: $preSaveEvent->isFirstTimePublished()
+                )
+            );
 
             if ($this->isTurboStreamRequest($request)) {
-                $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
-                return $this->renderSaveInfoStream(request: $request, success: true, form: $form, blogPost: $blogPost);
+                return $this->renderEditStream(request: $request, success: true, form: $form, blogPost: $blogPost);
             }
-
-            $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
 
             return $this->redirectToRoute(route: 'blog_post_edit', parameters: ['id' => $blogPost->getId()]);
         }
 
         if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
-            return $this->renderSaveInfoStream(request: $request, success: false, form: $form, blogPost: $blogPost);
+            return $this->renderEditStream(request: $request, success: false, form: $form, blogPost: $blogPost);
         }
 
         return $this->render(view: 'blog_post/edit.html.twig', parameters: [
@@ -143,7 +169,7 @@ final class BlogPostController extends AbstractController
         return $request->getPreferredFormat() === TurboBundle::STREAM_FORMAT;
     }
 
-    private function renderSaveInfoStream(
+    private function renderEditStream(
         Request $request,
         bool $success,
         FormInterface $form,
@@ -158,7 +184,7 @@ final class BlogPostController extends AbstractController
             $errors[] = $error->getMessage();
         }
 
-        return $this->render(view: 'blog_post/_save_info.stream.html.twig', parameters: [
+        return $this->render(view: 'blog_post/_edit.stream.html.twig', parameters: [
             'form' => $form,
             'blogPost' => $blogPost,
             'success' => $success,

@@ -4,41 +4,91 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('styles/pages/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/pages/blog-post-index.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/common/data-table.css') }}">
 {% endblock %}
 
 {% block breadcrumb_elements %}
-<li><span>{{ 'breadcrumb.blog_post_index'|trans }}</span></li>
+    <li><span>{{ 'breadcrumb.blog_post_index'|trans }}</span></li>
 {% endblock %}
 
 
 {% block body %}
     <main class="container">
-        <h1>{{ 'blogpost.index.headline'|trans }}</h1>
+{#        <h1>{{ 'blogpost.index.headline'|trans }}</h1>#}
 
         <turbo-frame id="blog-post-list">
+            {{ form_start(filterForm, {
+                action: path('blog_post_index'),
+                attr: {
+                    class: 'filter',
+                    'data-turbo-action': 'advance'
+                }
+            }) }}
+            <fieldset>
+                <legend>{{ 'blogpost.index.filter.legend'|trans }}</legend>
+                <div class="filter-form-elements">
+                    {{ form_row(filterForm.searchQuery) }}
+                    {{ form_row(filterForm.status) }}
+                    {{ form_row(filterForm.blog) }}
+                    {{ form_row(filterForm.blogPostType) }}
+                </div>
+                <div class="filter-action">
+                    <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
+                    {{ form_widget(filterForm.reset) }}
+                </div>
+            </fieldset>
+
+            {{ form_end(filterForm) }}
+
             <div class="count">
-                {{ pagination.getTotalItemCount }}
+                {{ 'blogpost.index.count'|trans({'%count%': pagination.getTotalItemCount}) }}
             </div>
+
             <table class="data">
                 <thead>
                 <tr>
+                    <th class="status"></th>
                     <th{% if pagination.isSorted('p.title') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.title'|trans, 'p.title') }}
                     </th>
-                    <th>{{ 'blogpost.index.head.status'|trans }}</th>
+                    <th>{{ 'blogpost.index.head.blog'|trans }}</th>
                     <th{% if pagination.isSorted('a.creted') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.created'|trans, 'p.created') }}
                     </th>
+                    <th class="right">{{ 'blogpost.index.head.actions'|trans }}</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for post in pagination %}
                     <tr {% if loop.index is odd %}class="color"{% endif %}>
-                        <td><a data-turbo-frame="_top" href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a></td>
-                        <td>{{ post.status.name }}</td>
-                        <td>{{ post.created | date('Y-m-d H:i:s') }}</td>
+                        <td class="status {{ post.status.value }}"></td>
+                        <td class="title"><a data-turbo-frame="_top"
+                                             href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a>
+                        </td>
+                        <td>{{ post.blog.name|default('') }}</td>
+                        <td class="datetime">{{ post.created | date('Y-m-d H:i:s') }}</td>
+                        <td class="actions">
+                            <a data-turbo-frame="_top"
+                               href="{{ path('blog_post_edit', {id: post.id}) }}"
+                               title="{{ 'blogpost.index.action.edit'|trans }}"
+                               aria-label="{{ 'blogpost.index.action.edit'|trans }}">
+                                {{ ux_icon('lucide:pencil', {'aria-hidden': 'true'}) }}
+                            </a>
+                            <form method="post"
+                                  data-turbo-frame="_top"
+                                  action="{{ path('blog_post_delete', {id: post.id}) }}"
+                                  data-turbo-confirm="{{ 'blogpost.form.delete.confirm'|trans }}">
+                                <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
+                                       value="{{ csrf_token('delete-blog-post-' ~ post.id) }}">
+                                <button type="submit"
+                                        class="delete"
+                                        title="{{ 'blogpost.index.action.delete'|trans }}"
+                                        aria-label="{{ 'blogpost.index.action.delete'|trans }}">
+                                    {{ ux_icon('lucide:trash-2', {'aria-hidden': 'true'}) }}
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
