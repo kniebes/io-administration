@@ -20,6 +20,7 @@ blogpost:
         hidden: Versteckt
         draft: Entwurf
     index:
+        count: 'Anzahl der Posts: %count%'
         headline: BlogPosts
         add_button: Neuer BlogPost
         filter:
