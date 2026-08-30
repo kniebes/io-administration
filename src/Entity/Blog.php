@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use App\Repository\BlogRepository;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
-#[ORM\Entity()]
+#[ORM\Entity(repositoryClass: BlogRepository::class)]
 #[ORM\Table(name: 'blog')]
 class Blog
 {
@@ -20,6 +21,18 @@ class Blog
     #[ORM\Column(length: 180, unique: true)]
     #[Groups(['blog_post:read'])]
     private ?string $name = null;
+
+    #[ORM\Column(name: 'base_url', length: 256, unique: true)]
+    #[Groups(['blog_post:read'])]
+    private ?string $baseUrl = null;
+
+    #[ORM\Column(name:'feed_url', length: 256, unique: true)]
+    #[Groups(['blog_post:read'])]
+    private ?string $feedUrl = null;
+
+    #[ORM\Column(name: 'ping_services', type: Types::JSON, options: ['default' => null])]
+    #[Groups(['blog_post:read'])]
+    private array $pingServices = [];
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?DateTimeImmutable $created = null;
@@ -40,6 +53,42 @@ class Blog
     public function setName(?string $name): Blog
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getBaseUrl(): ?string
+    {
+        return $this->baseUrl;
+    }
+
+    public function setBaseUrl(?string $baseUrl): Blog
+    {
+        $this->baseUrl = $baseUrl;
+
+        return $this;
+    }
+
+    public function getFeedUrl(): ?string
+    {
+        return $this->feedUrl;
+    }
+
+    public function setFeedUrl(?string $feedUrl): Blog
+    {
+        $this->feedUrl = $feedUrl;
+
+        return $this;
+    }
+
+    public function getPingServices(): array
+    {
+        return $this->pingServices;
+    }
+
+    public function setPingServices(array $pingServices): Blog
+    {
+        $this->pingServices = $pingServices;
 
         return $this;
     }

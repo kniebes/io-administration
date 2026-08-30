@@ -37,3 +37,12 @@ services:
         class: App\Service\DataCollector\DataCollectorService
         arguments:
             - !tagged_iterator app.data_collector
+
+    App\Service\Ping\SendPing:
+        arguments:
+            - !tagged_iterator app.ping_service
+
+    App\Service\Ping\PingConfiguration\Interface\PingConfigurationFactoryInterface:
+        class: App\Service\Ping\PingConfiguration\PingConfigurationFactory
+
+

@@ -3,37 +3,47 @@
 namespace App\Service\ErrorLogger;
 
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
-class EmailNotification implements ErrorLoggerInterface
+final readonly class EmailNotification implements ErrorLoggerInterface
 {
-    public function log(string $subject, string $message, ?string $type = 'info'): void
+    public function __construct(
+        private LoggerInterface $logger,
+    )
     {
+    }
+
+    public function log(Throwable $throwable, ?string $type = 'email'): void
+    {
+        match ($type) {
+            ErrorLoggerInterface::TYPE_EMAIL => $this->sendEmailMessage($throwable),
+            default => $this->logMessage($throwable),
+        };
+    }
+    protected function sendEmailMessage(Throwable $throwable, ?string $type = 'email'): void
+    {
+        $subject = $throwable->getMessage();
+        $message = [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            'trace' => $throwable->getTraceAsString(),
+        ];
+
         $header = 'From: notification@kniebes.com' . "\r\n" .
             'Reply-To: notification@kniebes.com' . "\r\n" .
             'Content-Type: text/plain; charset=UTF-8' . "\r\n" .
             'X-Mailer: PHP/' . phpversion();
-        $message .= PHP_EOL;
-        foreach ([
-                     'HTTP_USER_AGENT',
-                     'HTTP_REFERER',
-                     'REQUEST_URI',
-                     'GEOIP_POSTAL_CODE',
-                     'GEOIP_AREA_CODE',
-                     'GEOIP_METRO_CODE',
-                     'GEOIP_DMA_CODE',
-                     'GEOIP_CITY',
-                     'GEOIP_REGION_NAME',
-                     'GEOIP_REGION',
-                     'GEOIP_COUNTRY_NAME',
-                     'GEOIP_COUNTRY_CODE',
-                     'GEOIP_CONTINENT_CODE',
-                 ] as $key) {
-            if (!empty($_SERVER[$key])) {
-                $message .= PHP_EOL.sprintf('%-20s : %s', $key, $_SERVER[$key]);
-            }
-        }
 
-        mail('m@kniebes.io', sprintf('[%s] %s', $type, $subject), $message, $header);
+        mail('m@kniebes.io', sprintf('[%s] %s', $type, $subject), implode(PHP_EOL, $message), $header);
     }
 
+    protected function logMessage(Throwable $throwable, ?string $type = 'email'): void
+    {
+        $this->logger->error(message: $throwable->getMessage(), context: [
+            'file' => $throwable->getFile(),
+            'line' => $throwable->getLine(),
+            'trace' => $throwable->getTraceAsString(),
+        ]);
+    }
 }

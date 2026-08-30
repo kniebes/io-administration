@@ -42,11 +42,7 @@ class Gallery implements IoTagEncoderInterface
                     $string = str_replace($galleryTag, $htmlGallery, $string);
                 }
             } catch (Exception $e) {
-                $this->errorLogger->log(
-                    subject: 'Error generating image gallery',
-                    message: 'Error generating image gallery: '.$e->getMessage(),
-                    type: 'error'
-                );
+                $this->errorLogger->log($e);
             }
         }
 

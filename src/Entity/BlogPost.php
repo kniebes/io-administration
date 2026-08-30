@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
 #[ORM\Table(name: 'blog_post')]
-#[ORM\Index(columns: ['searchable_text'], flags: ['fulltext'], name: 'post_fulltext')]
+#[ORM\Index(name: 'post_fulltext', columns: ['searchable_text'], flags: ['fulltext'])]
 #[ORM\HasLifecycleCallbacks]
 class BlogPost
 {
