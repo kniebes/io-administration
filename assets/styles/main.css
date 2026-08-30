@@ -262,6 +262,7 @@ fieldset p {
     max-width: 1000px;
     text-align: left;
     margin: 2rem auto;
+    font-size: .9rem;
 }
 
 .breadcrumb > ul {
@@ -315,7 +316,6 @@ fieldset p {
 .breadcrumb a, .breadcrumb span {
     text-decoration: none;
     color: var(--muted-text-color);
-    font-size: .8rem;
     transition: background 0.3s ease;
     border-radius: var(--default-border-radius);
 }
@@ -324,13 +324,13 @@ fieldset p {
     font-weight: 800;
 }
 
-.breadcrumb a:hover {
+.breadcrumb > ul > li > ul a:hover {
     background: var(--hover-background-color);
 }
 
 .breadcrumb button {
     padding: .1rem .3rem;
-    margin: .3rem 0 0 .5rem;
+    margin: .7rem 0 0 .5rem;
     font-size: .75rem;
 }
 
