@@ -6,21 +6,16 @@ use App\Enum\BlogPostStatus;
 use App\Event\BlogPostPreSaveEvent;
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\IoTag\IoTagEncoder;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\BlogPost;
-use App\Repository\BlogPostRepository;
 use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Exception\CommonMarkException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Throwable;
 
-class BlogPostPreSaveEventSubscriber implements EventSubscriberInterface
+readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly IoTagEncoder $ioTagEncoder,
-        private readonly CommonMarkConverter $converter,
-        private readonly ErrorLoggerInterface $errorLogger,
+        private IoTagEncoder $ioTagEncoder,
+        private CommonMarkConverter $converter,
+        private ErrorLoggerInterface $errorLogger,
     )
     {
     }
@@ -81,7 +76,4 @@ class BlogPostPreSaveEventSubscriber implements EventSubscriberInterface
             }
         }
     }
-
-
-
 }

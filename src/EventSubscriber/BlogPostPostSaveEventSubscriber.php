@@ -26,7 +26,6 @@ class BlogPostPostSaveEventSubscriber implements EventSubscriberInterface
 
     public function syndicate(BlogPostPostSaveEvent $event): void
     {
-        sleep(1);
         // @TODO Syndicate
     }
 }

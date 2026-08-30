@@ -60,7 +60,7 @@ final class BlogPostController extends AbstractController
     )]
     public function add(Request $request): Response
     {
-        $blogPost = (new BlogPost())
+        $blogPost = new BlogPost()
             ->setTitle('')
             ->setSlug('')
             ->setContent('');
