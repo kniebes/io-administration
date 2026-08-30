@@ -7,6 +7,8 @@ namespace App\Controller;
 use App\Event\BlogPostPostSaveEvent;
 use App\Event\BlogPostPreSaveEvent;
 use App\Form\BlogPostFormType;
+use App\Form\Filter\BlogPostFilterType;
+use App\Model\Filter\BlogPostFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BlogPost;
 use App\Repository\BlogPostRepository;
@@ -41,13 +43,20 @@ final class BlogPostController extends AbstractController
     )]
     public function index(Request $request): Response
     {
+        $filter = new BlogPostFilter();
+        $filterForm = $this->createForm(type: BlogPostFilterType::class, data: $filter);
+        $filterForm->handleRequest($request);
+
         $pagination = $this->paginator->paginate(
-            target: $this->blogPostRepository->createBaseQuery(),
+            target: $this->blogPostRepository->createFilterQuery($filter),
             page: $request->query->getInt('page', 1),
             limit: 10
         );
 
-        return $this->render(view: 'blog_post/index.html.twig', parameters: ['pagination' => $pagination]);
+        return $this->render(view: 'blog_post/index.html.twig', parameters: [
+            'pagination' => $pagination,
+            'filterForm' => $filterForm,
+        ]);
     }
 
     #[Route(

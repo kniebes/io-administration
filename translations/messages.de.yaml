@@ -22,6 +22,10 @@ blogpost:
     index:
         headline: BlogPosts
         add_button: Neuer BlogPost
+        filter:
+            search_query: Suchbegriff
+            submit: Filtern
+            reset: Filter löschen
         head:
             title: Titel
             created: Erstellt

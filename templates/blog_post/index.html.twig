@@ -9,13 +9,31 @@
 {% endblock %}
 
 {% block breadcrumb_elements %}
-<li><span>{{ 'breadcrumb.blog_post_index'|trans }}</span></li>
+    <li><span>{{ 'breadcrumb.blog_post_index'|trans }}</span></li>
 {% endblock %}
 
 
 {% block body %}
     <main class="container">
         <h1>{{ 'blogpost.index.headline'|trans }}</h1>
+
+        <div class="filter-widget">
+            {{ form_start(filterForm, {
+                action: path('blog_post_index'),
+                attr: {
+                    class: 'filter',
+                    'data-turbo-frame': 'blog-post-list',
+                    'data-turbo-action': 'advance'
+                }
+            }) }}
+            {{ form_row(filterForm.searchQuery) }}
+            <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
+            {{ form_end(filterForm) }}
+
+            <form method="get" action="{{ path('blog_post_index') }}" class="filter-reset" data-turbo-frame="_top">
+                <button type="submit">{{ 'blogpost.index.filter.reset'|trans }}</button>
+            </form>
+        </div>
 
         <turbo-frame id="blog-post-list">
             <div class="count">
@@ -39,7 +57,9 @@
                 {% for post in pagination %}
                     <tr {% if loop.index is odd %}class="color"{% endif %}>
                         <td class="status {{ post.status.value }}"></td>
-                        <td class="title"><a data-turbo-frame="_top" href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a></td>
+                        <td class="title"><a data-turbo-frame="_top"
+                                             href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a>
+                        </td>
                         <td>{{ ('blogpost.status.'~post.status.value)|trans }}</td>
                         <td class="datetime">{{ post.created | date('Y-m-d H:i:s') }}</td>
                         <td class="actions">
@@ -53,7 +73,8 @@
                                   data-turbo-frame="_top"
                                   action="{{ path('blog_post_delete', {id: post.id}) }}"
                                   data-turbo-confirm="{{ 'blogpost.form.delete.confirm'|trans }}">
-                                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('delete-blog-post-' ~ post.id) }}">
+                                <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
+                                       value="{{ csrf_token('delete-blog-post-' ~ post.id) }}">
                                 <button type="submit"
                                         class="delete"
                                         title="{{ 'blogpost.index.action.delete'|trans }}"

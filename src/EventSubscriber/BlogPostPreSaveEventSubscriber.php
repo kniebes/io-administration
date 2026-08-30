@@ -84,7 +84,7 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
         $searchableText = [$blogPost->getTitle()];
         $searchableText[] = strip_tags($blogPost->getContentEncoded());
         foreach ($blogPost->getTags() as $tag) {
-            $searchableText[] = $tag->getName();
+            $searchableText[] = $tag->getTerm();
         }
 
         $blogPost->setSearchableText(implode(PHP_EOL, $searchableText));

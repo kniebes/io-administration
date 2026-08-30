@@ -148,6 +148,7 @@ input[type="number"],
 input[type="date"],
 input[type="url"],
 input[type="password"],
+input[type="search"],
 textarea,
 button {
     display: block;
@@ -231,6 +232,18 @@ fieldset {
 
 fieldset p {
     margin-bottom: 1rem;
+}
+
+/* Filter Form */
+.filter-widget {
+    border: 1px solid var(--default-border-color);
+    padding: 1rem;
+}
+
+.filter-widget button[type="submit"] {
+    background: var(--button-background-color);
+    color: var(--button-text-color);
+    padding: .1rem .5rem;
 }
 
 /* Breadcrumb */
