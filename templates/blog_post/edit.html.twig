@@ -56,12 +56,13 @@
             </div>
         </aside>
 
-        <aside class="backdrop" id="post-settings">
+        <aside class="backdrop" id="post-settings" data-controller="publish-guard">
             <div class="modal default-width">
                 <header>{{ 'blogpost.form.modal.header.post'|trans }}</header>
                 <fieldset>
                     <legend>{{ 'blogpost.form.modal.legend.settings'|trans }}</legend>
                     <p>{{ form_row(form.status) }}</p>
+                    <p data-publish-guard-target="hint" hidden>{{ 'blogpost.form.publish_requirement'|trans }}</p>
                     <p>{{ form_row(form.blog) }}</p>
                     <p>{{ form_row(form.blogPostType) }}</p>
                 </fieldset>

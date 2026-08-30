@@ -60,6 +60,7 @@ blogpost:
         categories: Kategorien
         images: Bilder
         placeholder: Bitte wählen
+        publish_requirement: Zum Veröffentlichen werden Blog und Typ benötigt.
         submit: Speichern
         submit_in_progress: Schreiben…
         cancel: Abbrechen

@@ -90,7 +90,11 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.blog',
                 'required' => false,
                 'placeholder' => 'blogpost.form.placeholder',
-                'attr' => ['class' => 'default-input']
+                'attr' => [
+                    'class' => 'default-input',
+                    'data-publish-guard-target' => 'blog',
+                    'data-action' => 'change->publish-guard#update',
+                ]
             ])
             ->add('blogPostType', EntityType::class, [
                 'class' => BlogPostType::class,
@@ -98,13 +102,21 @@ final class BlogPostFormType extends AbstractType
                 'label' => 'blogpost.form.blog_post_type',
                 'required' => false,
                 'placeholder' => 'blogpost.form.placeholder',
-                'attr' => ['class' => 'default-input']
+                'attr' => [
+                    'class' => 'default-input',
+                    'data-publish-guard-target' => 'blogPostType',
+                    'data-action' => 'change->publish-guard#update',
+                ]
             ])
             ->add('status', EnumType::class, [
                 'class' => BlogPostStatus::class,
                 'label' => 'blogpost.form.status',
                 'empty_data' => BlogPostStatus::Draft->value,
-                'attr' => ['class' => 'default-input']
+                'attr' => [
+                    'class' => 'default-input',
+                    'data-publish-guard-target' => 'status',
+                    'data-action' => 'change->publish-guard#update',
+                ]
             ])
             ->add('isVisibleOnRss', CheckboxType::class, [
                 'label' => 'blogpost.form.is_visible_on_rss',
