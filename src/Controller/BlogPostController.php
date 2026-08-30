@@ -42,7 +42,7 @@ final class BlogPostController extends AbstractController
     public function index(Request $request): Response
     {
         $pagination = $this->paginator->paginate(
-            target: $this->blogPostRepository->createSearchQuery(),
+            target: $this->blogPostRepository->createBaseQuery(),
             page: $request->query->getInt('page', 1),
             limit: 10
         );

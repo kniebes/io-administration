@@ -14,7 +14,7 @@ class BlogPostRepository extends ServiceEntityRepository
         parent::__construct(registry: $managerRegistry, entityClass: BlogPost::class);
     }
 
-    public function createSearchQuery():Query
+    public function createBaseQuery():Query
     {
         $dql   = 'SELECT p FROM App\Entity\BlogPost p ORDER BY p.created DESC';
 

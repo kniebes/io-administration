@@ -24,8 +24,9 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
     {
         return [
             BlogPostPreSaveEvent::class => [
-                ['enrichContent', 0],
-                ['handlePublishedState', 10],
+                ['handlePublishedState', 20],
+                ['createEncodeFields', 10],
+                ['createSearchableText', 0],
             ],
         ];
     }
@@ -44,7 +45,7 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
         }
     }
 
-    public function enrichContent(BlogPostPreSaveEvent $event): void
+    public function createEncodeFields(BlogPostPreSaveEvent $event): void
     {
         $blogPost = $event->getBlogPost();
 
@@ -75,5 +76,17 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
                 );
             }
         }
+    }
+
+    public function createSearchableText(BlogPostPreSaveEvent $event): void
+    {
+        $blogPost = $event->getBlogPost();
+        $searchableText = [$blogPost->getTitle()];
+        $searchableText[] = strip_tags($blogPost->getContentEncoded());
+        foreach ($blogPost->getTags() as $tag) {
+            $searchableText[] = $tag->getName();
+        }
+
+        $blogPost->setSearchableText(implode(PHP_EOL, $searchableText));
     }
 }
