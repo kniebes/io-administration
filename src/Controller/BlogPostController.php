@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Event\SavedBlogPostEvent;
+use App\Event\BlogPostPostSaveEvent;
+use App\Event\BlogPostPreSaveEvent;
 use App\Form\BlogPostFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BlogPost;
@@ -68,9 +69,16 @@ final class BlogPostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $preSaveEvent = new BlogPostPreSaveEvent($blogPost);
+            $this->eventDispatcher->dispatch($preSaveEvent);
             $this->entityManager->persist($blogPost);
             $this->entityManager->flush();
-            $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
+            $this->eventDispatcher->dispatch(
+                new BlogPostPostSaveEvent(
+                    blogPost: $blogPost,
+                    isFirstTimePublished: $preSaveEvent->isFirstTimePublished()
+                )
+            );
 
             return $this->redirectToRoute(route: 'blog_post_edit', parameters: ['id' => $blogPost->getId()]);
         }
@@ -96,14 +104,19 @@ final class BlogPostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $preSaveEvent = new BlogPostPreSaveEvent($blogPost);
+            $this->eventDispatcher->dispatch($preSaveEvent);
             $this->entityManager->flush();
+            $this->eventDispatcher->dispatch(
+                new BlogPostPostSaveEvent(
+                    blogPost: $blogPost,
+                    isFirstTimePublished: $preSaveEvent->isFirstTimePublished()
+                )
+            );
 
             if ($this->isTurboStreamRequest($request)) {
-                $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
                 return $this->renderEditStream(request: $request, success: true, form: $form, blogPost: $blogPost);
             }
-
-            $this->eventDispatcher->dispatch(New SavedBlogPostEvent($blogPost));
 
             return $this->redirectToRoute(route: 'blog_post_edit', parameters: ['id' => $blogPost->getId()]);
         }
