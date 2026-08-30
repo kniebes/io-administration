@@ -56,10 +56,7 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
                 $contentEncoded = $this->converter->convert($contentEncoded)->getContent();
                 $blogPost->setContentEncoded($contentEncoded);
             } catch (Throwable $throwable) {
-                $this->errorLogger->log(
-                    subject: 'enrichContent:content - '.$throwable->getMessage(),
-                    message: $throwable->getTraceAsString()
-                );
+                $this->errorLogger->log($throwable);
             }
         }
 
@@ -70,10 +67,7 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
                 $summaryEncoded = $this->converter->convert($summaryEncoded)->getContent();
                 $blogPost->setSummaryEncoded($summaryEncoded);
             } catch (Throwable $throwable) {
-                $this->errorLogger->log(
-                    subject: 'enrichContent:summary - '.$throwable->getMessage(),
-                    message: $throwable->getTraceAsString()
-                );
+                $this->errorLogger->log($throwable);
             }
         }
     }

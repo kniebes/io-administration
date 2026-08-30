@@ -3,10 +3,22 @@
 namespace App\EventSubscriber;
 
 use App\Event\BlogPostPostSaveEvent;
+use App\Message\PingMessage;
+use App\Message\SyndicationMessage;
+use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\Exception\ExceptionInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class BlogPostPostSaveEventSubscriber implements EventSubscriberInterface
 {
+    public function __construct(
+        private readonly MessageBusInterface $messageBus,
+        private readonly ErrorLoggerInterface $errorLogger,
+    )
+    {
+    }
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -20,12 +32,20 @@ class BlogPostPostSaveEventSubscriber implements EventSubscriberInterface
     public function ping(BlogPostPostSaveEvent $event): void
     {
         if ($event->isFirstTimePublished()) {
-            // @TODO Ping
+            try {
+                $this->messageBus->dispatch(new PingMessage($event->getBlogPost()->getId()));
+            } catch (ExceptionInterface $e) {
+                $this->errorLogger->log($e);
+            }
         }
     }
 
     public function syndicate(BlogPostPostSaveEvent $event): void
     {
-        // @TODO Syndicate
+        try {
+            $this->messageBus->dispatch(new SyndicationMessage($event->getBlogPost()->getId()));
+        } catch (ExceptionInterface $e) {
+            $this->errorLogger->log($e);
+        }
     }
 }

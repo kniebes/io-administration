@@ -5,6 +5,7 @@ namespace App\Twig;
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\Navigation\Interface\NavigationServiceInterface;
 use ArrayIterator;
+use Exception;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -28,8 +29,8 @@ class NavigationExtension extends AbstractExtension
     {
         try {
             return $this->navigationService->getNavigationItems();
-        } catch (\Exception $e) {
-            $this->errorLogger->log(subject: 'Navigation Error', message: $e->getMessage());
+        } catch (Exception $e) {
+            $this->errorLogger->log($e);
 
             return new ArrayIterator();
         }
