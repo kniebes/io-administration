@@ -314,6 +314,10 @@ fieldset p {
     border-radius: var(--default-border-radius);
 }
 
+.breadcrumb span {
+    font-weight: 800;
+}
+
 .breadcrumb a:hover {
     background: var(--hover-background-color);
 }
