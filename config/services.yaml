@@ -45,4 +45,7 @@ services:
     App\Service\Ping\PingConfiguration\Interface\PingConfigurationFactoryInterface:
         class: App\Service\Ping\PingConfiguration\PingConfigurationFactory
 
-
+    App\Service\IndieWeb\Syndication\Interface\SyndicationServiceInterface:
+        class: App\Service\IndieWeb\Syndication\SyndicationService
+        arguments:
+            - !tagged_iterator app.indieweb_syndictor
