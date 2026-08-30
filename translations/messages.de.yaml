@@ -26,6 +26,7 @@ blogpost:
             search_query: Suchbegriff
             submit: Filtern
             reset: Filter löschen
+            legend: Filter
         head:
             title: Titel
             created: Erstellt

@@ -47,6 +47,10 @@ final class BlogPostController extends AbstractController
         $filterForm = $this->createForm(type: BlogPostFilterType::class, data: $filter);
         $filterForm->handleRequest($request);
 
+        if ($filterForm->isSubmitted() && $filterForm->get('reset')->isClicked()) {
+            return $this->redirectToRoute(route: 'blog_post_index');
+        }
+
         $pagination = $this->paginator->paginate(
             target: $this->blogPostRepository->createFilterQuery($filter),
             page: $request->query->getInt('page', 1),

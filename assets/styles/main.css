@@ -235,15 +235,20 @@ fieldset p {
 }
 
 /* Filter Form */
-.filter-widget {
-    border: 1px solid var(--default-border-color);
-    padding: 1rem;
+.filter input[type="search"] {
+    max-width: inherit;
+    width: 100%;
 }
 
-.filter-widget button[type="submit"] {
-    background: var(--button-background-color);
-    color: var(--button-text-color);
-    padding: .1rem .5rem;
+.filter button[type="submit"] {
+    font-size: .75rem;
+}
+
+.filter .filter-action {
+    display: flex;
+    justify-content: end;
+    gap: 1rem;
+    margin: 1rem 0 0 0;
 }
 
 /* Breadcrumb */

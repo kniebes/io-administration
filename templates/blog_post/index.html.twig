@@ -17,25 +17,25 @@
     <main class="container">
         <h1>{{ 'blogpost.index.headline'|trans }}</h1>
 
-        <div class="filter-widget">
+        <turbo-frame id="blog-post-list">
             {{ form_start(filterForm, {
                 action: path('blog_post_index'),
                 attr: {
                     class: 'filter',
-                    'data-turbo-frame': 'blog-post-list',
                     'data-turbo-action': 'advance'
                 }
             }) }}
-            {{ form_row(filterForm.searchQuery) }}
-            <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
+            <fieldset>
+                <legend>{{ 'blogpost.index.filter.legend'|trans }}</legend>
+                {{ form_row(filterForm.searchQuery) }}
+                <div class="filter-action">
+                    <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
+                    {{ form_widget(filterForm.reset) }}
+                </div>
+            </fieldset>
+
             {{ form_end(filterForm) }}
 
-            <form method="get" action="{{ path('blog_post_index') }}" class="filter-reset" data-turbo-frame="_top">
-                <button type="submit">{{ 'blogpost.index.filter.reset'|trans }}</button>
-            </form>
-        </div>
-
-        <turbo-frame id="blog-post-list">
             <div class="count">
                 {{ pagination.getTotalItemCount }}
             </div>
