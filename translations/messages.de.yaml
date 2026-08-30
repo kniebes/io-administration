@@ -41,6 +41,7 @@ blogpost:
             created: Erstellt
             status: Status
             actions: Aktionen
+            blog: Blog
         action:
             edit: BlogPost bearbeiten
             delete: BlogPost löschen

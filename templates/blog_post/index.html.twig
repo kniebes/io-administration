@@ -52,7 +52,7 @@
                     <th{% if pagination.isSorted('p.title') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.title'|trans, 'p.title') }}
                     </th>
-                    <th>{{ 'blogpost.index.head.status'|trans }}</th>
+                    <th>{{ 'blogpost.index.head.blog'|trans }}</th>
                     <th{% if pagination.isSorted('a.creted') %} class="sorted"{% endif %}>
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.created'|trans, 'p.created') }}
                     </th>
@@ -66,7 +66,7 @@
                         <td class="title"><a data-turbo-frame="_top"
                                              href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a>
                         </td>
-                        <td>{{ ('blogpost.status.'~post.status.value)|trans }}</td>
+                        <td>{{ post.blog.name|default('') }}</td>
                         <td class="datetime">{{ post.created | date('Y-m-d H:i:s') }}</td>
                         <td class="actions">
                             <a data-turbo-frame="_top"
