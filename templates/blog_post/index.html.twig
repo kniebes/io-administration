@@ -27,7 +27,12 @@
             }) }}
             <fieldset>
                 <legend>{{ 'blogpost.index.filter.legend'|trans }}</legend>
-                {{ form_row(filterForm.searchQuery) }}
+                <div class="filter-form-elements">
+                    {{ form_row(filterForm.searchQuery) }}
+                    {{ form_row(filterForm.status) }}
+                    {{ form_row(filterForm.blog) }}
+                    {{ form_row(filterForm.blogPostType) }}
+                </div>
                 <div class="filter-action">
                     <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
                     {{ form_widget(filterForm.reset) }}

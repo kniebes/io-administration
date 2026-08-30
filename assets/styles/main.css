@@ -251,6 +251,12 @@ fieldset p {
     margin: 1rem 0 0 0;
 }
 
+.filter .filter-form-elements {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
 /* Breadcrumb */
 .breadcrumb {
     max-width: 1000px;

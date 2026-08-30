@@ -28,6 +28,24 @@ class BlogPostRepository extends ServiceEntityRepository
                 ->setParameter(key: 'searchQuery', value: '%' . $searchQuery . '%');
         }
 
+        if ($filter?->getStatus() !== null) {
+            $queryBuilder
+                ->andWhere('p.status = :status')
+                ->setParameter(key: 'status', value: $filter->getStatus());
+        }
+
+        if ($filter?->getBlog() !== null) {
+            $queryBuilder
+                ->andWhere('p.blog = :blog')
+                ->setParameter(key: 'blog', value: $filter->getBlog());
+        }
+
+        if ($filter?->getBlogPostType() !== null) {
+            $queryBuilder
+                ->andWhere('p.blogPostType = :blogPostType')
+                ->setParameter(key: 'blogPostType', value: $filter->getBlogPostType());
+        }
+
         return $queryBuilder->getQuery();
     }
 }

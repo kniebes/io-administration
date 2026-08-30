@@ -25,6 +25,14 @@ blogpost:
         add_button: Neuer BlogPost
         filter:
             search_query: Suchbegriff
+            status: Alle Status
+            blog: Alle Blogs
+            blog_post_type: Alle Typen
+            aria:
+                search_query: Suchbegriff
+                status: Status
+                blog: Blog
+                blog_post_type: Typ
             submit: Filtern
             reset: Filter löschen
             legend: Filter
