@@ -1,4 +1,4 @@
-<a href="#" class="modal-toggle default-input" data-modal="post-settings" data-action="click->modal#open">
+<a href="#" class="modal-toggle default-input status-{{ blogPost.status.value }}" data-modal="post-settings" data-action="click->modal#open">
     <span>{{ 'blogpost.form.modal_toggle.status'|trans }}: {{ ('blogpost.status.'~blogPost.status.value)|trans }}</span>
     {% if blogPost.blog %}<span>{{ 'blogpost.form.modal_toggle.blog_name'|trans }}: {{ blogPost.blog.name }}</span>{% endif %}
     {% if blogPost.blogPostType %}<span>{{ 'blogpost.form.modal_toggle.post_type'|trans }}: {{ blogPost.blogPostType.name }}</span>{% endif %}
