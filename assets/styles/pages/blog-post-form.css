@@ -162,3 +162,22 @@
     gap: 20px;
     flex-wrap: wrap;
 }
+
+.post-settings-elements {
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-settings-elements p {
+    width: 100%;
+}
+
+.modal-toggle.status-published {
+    border-left: 3px solid var(--status-published-color);
+}
+.modal-toggle.status-draft {
+    border-left: 3px solid var(--status-draft-color);
+}
+.modal-toggle.status-hidden {
+    border-left: 3px solid var(--status-hidden-color);
+}

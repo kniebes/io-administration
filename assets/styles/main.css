@@ -190,6 +190,7 @@ button {
     cursor: pointer;
 }
 
+input[type="text"],
 textarea {
     font-size: 15px;
     font-weight: 400;
