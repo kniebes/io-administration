@@ -33,10 +33,7 @@ class BlogPostPostSaveEventSubscriber implements EventSubscriberInterface
     {
         if ($event->isFirstTimePublished()) {
             try {
-                $this->messageBus->dispatch(new PingMessage(
-                    blogId: $event->getBlogPost()->getBlog()->getId(),
-                    blogPostId: $event->getBlogPost()->getId()
-                ));
+                $this->messageBus->dispatch(new PingMessage($event->getBlogPost()->getId()));
             } catch (ExceptionInterface $e) {
                 $this->errorLogger->log($e);
             }

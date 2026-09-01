@@ -4,7 +4,6 @@ namespace App\EventSubscriber;
 
 use App\Enum\BlogPostStatus;
 use App\Event\BlogPostPreSaveEvent;
-use App\Service\BlogPost\Interface\SlugManagerInterface;
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\IoTag\IoTagEncoder;
 use League\CommonMark\CommonMarkConverter;
@@ -16,7 +15,6 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
     public function __construct(
         private IoTagEncoder $ioTagEncoder,
         private CommonMarkConverter $converter,
-        private SlugManagerInterface $slugManager,
         private ErrorLoggerInterface $errorLogger,
     )
     {
@@ -26,25 +24,11 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
     {
         return [
             BlogPostPreSaveEvent::class => [
-                ['handleSlugChange', 30],
                 ['handlePublishedState', 20],
                 ['createEncodeFields', 10],
                 ['createSearchableText', 0],
             ],
         ];
-    }
-
-    public function handleSlugChange(BlogPostPreSaveEvent $event): void
-    {
-        $blogPost = $event->getBlogPost();
-        if ($blogPost->getStatus() !== BlogPostStatus::Published) {
-            return;
-        }
-
-        $this->slugManager->slugChange(
-            newSlug: $blogPost->getSlug(),
-            blogpost: $blogPost
-        );
     }
 
     public function handlePublishedState(BlogPostPreSaveEvent $event): void
