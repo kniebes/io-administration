@@ -48,4 +48,9 @@ class BlogPostRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery();
     }
+
+    public function getTableName(): String
+    {
+        return $this->getEntityManager()->getClassMetadata(BlogPost::class)->getTableName();
+    }
 }

@@ -49,3 +49,7 @@ services:
         class: App\Service\IndieWeb\Syndication\SyndicationService
         arguments:
             - !tagged_iterator app.indieweb_syndictor
+
+    App\Service\BlogPost\Interface\SlugManagerInterface:
+        class: App\Service\BlogPost\SlugManager
+

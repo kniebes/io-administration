@@ -31,6 +31,10 @@ class BlogPost
     #[Groups(['blog_post:read'])]
     private string $slug;
 
+    #[ORM\OneToMany(targetEntity: BlogPostSlugArchive::class, mappedBy: 'blogPost', orphanRemoval: true)]
+    #[Groups(['blog_post:read'])]
+    private Collection $blogPostSlugArchives;
+
     #[ORM\Column(name: 'published_date', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['blog_post:read'])]
     private ?DateTimeImmutable $publishedDate = null;
@@ -113,6 +117,7 @@ class BlogPost
 
     public function __construct()
     {
+        $this->blogPostSlugArchives = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->blogPostImages = new ArrayCollection();
@@ -143,6 +148,18 @@ class BlogPost
     public function setSlug(string $slug): BlogPost
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getBlogPostSlugArchives(): Collection
+    {
+        return $this->blogPostSlugArchives;
+    }
+
+    public function setBlogPostSlugArchives(Collection $blogPostSlugArchives): BlogPost
+    {
+        $this->blogPostSlugArchives = $blogPostSlugArchives;
 
         return $this;
     }
