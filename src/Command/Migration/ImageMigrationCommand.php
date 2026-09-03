@@ -4,6 +4,7 @@ namespace App\Command\Migration;
 
 use App\Entity\Image;
 use App\Entity\ImageVersion;
+use App\Enum\ImageLicense;
 use App\Repository\ImageRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,6 +40,10 @@ class ImageMigrationCommand
                 $io->progressAdvance();
                 continue;
             }
+
+            $customFields = json_decode(($importImage['custom_fields'] ?? ''), true);
+            $imageLicense = $importImage['image_license'] ?? '';
+            $license = ImageLicense::tryFrom($imageLicense);
             $imageEntity = new Image();
             $metadata->setFieldValue($imageEntity, 'id', $importImage['id']);
             $imageEntity
@@ -48,7 +53,12 @@ class ImageMigrationCommand
                 ->setHost('https://'.($importImage['domain'] ?? ''))
                 ->setMimeType($importImage['mime_type'] ?? '')
                 ->setByteSize($importImage['file_size'] ?? 0)
-                ->setAltText('');
+                ->setExif(json_decode(($importImage['exif'] ?? ''), true))
+                ->setCustomFields($customFields)
+                ->setDescription($importImage['content'] ?? '')
+                ->setDescriptionEncoded($importImage['content_encoded'] ?? '')
+                ->setLicense($license)
+                ->setAltText($customFields['alt'] ?? '');
             $this->assignSize(imageEntity: $imageEntity, importImage: $importImage);
             $this->assignVersions(imageEntity: $imageEntity, importImage: $importImage);
             $this->entityManager->persist($imageEntity);
