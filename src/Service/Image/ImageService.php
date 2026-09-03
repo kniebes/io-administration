@@ -10,7 +10,7 @@ class ImageService
 
     public function calcVersionUrl(Image $image, string $version = null): string
     {
-        $domain = $image->getDomain();
+        $domain = $image->getHost();
         if (empty($version)) {
             return sprintf('https://%s%s', $domain, $image->getUrl());
         }

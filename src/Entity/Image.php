@@ -25,7 +25,7 @@ class Image
 
     #[ORM\Column(length: 255)]
     #[Groups(['blog_post:read'])]
-    private string $domain;
+    private string $host;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['blog_post:read'])]
@@ -52,12 +52,10 @@ class Image
     private float $aspectRatio = 0.0;
 
     /**
-     *
-     * @var array<int, string}>
+     * @var Collection<int, ImageVersion>
      */
-    #[ORM\Column(name: 'versions', type: Types::JSON)]
-    #[Groups(['blog_post:read'])]
-    private array $versions = [];
+    #[ORM\OneToMany(targetEntity: ImageVersion::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $versions;
 
     #[ORM\Column(name: 'alt_text', length: 255, options: ['default' => ''])]
     #[Groups(['blog_post:read'])]
@@ -79,30 +77,37 @@ class Image
     #[Groups(['blog_post:read'])]
     private ImageLicense $license = ImageLicense::AllRightsReserved;
 
-    /** @var array<string, mixed> */
+    /**
+     * @var array<string, mixed>
+     */
     #[ORM\Column(type: Types::JSON)]
     #[Groups(['blog_post:read'])]
     private array $exif = [];
 
-    /** @var array<string, mixed> */
+    /**
+     * @var array<string, mixed>
+     */
     #[ORM\Column(name: 'custom_fields', type: Types::JSON)]
     #[Groups(['blog_post:read'])]
     private array $customFields = [];
 
-    /** @var Collection<int, BlogPostImageMapping> */
+    /**
+     * @var Collection<int, BlogPostImageMapping>
+     */
     #[ORM\OneToMany(targetEntity: BlogPostImageMapping::class, mappedBy: 'image')]
     private Collection $blogPostImages;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['blog_post:read'])]
-    private ?DateTimeImmutable $created = null;
+    private DateTimeImmutable $created;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['blog_post:read'])]
-    private DateTimeImmutable $updated;
+    private ?DateTimeImmutable $updated = null;
 
     public function __construct()
     {
+        $this->versions = new ArrayCollection();
         $this->blogPostImages = new ArrayCollection();
         $this->exif = [];
         $this->customFields = [];
@@ -113,14 +118,14 @@ class Image
         return $this->id;
     }
 
-    public function getDomain(): string
+    public function getHost(): string
     {
-        return $this->domain;
+        return $this->host;
     }
 
-    public function setDomain(string $domain): Image
+    public function setHost(string $host): Image
     {
-        $this->domain = $domain;
+        $this->host = $host;
 
         return $this;
     }
@@ -197,16 +202,41 @@ class Image
         return $this;
     }
 
-    public function getVersions(): array
+    public function getVersions(): ArrayCollection
     {
         return $this->versions;
     }
 
-    public function setVersions(array $versions): Image
+    public function setVersions(ArrayCollection $versions): Image
     {
         $this->versions = $versions;
 
         return $this;
+    }
+
+    public function addImageVersion(ImageVersion $imageVersion): Image
+    {
+        $this->versions->add($imageVersion);
+        $imageVersion->setImage($this);
+
+        return $this;
+    }
+
+    public function removeImageVersion(ImageVersion $imageVersion): Image
+    {
+        $this->versions->removeElement($imageVersion);
+        $imageVersion->setImage(null);
+
+        return $this;
+    }
+
+    public function getImageVersion(string $versionIdentifier): ?ImageVersion
+    {
+        $imageVersion = $this->versions->filter(function (ImageVersion $version) use ($versionIdentifier) {
+            return $version->getVersionIdentifier() === $versionIdentifier;
+        });
+
+        return $imageVersion->first();
     }
 
     public function getAltText(): string
@@ -303,24 +333,24 @@ class Image
         );
     }
 
-    public function getCreated(): ?DateTimeImmutable
+    public function getCreated(): DateTimeImmutable
     {
         return $this->created;
     }
 
-    public function setCreated(?DateTimeImmutable $created): Image
+    public function setCreated(DateTimeImmutable $created): Image
     {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getUpdated(): DateTimeImmutable
+    public function getUpdated(): ?DateTimeImmutable
     {
         return $this->updated;
     }
 
-    public function setUpdated(DateTimeImmutable $updated): Image
+    public function setUpdated(?DateTimeImmutable $updated = null): Image
     {
         $this->updated = $updated;
 
