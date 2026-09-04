@@ -57,7 +57,7 @@ class Image
     #[ORM\OneToMany(targetEntity: ImageVersion::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $versions;
 
-    #[ORM\Column(name: 'alt_text', length: 255, options: ['default' => ''])]
+    #[ORM\Column(name: 'alt_text', type: Types::TEXT, options: ['default' => ''])]
     #[Groups(['blog_post:read'])]
     private string $altText = '';
 

@@ -27,7 +27,7 @@ class ImageMigrationCommand
 
     public function __invoke(SymfonyStyle $io): int
     {
-        $sql = 'SELECT * FROM journal_image ORDER BY id DESC LIMIT 5';
+        $sql = 'SELECT * FROM journal_image ORDER BY id DESC';
         $images = $this->migrationConnection->fetchAllAssociative($sql);
 
         $metadata = $this->entityManager->getClassMetadata(Image::class);
@@ -40,10 +40,33 @@ class ImageMigrationCommand
                 $io->progressAdvance();
                 continue;
             }
+            $imageMetrics = $this->getImageMetrics($importImage['id']);
 
             $customFields = json_decode(($importImage['custom_fields'] ?? ''), true);
+            if (!is_array($customFields)) {
+                $customFields = [];
+            }
+
+            $exif = json_decode(($importImage['exif'] ?? ''), true);
+            if (!is_array($exif)) {
+                $exif = [];
+            }
+
+            foreach (['altitude', 'longitude', 'latitude', 'googlemap', 'openStreetMap'] as $field) {
+                if (isset($exif[$field])) {
+                    if (!empty($exif[$field])) {
+                        $customFields[$field] = $exif[$field];
+                    }
+                    unset($exif[$field]);
+                }
+            }
+
             $imageLicense = $importImage['image_license'] ?? '';
             $license = ImageLicense::tryFrom($imageLicense);
+            if (is_null($license)) {
+                $license = ImageLicense::PublicDomain;
+            }
+
             $imageEntity = new Image();
             $metadata->setFieldValue($imageEntity, 'id', $importImage['id']);
             $imageEntity
@@ -53,25 +76,42 @@ class ImageMigrationCommand
                 ->setHost('https://'.($importImage['domain'] ?? ''))
                 ->setMimeType($importImage['mime_type'] ?? '')
                 ->setByteSize($importImage['file_size'] ?? 0)
-                ->setExif(json_decode(($importImage['exif'] ?? ''), true))
+                ->setExif($exif)
                 ->setCustomFields($customFields)
                 ->setDescription($importImage['content'] ?? '')
                 ->setDescriptionEncoded($importImage['content_encoded'] ?? '')
                 ->setLicense($license)
                 ->setAltText($customFields['alt'] ?? '');
-            $this->assignSize(imageEntity: $imageEntity, importImage: $importImage);
-            $this->assignVersions(imageEntity: $imageEntity, importImage: $importImage);
+            $this->assignSize(imageEntity: $imageEntity, imageMetrics: $imageMetrics);
+            $this->assignVersions(imageEntity: $imageEntity, importImage: $importImage, imageMetrics: $imageMetrics);
             $this->entityManager->persist($imageEntity);
+            try {
+                $this->entityManager->flush();
+            } catch (\Throwable $e) {
+                $io->error($e->getMessage());
+                $io->info('ID: ' . $importImage['id']);
+            }
+            $this->entityManager->clear();
             $io->progressAdvance();
         }
         $io->progressFinish();
 
-        $this->entityManager->flush();
-
         return Command::SUCCESS;
     }
 
-    private function assignVersions(Image $imageEntity, array $importImage): void
+    private function getImageMetrics(int $imageId): array
+    {
+        $url = 'https://kniebes.com/api/image-metric?imageId='.$imageId;
+        $json = file_get_contents($url);
+        $data = json_decode($json, true);
+        if (!is_array($data)) {
+            return [];
+        }
+
+        return $data;
+    }
+
+    private function assignVersions(Image $imageEntity, array $importImage, array $imageMetrics): void
     {
         $versions = $importImage['versions'] ?? null;
         if (is_null($versions)) {
@@ -87,17 +127,28 @@ class ImageMigrationCommand
             $imageVersion = new ImageVersion();
             $imageVersion->setUrl($versionUrl)
                 ->setVersionIdentifier((string) $versionIdentifier);
-            $this->assignVersionSizes(imageVersion: $imageVersion, versionUrl: $versionUrl);
+            $this->assignVersionSizes(imageVersion: $imageVersion, imageMetrics: $imageMetrics);
             $imageEntity->addImageVersion($imageVersion);
         }
     }
 
-    private function assignVersionSizes(ImageVersion $imageVersion, string $versionUrl): void
+    private function assignVersionSizes(ImageVersion $imageVersion, array $imageMetrics): void
     {
-        // @TODO ich muss den regex im alten Projekt suchen oder auf die Bilder im Dateisystem zugreifen
-        $imageVersion->setWidth(0)
-            ->setHeight(0)
-            ->setByteSize(0);
+        $metrics = $imageMetrics[$imageVersion->getVersionIdentifier()] ?? null;
+        if (is_null($metrics)) {
+            $imageVersion
+                ->setWidth(0)
+                ->setHeight(0)
+                ->setByteSize(0);
+            return;
+        }
+
+        $imageVersion
+            ->setWidth($metrics['width'] ?? 0)
+            ->setHeight($metrics['height'] ?? 0)
+            ->setByteSize($metrics['filesize'] ?? 0)
+            ->setAspectRatio($this->calcAspectRatio(width: $metrics['width'], height: $metrics['height']));
+        ;
     }
 
     private function isImageEntityExists(int $id): bool
@@ -107,10 +158,28 @@ class ImageMigrationCommand
         return null !== $imageEntity;
     }
 
-    private function assignSize(Image $imageEntity, array $importImage): void
+    private function assignSize(Image $imageEntity, array $imageMetrics): void
     {
-        // @TODO Ich habe keine andere Wahl als das über das Dateisystem zu machen
-        $imageEntity->setWidth(1)
-            ->setHeight(1);
+        $metrics = $imageMetrics['original'] ?? null;
+        if (is_null($metrics)) {
+            $imageEntity
+                ->setWidth(0)
+                ->setHeight(0)
+                ->setByteSize(0);
+            return;
+        }
+
+        $imageEntity
+            ->setWidth($metrics['width'] ?? 0)
+            ->setHeight($metrics['height'] ?? 0)
+            ->setByteSize($metrics['filesize'] ?? 0)
+            ->setMimeType($metrics['mimeType'] ?? '')
+            ->setAspectRatio($this->calcAspectRatio(width: $metrics['width'], height: $metrics['height']));
+            ;
+    }
+
+    private function calcAspectRatio(int $width, int $height): float
+    {
+        return round(($width / $height), 2);
     }
 }

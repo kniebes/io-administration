@@ -25,7 +25,7 @@ class ImageVersion
     #[Groups(['blog_post:read'])]
     private string $versionIdentifier;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255)]
     #[Groups(['blog_post:read'])]
     private string $url;
 
