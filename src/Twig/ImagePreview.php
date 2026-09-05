@@ -15,8 +15,8 @@ readonly class ImagePreview
     }
 
     #[AsTwigFunction('getImagePreviewUrl')]
-    public function getImagePreviewUrl(Image $image): string
+    public function getImagePreviewUrl(Image $image, ?int $width = 500): string
     {
-        return $this->imageService->getPreviewUrlWithWidth($image);
+        return $this->imageService->getPreviewUrlWithWidth(imageEntity: $image, width: $width);
     }
 }

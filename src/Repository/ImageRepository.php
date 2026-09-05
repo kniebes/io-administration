@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\ImageVersion;
 use App\Model\Filter\ImageIndexFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
@@ -33,6 +34,8 @@ class ImageRepository extends ServiceEntityRepository
     public function createFilterQuery(?ImageIndexFilter $filter = null): Query
     {
         $queryBuilder = $this->createQueryBuilder('i')
+            ->addSelect('v')
+            ->leftJoin('i.versions', 'v')
             ->orderBy(sort: 'i.date', order: 'DESC');
 
         $searchQuery = trim((string) $filter?->getSearchQuery());

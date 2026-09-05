@@ -64,7 +64,7 @@ final class BlogPostFormType extends AbstractType
 
         $recentImages = $this->entityManager->getRepository(Image::class)
             ->createQueryBuilder('image')
-            ->orderBy('image.created', 'DESC')
+            ->orderBy('image.date', 'DESC')
             ->setMaxResults(self::IMAGE_CHOICE_LIMIT)
             ->getQuery()
             ->getResult();

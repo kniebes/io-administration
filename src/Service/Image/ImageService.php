@@ -28,11 +28,11 @@ class ImageService
         return sprintf('https://%s%s', $domain, $path);
     }
 
-    public function getPreviewUrlWithWidth(Image $image, ?int $width = 500): string
+    public function getPreviewUrlWithWidth(Image $imageEntity, ?int $width = 500): string
     {
         $distance = null;
         $selectedVersion = null;
-        foreach ($image->getVersions() as $version) {
+        foreach ($imageEntity->getVersions() as $version) {
             $currentDistance = abs($width - $version->getWidth());
             if (is_null($distance) || $currentDistance < $distance) {
                 $distance = $currentDistance;
@@ -41,10 +41,10 @@ class ImageService
         }
 
         if (empty($selectedVersion)) {
-            return $this->generateImageUrl(host: $image->getHost(), url: $image->getUrl());
+            return $this->generateImageUrl(host: $imageEntity->getHost(), url: $imageEntity->getUrl());
         }
 
-        return $this->generateImageUrl(host: $image->getHost(), url: $selectedVersion->getUrl());
+        return $this->generateImageUrl(host: $imageEntity->getHost(), url: $selectedVersion->getUrl());
     }
 
     private function generateImageUrl(string $host, string $url): string

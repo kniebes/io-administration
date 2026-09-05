@@ -22,6 +22,11 @@
     font-size: .7rem
 }
 
+.modal-toggle > img {
+    display: block;
+    margin-top: 0.5rem;
+}
+
 .modal {
     height: auto;
     max-height: calc(100vh - 160px);

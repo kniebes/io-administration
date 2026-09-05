@@ -15,7 +15,7 @@
 
 <a href="#" class="{% if blogPost.images|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="image-settings" data-action="click->modal#open">
     <h3>{{ 'blogpost.form.modal_toggle.images'|trans }}</h3>
-    {% for image in blogPost.images %}<span>{{ image.url }}</span>{% endfor %}
+    {% for image in blogPost.images %}<img src="{{ getImagePreviewUrl(image, 250) }}" alt="{{ image.altText }}"/>{% endfor %}
 </a>
 
 <a href="#" class="{% if blogPost.customFields|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="custom-fields-settings" data-action="click->modal#open">

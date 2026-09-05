@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Enum\CategoryType;
-use App\Enum\TagType;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
