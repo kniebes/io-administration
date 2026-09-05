@@ -41,7 +41,7 @@ class Tag
     #[Groups(['blog_post:read'])]
     private ?string $slug = null;
 
-    #[ORM\Column(type: TYPES::ENUM, enumType: TagType::class)]
+    #[ORM\Column(type: Types::ENUM, enumType: TagType::class)]
     #[Groups(['blog_post:read'])]
     private TagType $type = TagType::General;
 

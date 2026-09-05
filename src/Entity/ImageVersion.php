@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity()]
 #[ORM\Table(name: 'image_version')]
+#[ORM\UniqueConstraint(name: 'uniq_image_language', columns: ['image_id', 'version_identifier'])]
 #[ORM\HasLifecycleCallbacks]
 class ImageVersion
 {
@@ -44,6 +46,14 @@ class ImageVersion
     #[ORM\Column(name: 'aspect_ratio', type: Types::FLOAT)]
     #[Groups(['blog_post:read'])]
     private float $aspectRatio = 0.0;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['blog_post:read'])]
+    private DateTimeImmutable $created;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['blog_post:read'])]
+    private ?DateTimeImmutable $updated = null;
 
     public function getId(): ?int
     {
@@ -134,4 +144,39 @@ class ImageVersion
         return $this;
     }
 
+    public function getCreated(): DateTimeImmutable
+    {
+        return $this->created;
+    }
+
+    public function setCreated(DateTimeImmutable $created): ImageVersion
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    public function getUpdated(): ?DateTimeImmutable
+    {
+        return $this->updated;
+    }
+
+    public function setUpdated(?DateTimeImmutable $updated): ImageVersion
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function updateCreated(): void
+    {
+        $this->created = new DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function updateUpdated(): void
+    {
+        $this->updated = new DateTimeImmutable();
+    }
 }

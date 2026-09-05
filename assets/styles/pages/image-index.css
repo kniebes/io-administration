@@ -8,6 +8,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin: 4rem auto;
 }
 
 .image-table {
@@ -16,6 +17,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    margin: 2rem 0;
 }
 
 .image-item {
@@ -59,6 +61,10 @@
 .image-item .image-info {
     height: 30px;
     background: var(--image-info-background);
+}
+
+.count {
+    margin: 1rem 0;
 }
 
 .upload {

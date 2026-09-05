@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
 #[ORM\Table(name: 'image')]
+#[ORM\Index(name: 'date', columns: ['date'])]
 #[ORM\HasLifecycleCallbacks]
 class Image
 {
@@ -68,6 +69,13 @@ class Image
     #[Groups(['blog_post:read'])]
     private Collection $translations;
 
+    /**
+     * @var Collection<int, ImageExif>
+     */
+    #[ORM\OneToMany(targetEntity: ImageExif::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['blog_post:read'])]
+    private Collection $exif;
+
     #[ORM\Column(name: 'alt_text', type: Types::TEXT, options: ['default' => ''])]
     #[Groups(['blog_post:read'])]
     private string $altText = '';
@@ -87,13 +95,6 @@ class Image
     #[ORM\Column(length: 32, enumType: ImageLicense::class)]
     #[Groups(['blog_post:read'])]
     private ImageLicense $license = ImageLicense::AllRightsReserved;
-
-    /**
-     * @var array<string, mixed>
-     */
-    #[ORM\Column(type: Types::JSON)]
-    #[Groups(['blog_post:read'])]
-    private array $exif = [];
 
     /**
      * @var array<string, mixed>
@@ -139,7 +140,7 @@ class Image
         $this->blogPostImages = new ArrayCollection();
         $this->tags = new ArrayCollection();
         $this->categories = new ArrayCollection();
-        $this->exif = [];
+        $this->exif = new ArrayCollection();
         $this->customFields = [];
     }
 
@@ -249,13 +250,6 @@ class Image
         return $this->versions;
     }
 
-    public function setVersions(Collection $versions): Image
-    {
-        $this->versions = $versions;
-
-        return $this;
-    }
-
     public function addImageVersion(ImageVersion $imageVersion): Image
     {
         $this->versions->add($imageVersion);
@@ -279,18 +273,6 @@ class Image
         });
 
         return $imageVersion->first();
-    }
-
-    public function getTranslations(): Collection
-    {
-        return $this->translations;
-    }
-
-    public function setTranslations(Collection $translations): Image
-    {
-        $this->translations = $translations;
-
-        return $this;
     }
 
     public function addTranslation(ImageTranslation $translation): Image
@@ -424,14 +406,18 @@ class Image
         return $this;
     }
 
-    public function getExif(): ?array
+    public function addExif(ImageExif $exif): Image
     {
-        return $this->exif;
+        $this->exif->add($exif);
+        $exif->setImage($this);
+
+        return $this;
     }
 
-    public function setExif(?array $exif): Image
+    public function removeExif(ImageExif $exif): Image
     {
-        $this->exif = $exif;
+        $this->exif->removeElement($exif);
+        $exif->setImage(null);
 
         return $this;
     }

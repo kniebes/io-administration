@@ -40,7 +40,7 @@ class Category
     #[Groups(['blog_post:read'])]
     private ?string $slug = null;
 
-    #[ORM\Column(type: TYPES::ENUM, enumType: CategoryType::class)]
+    #[ORM\Column(type: Types::ENUM, enumType: CategoryType::class)]
     #[Groups(['blog_post:read'])]
     private CategoryType $type = CategoryType::BlogPost;
 

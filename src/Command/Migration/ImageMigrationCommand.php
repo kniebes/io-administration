@@ -4,8 +4,10 @@ namespace App\Command\Migration;
 
 use App\Entity\Category;
 use App\Entity\Image;
+use App\Entity\ImageExif;
 use App\Entity\ImageTranslation;
 use App\Entity\ImageVersion;
+use App\Enum\ImageExifLabel;
 use App\Enum\ImageLicense;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
@@ -118,7 +120,6 @@ readonly class ImageMigrationCommand
                 ->setHost('https://'.($importImage['domain'] ?? ''))
                 ->setMimeType($importImage['mime_type'] ?? '')
                 ->setByteSize($importImage['file_size'] ?? 0)
-                ->setExif($exif)
                 ->setCustomFields($customFields)
                 ->setDescription($importImage['content'] ?? '')
                 ->setDescriptionEncoded($importImage['content_encoded'] ?? '')
@@ -129,6 +130,7 @@ readonly class ImageMigrationCommand
             $this->assignVersions(imageEntity: $imageEntity, importImage: $importImage, imageMetrics: $imageMetrics);
             $this->assignTranslation(imageEntity: $imageEntity, importImage: $importImage, customFields: $customFields);
             $this->assignCategory(imageEntity: $imageEntity, importImage: $importImage);
+            $this->assignExif(imageEntity: $imageEntity, importImage: $importImage);
 
             $this->entityManager->persist($imageEntity);
             try {
@@ -259,5 +261,62 @@ readonly class ImageMigrationCommand
         }
 
         $imageEntity->addCategory($category);
+    }
+
+    /*
+ {
+    "title": "",
+    "description": "",
+    "copyright": "Markus kniebes",
+    "model": "Nikon Z 8",
+    "lens": "NIKKOR Z MC 105mm f\/2.8 VR S",
+    "focallength": "105mm",
+    "aperture": "f\/3.2",
+    "exposure": "1\/250s",
+    "iso": "ISO 64",
+    "time": "04.09.2026 12:00",
+    "longitude": "",
+    "latitude": "",
+    "altitude": "",
+    "googlemap": "",
+    "openStreetMap": ""
+}
+     */
+    private function assignExif(Image $imageEntity, array $importImage): void
+    {
+        if (empty($importImage['exif'])) {
+            return;
+        }
+
+        $data = json_decode($importImage['exif'], true);
+        if (!is_array($data)) {
+            return;
+        }
+
+        foreach ($data as $label => $value) {
+            $imageExif = new ImageExif();
+            $labelEnum = $this->matchExifLabelToEnum($label);
+            if (is_null($labelEnum)) {
+                continue;
+            }
+
+            $imageExif
+                ->setLabel($labelEnum)
+                ->setValue((string) $value);
+            $imageEntity->addExif($imageExif);
+        }
+    }
+
+    private function matchExifLabelToEnum(string $label): ?ImageExifLabel
+    {
+        return match ($label) {
+            'model' => ImageExifLabel::Model,
+            'lens' => ImageExifLabel::Lens,
+            'focallength' => ImageExifLabel::FocalLength,
+            'aperture' => ImageExifLabel::Aperture,
+            'exposure' => ImageExifLabel::ExposureTime,
+            'iso' => ImageExifLabel::ISO,
+            default => null,
+        };
     }
 }

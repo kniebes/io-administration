@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Enum\BlogPostStatus;
 use App\Enum\Language;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
@@ -11,6 +10,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'image_translation')]
+#[ORM\UniqueConstraint(name: 'uniq_image_language', columns: ['image_id', 'language'])]
 #[ORM\HasLifecycleCallbacks]
 class ImageTranslation
 {
@@ -24,7 +24,7 @@ class ImageTranslation
     #[ORM\JoinColumn(name: 'image_id', referencedColumnName: 'id')]
     private ?Image $image = null;
 
-    #[ORM\Column(type: TYPES::ENUM, enumType: Language::class)]
+    #[ORM\Column(type: Types::ENUM, enumType: Language::class)]
     #[Groups(['blog_post:read'])]
     private Language $language = Language::English;
 

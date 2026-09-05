@@ -39,10 +39,17 @@ class ImageRepository extends ServiceEntityRepository
             ->orderBy(sort: 'i.date', order: 'DESC');
 
         $searchQuery = trim((string) $filter?->getSearchQuery());
-
         if ($searchQuery !== '') {
+            $searchableFields = ['i.title', 'i.description', 't.title', 't.description', 'e.value'];
             $queryBuilder
-                ->andWhere('p.searchableText LIKE :searchQuery')
+                ->leftJoin('i.translations', 't')
+                ->leftJoin('i.exif', 'e')
+                ->andWhere($queryBuilder->expr()->orX(
+                    ...array_map(
+                        static fn (string $field): string => $field . ' LIKE :searchQuery',
+                        $searchableFields
+                    )
+                ))
                 ->setParameter(key: 'searchQuery', value: '%' . $searchQuery . '%');
         }
 

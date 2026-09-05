@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/common/pagination.css') }}">
     <link rel="stylesheet" href="{{ asset('styles/pages/image-index.css') }}">
 {% endblock %}
 
@@ -20,7 +21,7 @@
         <turbo-frame id="image-list">
 
             {{ form_start(filterForm, {
-                action: path('blog_post_index'),
+                action: path('image_index'),
                 attr: {
                     class: 'filter',
                     'data-turbo-action': 'advance'
@@ -29,6 +30,7 @@
             <fieldset>
                 <legend>{{ 'image.index.filter.legend'|trans }}</legend>
                 <div class="filter-form-elements">
+                    {{ form_row(filterForm.searchQuery) }}
                 </div>
                 <div class="filter-action">
                     <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
@@ -41,6 +43,10 @@
                 {{ 'image.index.count'|trans({'%count%': pagination.getTotalItemCount}) }}
             </div>
 
+            <div class="page-navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+
             <div class="image-table">
                 {% for image in pagination %}
                     <div class="image-item">
@@ -50,6 +56,10 @@
                         </a>
                     </div>
                 {% endfor %}
+            </div>
+
+            <div class="page-navigation">
+                {{ knp_pagination_render(pagination) }}
             </div>
 
         </turbo-frame>

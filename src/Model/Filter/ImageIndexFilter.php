@@ -11,7 +11,7 @@ class ImageIndexFilter
         return $this->searchQuery;
     }
 
-    public function setSearchQuery(?string $searchQuery): BlogPostIndexFilter
+    public function setSearchQuery(?string $searchQuery): ImageIndexFilter
     {
         $this->searchQuery = $searchQuery;
 
