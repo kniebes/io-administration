@@ -21,9 +21,17 @@ class Tag
     #[Groups(['blog_post:read'])]
     private ?int $id = null;
 
-    /** @var Collection<int, BlogPost> */
+    /**
+     * @var Collection<int, BlogPost>
+     */
     #[ORM\ManyToMany(targetEntity: BlogPost::class, mappedBy: 'tags')]
     private Collection $blogPosts;
+
+    /**
+     * @var Collection<int, Image>
+     */
+    #[ORM\ManyToMany(targetEntity: Image::class, mappedBy: 'tags')]
+    private Collection $images;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['blog_post:read'])]
@@ -46,6 +54,7 @@ class Tag
     public function __construct()
     {
         $this->blogPosts = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,6 +69,15 @@ class Tag
     {
         return $this->blogPosts;
     }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
 
 
     public function getTerm(): ?string

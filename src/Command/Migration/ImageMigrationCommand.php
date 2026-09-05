@@ -2,10 +2,14 @@
 
 namespace App\Command\Migration;
 
+use App\Entity\Category;
 use App\Entity\Image;
+use App\Entity\ImageTranslation;
 use App\Entity\ImageVersion;
 use App\Enum\ImageLicense;
+use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Id\AssignedGenerator;
@@ -13,16 +17,17 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 #[AsCommand(name: 'app:migration:migrate_images', description: 'Migrate Images from the current System')]
-class ImageMigrationCommand
+readonly class ImageMigrationCommand
 {
     public function __construct(
-        private readonly Connection $migrationConnection,
-        private readonly ImageRepository $imageRepository,
-        private readonly EntityManagerInterface $entityManager,
-    )
-    {
+        private Connection $migrationConnection,
+        private ImageRepository $imageRepository,
+        private CategoryRepository $categoryRepository,
+        private EntityManagerInterface $entityManager,
+    ) {
     }
 
     public function __invoke(SymfonyStyle $io): int
@@ -40,18 +45,21 @@ class ImageMigrationCommand
                 $io->progressAdvance();
                 continue;
             }
+
+            // Metrics
             $imageMetrics = $this->getImageMetrics($importImage['id']);
 
+            // customFields
             $customFields = json_decode(($importImage['custom_fields'] ?? ''), true);
             if (!is_array($customFields)) {
                 $customFields = [];
             }
 
+            // Exif
             $exif = json_decode(($importImage['exif'] ?? ''), true);
             if (!is_array($exif)) {
                 $exif = [];
             }
-
             foreach (['altitude', 'longitude', 'latitude', 'googlemap', 'openStreetMap'] as $field) {
                 if (isset($exif[$field])) {
                     if (!empty($exif[$field])) {
@@ -61,15 +69,49 @@ class ImageMigrationCommand
                 }
             }
 
+            // Flickr
+            if (!empty($importImage['flickr_info'])) {
+                $flickrInfo = json_decode($importImage['flickr_info'], true);
+                if (is_array($flickrInfo)) {
+                    $customFields['flickr_info'] = $flickrInfo;
+                }
+            }
+            $customFields['flickr_status'] = $importImage['flickr_status'];
+
+            // License
             $imageLicense = $importImage['image_license'] ?? '';
             $license = ImageLicense::tryFrom($imageLicense);
             if (is_null($license)) {
                 $license = ImageLicense::PublicDomain;
             }
 
+            // Dates
+            try {
+                $date = new DateTimeImmutable($importImage['date'] ?? null);
+            } catch (\DateMalformedStringException $e) {
+                $io->warning('Invalid date: '.$e->getMessage());
+                $date = new DateTimeImmutable();
+            }
+            try {
+                $created = new DateTimeImmutable($importImage['created'] ?? null);
+            } catch (\DateMalformedStringException $e) {
+                $io->warning('Invalid created: '.$e->getMessage());
+                $created = new DateTimeImmutable();
+            }
+            try {
+                $updated = new DateTimeImmutable($importImage['changed'] ?? null);
+            } catch (\DateMalformedStringException $e) {
+                $io->warning('Invalid updated: '.$e->getMessage());
+                $updated = new DateTimeImmutable();
+            }
+
+            // Create Image Entity
             $imageEntity = new Image();
             $metadata->setFieldValue($imageEntity, 'id', $importImage['id']);
             $imageEntity
+                ->setDate($date)
+                ->setCreated($created)
+                ->setUpdated($updated)
                 ->setTitle($importImage['title'] ?? '')
                 ->setDescription($importImage['description'] ?? '')
                 ->setUrl($importImage['url'] ?? '')
@@ -82,14 +124,18 @@ class ImageMigrationCommand
                 ->setDescriptionEncoded($importImage['content_encoded'] ?? '')
                 ->setLicense($license)
                 ->setAltText($customFields['alt'] ?? '');
+
             $this->assignSize(imageEntity: $imageEntity, imageMetrics: $imageMetrics);
             $this->assignVersions(imageEntity: $imageEntity, importImage: $importImage, imageMetrics: $imageMetrics);
+            $this->assignTranslation(imageEntity: $imageEntity, importImage: $importImage, customFields: $customFields);
+            $this->assignCategory(imageEntity: $imageEntity, importImage: $importImage);
+
             $this->entityManager->persist($imageEntity);
             try {
                 $this->entityManager->flush();
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $io->error($e->getMessage());
-                $io->info('ID: ' . $importImage['id']);
+                $io->info('ID: '.$importImage['id']);
             }
             $this->entityManager->clear();
             $io->progressAdvance();
@@ -126,7 +172,7 @@ class ImageMigrationCommand
         foreach ($versionList as $versionIdentifier => $versionUrl) {
             $imageVersion = new ImageVersion();
             $imageVersion->setUrl($versionUrl)
-                ->setVersionIdentifier((string) $versionIdentifier);
+                ->setVersionIdentifier((string)$versionIdentifier);
             $this->assignVersionSizes(imageVersion: $imageVersion, imageMetrics: $imageMetrics);
             $imageEntity->addImageVersion($imageVersion);
         }
@@ -140,6 +186,7 @@ class ImageMigrationCommand
                 ->setWidth(0)
                 ->setHeight(0)
                 ->setByteSize(0);
+
             return;
         }
 
@@ -147,8 +194,7 @@ class ImageMigrationCommand
             ->setWidth($metrics['width'] ?? 0)
             ->setHeight($metrics['height'] ?? 0)
             ->setByteSize($metrics['filesize'] ?? 0)
-            ->setAspectRatio($this->calcAspectRatio(width: $metrics['width'], height: $metrics['height']));
-        ;
+            ->setAspectRatio($this->calcAspectRatio(width: $metrics['width'], height: $metrics['height']));;
     }
 
     private function isImageEntityExists(int $id): bool
@@ -166,6 +212,7 @@ class ImageMigrationCommand
                 ->setWidth(0)
                 ->setHeight(0)
                 ->setByteSize(0);
+
             return;
         }
 
@@ -174,12 +221,43 @@ class ImageMigrationCommand
             ->setHeight($metrics['height'] ?? 0)
             ->setByteSize($metrics['filesize'] ?? 0)
             ->setMimeType($metrics['mimeType'] ?? '')
-            ->setAspectRatio($this->calcAspectRatio(width: $metrics['width'], height: $metrics['height']));
-            ;
+            ->setAspectRatio($this->calcAspectRatio(width: $metrics['width'], height: $metrics['height']));;
     }
 
     private function calcAspectRatio(int $width, int $height): float
     {
         return round(($width / $height), 2);
+    }
+
+    private function assignTranslation(Image $imageEntity, array $importImage, array $customFields): void
+    {
+        if (!empty($importImage['content_en'])
+            || !empty($importImage['content_encoded_en'])
+            || !empty($importImage['title_en'])) {
+            $translation = new ImageTranslation();
+            $translation
+                ->setDescription($importImage['content_en'] ?? '')
+                ->setDescriptionEncoded($importImage['content_encoded_en'] ?? '')
+                ->setTitle($importImage['title_en'] ?? '')
+                ->setAltText($customFields['alt'] ?? '');
+            $imageEntity->addTranslation($translation);
+        }
+    }
+
+    private function assignCategory(Image $imageEntity, array $importImage): void
+    {
+        $slug = match($importImage['category']) {
+            'landscape' => 'landschaft',
+            'cemetery' => 'friedhof',
+            'unsorted' => 'unsortiert',
+            default => $importImage['category'],
+        };
+
+        $category = $this->categoryRepository->findOneBy(['slug' => $slug]);
+        if (is_null($category)) {
+            return;
+        }
+
+        $imageEntity->addCategory($category);
     }
 }

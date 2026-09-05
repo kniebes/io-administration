@@ -3,6 +3,7 @@
 namespace App\Service\Image;
 
 use App\Entity\Image;
+use App\Entity\ImageVersion;
 
 class ImageService
 {
@@ -25,5 +26,29 @@ class ImageService
         }
 
         return sprintf('https://%s%s', $domain, $path);
+    }
+
+    public function getPreviewUrlWithWidth(Image $image, ?int $width = 500): string
+    {
+        $distance = null;
+        $selectedVersion = null;
+        foreach ($image->getVersions() as $version) {
+            $currentDistance = abs($width - $version->getWidth());
+            if (is_null($distance) || $currentDistance < $distance) {
+                $distance = $currentDistance;
+                $selectedVersion = $version;
+            }
+        }
+
+        if (empty($selectedVersion)) {
+            return $this->generateImageUrl(host: $image->getHost(), url: $image->getUrl());
+        }
+
+        return $this->generateImageUrl(host: $image->getHost(), url: $selectedVersion->getUrl());
+    }
+
+    private function generateImageUrl(string $host, string $url): string
+    {
+        return sprintf('%s%s', $host, $url);
     }
 }

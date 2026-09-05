@@ -1,14 +1,12 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App\Controller;
 
 use App\Event\BlogPostPostSaveEvent;
 use App\Event\BlogPostPreSaveEvent;
 use App\Form\BlogPostFormType;
-use App\Form\Filter\BlogPostFilterType;
-use App\Model\Filter\BlogPostFilter;
+use App\Form\Filter\BlogPostIndexFilterType;
+use App\Model\Filter\BlogPostIndexFilter;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\BlogPost;
 use App\Repository\BlogPostRepository;
@@ -30,21 +28,20 @@ final class BlogPostController extends AbstractController
         private readonly BlogPostRepository $blogPostRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly EventDispatcherInterface $eventDispatcher,
-    )
-    {
+    ) {
     }
 
     #[Route(
         path: '/blogposts',
         name: 'blog_post_index',
         options: [
-            'navigation' => ['title' => 'navigation.blog_post_index', 'position' => 10]
+            'navigation' => ['title' => 'navigation.blog_post_index', 'position' => 10],
         ]
     )]
     public function index(Request $request): Response
     {
-        $filter = new BlogPostFilter();
-        $filterForm = $this->createForm(type: BlogPostFilterType::class, data: $filter);
+        $filter = new BlogPostIndexFilter();
+        $filterForm = $this->createForm(type: BlogPostIndexFilterType::class, data: $filter);
         $filterForm->handleRequest($request);
 
         if ($filterForm->isSubmitted() && $filterForm->get('reset')->isClicked()) {
@@ -57,17 +54,20 @@ final class BlogPostController extends AbstractController
             limit: 10
         );
 
-        return $this->render(view: 'blog_post/index.html.twig', parameters: [
-            'pagination' => $pagination,
-            'filterForm' => $filterForm,
-        ]);
+        return $this->render(
+            view: 'blog_post/index.html.twig',
+            parameters: [
+                'pagination' => $pagination,
+                'filterForm' => $filterForm,
+            ]
+        );
     }
 
     #[Route(
         path: '/blogpost/add',
         name: 'blog_post_add',
         options: [
-            'navigation' => ['title' => 'navigation.blog_post_add', 'position' => 0]
+            'navigation' => ['title' => 'navigation.blog_post_add', 'position' => 0],
         ],
         methods: ['GET', 'POST']
     )]
@@ -152,7 +152,7 @@ final class BlogPostController extends AbstractController
     public function delete(Request $request, BlogPost $blogPost): Response
     {
         $isValidToken = $this->isCsrfTokenValid(
-            id: 'delete-blog-post-' . $blogPost->getId(),
+            id: 'delete-blog-post-'.$blogPost->getId(),
             token: $request->request->get('_csrf_token'),
         );
 
@@ -174,8 +174,7 @@ final class BlogPostController extends AbstractController
         bool $success,
         FormInterface $form,
         BlogPost $blogPost,
-    ): Response
-    {
+    ): Response {
         $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
 
         $errors = [];

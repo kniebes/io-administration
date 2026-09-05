@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use DateTime;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,6 +21,10 @@ class Image
     #[ORM\Column]
     #[Groups(['blog_post:read'])]
     private ?int $id = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['blog_post:read'])]
+    private DateTimeImmutable $date;
 
     #[ORM\Column(length: 255)]
     #[Groups(['blog_post:read'])]
@@ -55,7 +58,15 @@ class Image
      * @var Collection<int, ImageVersion>
      */
     #[ORM\OneToMany(targetEntity: ImageVersion::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['blog_post:read'])]
     private Collection $versions;
+
+    /**
+     * @var Collection<int, ImageTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: ImageTranslation::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['blog_post:read'])]
+    private Collection $translations;
 
     #[ORM\Column(name: 'alt_text', type: Types::TEXT, options: ['default' => ''])]
     #[Groups(['blog_post:read'])]
@@ -97,6 +108,22 @@ class Image
     #[ORM\OneToMany(targetEntity: BlogPostImageMapping::class, mappedBy: 'image')]
     private Collection $blogPostImages;
 
+    /**
+     * @var Collection<int, Tag>
+     */
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'images')]
+    #[ORM\JoinTable(name: 'image_tag')]
+    #[Groups(['blog_post:read'])]
+    private Collection $tags;
+
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'images')]
+    #[ORM\JoinTable(name: 'image_category')]
+    #[Groups(['blog_post:read'])]
+    private Collection $categories;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['blog_post:read'])]
     private DateTimeImmutable $created;
@@ -108,7 +135,10 @@ class Image
     public function __construct()
     {
         $this->versions = new ArrayCollection();
+        $this->translations = new ArrayCollection();
         $this->blogPostImages = new ArrayCollection();
+        $this->tags = new ArrayCollection();
+        $this->categories = new ArrayCollection();
         $this->exif = [];
         $this->customFields = [];
     }
@@ -116,6 +146,18 @@ class Image
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getDate(): DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    public function setDate(DateTimeImmutable $date): Image
+    {
+        $this->date = $date;
+
+        return $this;
     }
 
     public function getHost(): string
@@ -202,12 +244,12 @@ class Image
         return $this;
     }
 
-    public function getVersions(): ArrayCollection
+    public function getVersions(): Collection
     {
         return $this->versions;
     }
 
-    public function setVersions(ArrayCollection $versions): Image
+    public function setVersions(Collection $versions): Image
     {
         $this->versions = $versions;
 
@@ -239,6 +281,89 @@ class Image
         return $imageVersion->first();
     }
 
+    public function getTranslations(): Collection
+    {
+        return $this->translations;
+    }
+
+    public function setTranslations(Collection $translations): Image
+    {
+        $this->translations = $translations;
+
+        return $this;
+    }
+
+    public function addTranslation(ImageTranslation $translation): Image
+    {
+        $this->translations->add($translation);
+        $translation->setImage($this);
+
+        return $this;
+    }
+
+    public function removeTranslation(ImageTranslation $translation): Image
+    {
+        $this->translations->removeElement($translation);
+        $translation->setImage(null);
+
+        return $this;
+    }
+
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(Collection $tags): Image
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function addTag(Tag $tag): Image
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): Image
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function setCategories(Collection $categories): Image
+    {
+        $this->categories = $categories;
+
+        return $this;
+    }
+
+    public function addCategory(Category $category): Image
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): Image
+    {
+        $this->categories->removeElement($category);
+
+        return $this;
+    }
     public function getAltText(): string
     {
         return $this->altText;

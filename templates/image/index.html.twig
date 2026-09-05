@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'image.index.title'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/image-index.css') }}">
+{% endblock %}
+
+{% block breadcrumb_elements %}
+    <li><span>{{ 'breadcrumb.image_index'|trans }}</span></li>
+{% endblock %}
+
+
+{% block body %}
+    <main class="image-container">
+
+        <div class="upload">Upload</div>
+
+        <turbo-frame id="image-list">
+
+            {{ form_start(filterForm, {
+                action: path('blog_post_index'),
+                attr: {
+                    class: 'filter',
+                    'data-turbo-action': 'advance'
+                }
+            }) }}
+            <fieldset>
+                <legend>{{ 'image.index.filter.legend'|trans }}</legend>
+                <div class="filter-form-elements">
+                </div>
+                <div class="filter-action">
+                    <button type="submit">{{ 'blogpost.index.filter.submit'|trans }}</button>
+                    {{ form_widget(filterForm.reset) }}
+                </div>
+            </fieldset>
+            {{ form_end(filterForm) }}
+
+            <div class="count">
+                {{ 'image.index.count'|trans({'%count%': pagination.getTotalItemCount}) }}
+            </div>
+
+            <div class="image-table">
+                {% for image in pagination %}
+                    <div class="image-item">
+                        <a href="{{ path('image_edit', { id: image.id }) }}">
+                            <img src="{{ getImagePreviewUrl(image) }}" alt="{{ image.altText }}"/>
+                            <span class="image-info">{{ image.title }}</span>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </turbo-frame>
+
+    </main>
+{% endblock %}

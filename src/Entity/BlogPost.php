@@ -77,24 +77,32 @@ class BlogPost
     #[Groups(['blog_post:read'])]
     private ?string $contentEncoded = null;
 
-    /** @var array<string, mixed>|null */
+    /**
+     * @var array<string, mixed>|null
+     */
     #[ORM\Column(name: 'custom_fields', type: Types::JSON, options: ['default' => null])]
     #[Groups(['blog_post:read'])]
     private array $customFields = [];
 
-    /** @var Collection<int, Tag> */
+    /**
+     * @var Collection<int, Tag>
+     */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'blogPosts')]
     #[ORM\JoinTable(name: 'blog_post_tag')]
     #[Groups(['blog_post:read'])]
     private Collection $tags;
 
-    /** @var Collection<int, Category> */
+    /**
+     * @var Collection<int, Category>
+     */
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'blogPosts')]
     #[ORM\JoinTable(name: 'blog_post_category')]
     #[Groups(['blog_post:read'])]
     private Collection $categories;
 
-    /** @var Collection<int, BlogPostImageMapping> */
+    /**
+     * @var Collection<int, BlogPostImageMapping>
+     */
     #[ORM\OneToMany(targetEntity: BlogPostImageMapping::class, mappedBy: 'blogPost', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $blogPostImages;
