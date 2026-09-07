@@ -7,7 +7,7 @@ namespace App\Form\Filter;
 use App\Entity\Blog;
 use App\Entity\BlogPostType;
 use App\Enum\BlogPostStatus;
-use App\Model\Filter\BlogPostFilter;
+use App\Model\Filter\BlogPostIndexFilter;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
@@ -17,7 +17,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class BlogPostFilterType extends AbstractType
+final class BlogPostIndexFilterType extends AbstractType
 {
     public function __construct(private readonly TranslatorInterface $translator)
     {
@@ -74,7 +74,7 @@ final class BlogPostFilterType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => BlogPostFilter::class,
+            'data_class' => BlogPostIndexFilter::class,
             'method' => 'GET',
             'csrf_protection' => false,
         ]);

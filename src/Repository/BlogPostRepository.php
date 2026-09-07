@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\BlogPost;
-use App\Model\Filter\BlogPostFilter;
+use App\Model\Filter\BlogPostIndexFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
@@ -15,7 +15,7 @@ class BlogPostRepository extends ServiceEntityRepository
         parent::__construct(registry: $managerRegistry, entityClass: BlogPost::class);
     }
 
-    public function createFilterQuery(?BlogPostFilter $filter = null): Query
+    public function createFilterQuery(?BlogPostIndexFilter $filter = null): Query
     {
         $queryBuilder = $this->createQueryBuilder('p')
             ->orderBy(sort: 'p.created', order: 'DESC');

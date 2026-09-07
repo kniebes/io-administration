@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use DateTime;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
 #[ORM\Table(name: 'image')]
+#[ORM\Index(name: 'date', columns: ['date'])]
 #[ORM\HasLifecycleCallbacks]
 class Image
 {
@@ -23,9 +23,13 @@ class Image
     #[Groups(['blog_post:read'])]
     private ?int $id = null;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['blog_post:read'])]
+    private DateTimeImmutable $date;
+
     #[ORM\Column(length: 255)]
     #[Groups(['blog_post:read'])]
-    private string $domain;
+    private string $host;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['blog_post:read'])]
@@ -52,14 +56,27 @@ class Image
     private float $aspectRatio = 0.0;
 
     /**
-     *
-     * @var array<int, string}>
+     * @var Collection<int, ImageVersion>
      */
-    #[ORM\Column(name: 'versions', type: Types::JSON)]
+    #[ORM\OneToMany(targetEntity: ImageVersion::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[Groups(['blog_post:read'])]
-    private array $versions = [];
+    private Collection $versions;
 
-    #[ORM\Column(name: 'alt_text', length: 255, options: ['default' => ''])]
+    /**
+     * @var Collection<int, ImageTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: ImageTranslation::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['blog_post:read'])]
+    private Collection $translations;
+
+    /**
+     * @var Collection<int, ImageExif>
+     */
+    #[ORM\OneToMany(targetEntity: ImageExif::class, mappedBy: 'image', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[Groups(['blog_post:read'])]
+    private Collection $exif;
+
+    #[ORM\Column(name: 'alt_text', type: Types::TEXT, options: ['default' => ''])]
     #[Groups(['blog_post:read'])]
     private string $altText = '';
 
@@ -79,32 +96,51 @@ class Image
     #[Groups(['blog_post:read'])]
     private ImageLicense $license = ImageLicense::AllRightsReserved;
 
-    /** @var array<string, mixed> */
-    #[ORM\Column(type: Types::JSON)]
-    #[Groups(['blog_post:read'])]
-    private array $exif = [];
-
-    /** @var array<string, mixed> */
+    /**
+     * @var array<string, mixed>
+     */
     #[ORM\Column(name: 'custom_fields', type: Types::JSON)]
     #[Groups(['blog_post:read'])]
     private array $customFields = [];
 
-    /** @var Collection<int, BlogPostImageMapping> */
+    /**
+     * @var Collection<int, BlogPostImageMapping>
+     */
     #[ORM\OneToMany(targetEntity: BlogPostImageMapping::class, mappedBy: 'image')]
     private Collection $blogPostImages;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    /**
+     * @var Collection<int, Tag>
+     */
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'images')]
+    #[ORM\JoinTable(name: 'image_tag')]
     #[Groups(['blog_post:read'])]
-    private ?DateTimeImmutable $created = null;
+    private Collection $tags;
+
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'images')]
+    #[ORM\JoinTable(name: 'image_category')]
+    #[Groups(['blog_post:read'])]
+    private Collection $categories;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['blog_post:read'])]
-    private DateTimeImmutable $updated;
+    private DateTimeImmutable $created;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['blog_post:read'])]
+    private ?DateTimeImmutable $updated = null;
 
     public function __construct()
     {
+        $this->versions = new ArrayCollection();
+        $this->translations = new ArrayCollection();
         $this->blogPostImages = new ArrayCollection();
-        $this->exif = [];
+        $this->tags = new ArrayCollection();
+        $this->categories = new ArrayCollection();
+        $this->exif = new ArrayCollection();
         $this->customFields = [];
     }
 
@@ -113,14 +149,26 @@ class Image
         return $this->id;
     }
 
-    public function getDomain(): string
+    public function getDate(): DateTimeImmutable
     {
-        return $this->domain;
+        return $this->date;
     }
 
-    public function setDomain(string $domain): Image
+    public function setDate(DateTimeImmutable $date): Image
     {
-        $this->domain = $domain;
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getHost(): string
+    {
+        return $this->host;
+    }
+
+    public function setHost(string $host): Image
+    {
+        $this->host = $host;
 
         return $this;
     }
@@ -197,18 +245,107 @@ class Image
         return $this;
     }
 
-    public function getVersions(): array
+    public function getVersions(): Collection
     {
         return $this->versions;
     }
 
-    public function setVersions(array $versions): Image
+    public function addImageVersion(ImageVersion $imageVersion): Image
     {
-        $this->versions = $versions;
+        $this->versions->add($imageVersion);
+        $imageVersion->setImage($this);
 
         return $this;
     }
 
+    public function removeImageVersion(ImageVersion $imageVersion): Image
+    {
+        $this->versions->removeElement($imageVersion);
+        $imageVersion->setImage(null);
+
+        return $this;
+    }
+
+    public function getImageVersion(string $versionIdentifier): ?ImageVersion
+    {
+        $imageVersion = $this->versions->filter(function (ImageVersion $version) use ($versionIdentifier) {
+            return $version->getVersionIdentifier() === $versionIdentifier;
+        });
+
+        return $imageVersion->first();
+    }
+
+    public function addTranslation(ImageTranslation $translation): Image
+    {
+        $this->translations->add($translation);
+        $translation->setImage($this);
+
+        return $this;
+    }
+
+    public function removeTranslation(ImageTranslation $translation): Image
+    {
+        $this->translations->removeElement($translation);
+        $translation->setImage(null);
+
+        return $this;
+    }
+
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(Collection $tags): Image
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function addTag(Tag $tag): Image
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): Image
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function setCategories(Collection $categories): Image
+    {
+        $this->categories = $categories;
+
+        return $this;
+    }
+
+    public function addCategory(Category $category): Image
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): Image
+    {
+        $this->categories->removeElement($category);
+
+        return $this;
+    }
     public function getAltText(): string
     {
         return $this->altText;
@@ -269,14 +406,18 @@ class Image
         return $this;
     }
 
-    public function getExif(): ?array
+    public function addExif(ImageExif $exif): Image
     {
-        return $this->exif;
+        $this->exif->add($exif);
+        $exif->setImage($this);
+
+        return $this;
     }
 
-    public function setExif(?array $exif): Image
+    public function removeExif(ImageExif $exif): Image
     {
-        $this->exif = $exif;
+        $this->exif->removeElement($exif);
+        $exif->setImage(null);
 
         return $this;
     }
@@ -303,24 +444,24 @@ class Image
         );
     }
 
-    public function getCreated(): ?DateTimeImmutable
+    public function getCreated(): DateTimeImmutable
     {
         return $this->created;
     }
 
-    public function setCreated(?DateTimeImmutable $created): Image
+    public function setCreated(DateTimeImmutable $created): Image
     {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getUpdated(): DateTimeImmutable
+    public function getUpdated(): ?DateTimeImmutable
     {
         return $this->updated;
     }
 
-    public function setUpdated(DateTimeImmutable $updated): Image
+    public function setUpdated(?DateTimeImmutable $updated = null): Image
     {
         $this->updated = $updated;
 

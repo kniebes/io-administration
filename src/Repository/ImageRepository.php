@@ -2,7 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\ImageVersion;
+use App\Model\Filter\ImageIndexFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Image;
 
@@ -26,5 +29,30 @@ class ImageRepository extends ServiceEntityRepository
         $entityManager = $this->getEntityManager();
         $entityManager->persist($image);
         $entityManager->flush();
+    }
+
+    public function createFilterQuery(?ImageIndexFilter $filter = null): Query
+    {
+        $queryBuilder = $this->createQueryBuilder('i')
+            ->addSelect('v')
+            ->leftJoin('i.versions', 'v')
+            ->orderBy(sort: 'i.date', order: 'DESC');
+
+        $searchQuery = trim((string) $filter?->getSearchQuery());
+        if ($searchQuery !== '') {
+            $searchableFields = ['i.title', 'i.description', 't.title', 't.description', 'e.value'];
+            $queryBuilder
+                ->leftJoin('i.translations', 't')
+                ->leftJoin('i.exif', 'e')
+                ->andWhere($queryBuilder->expr()->orX(
+                    ...array_map(
+                        static fn (string $field): string => $field . ' LIKE :searchQuery',
+                        $searchableFields
+                    )
+                ))
+                ->setParameter(key: 'searchQuery', value: '%' . $searchQuery . '%');
+        }
+
+        return $queryBuilder->getQuery();
     }
 }

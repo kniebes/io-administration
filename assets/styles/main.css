@@ -19,6 +19,7 @@
     /* Text */
     --text-color: #333;
     --muted-text-color: #666;
+    --very-muted-text-color: #aaa;
     --disabled-text-color: lightgray;
     --footer-text-color: #ccc;
     --link-color: #474;

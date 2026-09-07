@@ -207,7 +207,7 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
     protected function getVersionUrl(Image $image, ?string $version = null): string
     {
         if (empty($version)) {
-            return sprintf('https://%s%s', $image->getDomain(), $image->getUrl());
+            return sprintf('https://%s%s', $image->getHost(), $image->getUrl());
         }
 
         if (!in_array(intval($version), $this->getResolution())) {
@@ -216,10 +216,10 @@ class ResponsiveImageTag implements ResponsiveImageTagInterface
 
         $path = $image->getVersions()[$version] ?? null;
         if (empty($path)) {
-            return sprintf('https://%s%s', $image->getDomain(), $image->getUrl());
+            return sprintf('https://%s%s', $image->getHost(), $image->getUrl());
         }
 
-        return sprintf('https://%s%s', $image->getDomain(), $path);
+        return sprintf('https://%s%s', $image->getHost(), $path);
     }
 
     /**

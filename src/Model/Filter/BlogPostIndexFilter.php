@@ -6,7 +6,7 @@ use App\Entity\Blog;
 use App\Entity\BlogPostType;
 use App\Enum\BlogPostStatus;
 
-final class BlogPostFilter
+final class BlogPostIndexFilter
 {
     private ?string $searchQuery = null;
 
@@ -21,7 +21,7 @@ final class BlogPostFilter
         return $this->searchQuery;
     }
 
-    public function setSearchQuery(?string $searchQuery): BlogPostFilter
+    public function setSearchQuery(?string $searchQuery): BlogPostIndexFilter
     {
         $this->searchQuery = $searchQuery;
 
@@ -33,7 +33,7 @@ final class BlogPostFilter
         return $this->status;
     }
 
-    public function setStatus(?BlogPostStatus $status): BlogPostFilter
+    public function setStatus(?BlogPostStatus $status): BlogPostIndexFilter
     {
         $this->status = $status;
 
@@ -45,7 +45,7 @@ final class BlogPostFilter
         return $this->blog;
     }
 
-    public function setBlog(?Blog $blog): BlogPostFilter
+    public function setBlog(?Blog $blog): BlogPostIndexFilter
     {
         $this->blog = $blog;
 
@@ -57,7 +57,7 @@ final class BlogPostFilter
         return $this->blogPostType;
     }
 
-    public function setBlogPostType(?BlogPostType $blogPostType): BlogPostFilter
+    public function setBlogPostType(?BlogPostType $blogPostType): BlogPostIndexFilter
     {
         $this->blogPostType = $blogPostType;
 
