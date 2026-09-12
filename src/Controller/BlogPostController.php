@@ -51,7 +51,7 @@ final class BlogPostController extends AbstractController
         $pagination = $this->paginator->paginate(
             target: $this->blogPostRepository->createFilterQuery($filter),
             page: $request->query->getInt('page', 1),
-            limit: 10
+            limit: 25
         );
 
         return $this->render(

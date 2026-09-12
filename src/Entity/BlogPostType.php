@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use App\Repository\BlogPostTypeRepository;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
-#[ORM\Entity()]
+#[ORM\Entity(repositoryClass: BlogPostTypeRepository::class)]
 #[ORM\Table(name: 'blog_post_type')]
 class BlogPostType
 {

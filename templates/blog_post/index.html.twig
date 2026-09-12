@@ -46,6 +46,10 @@
                 {{ 'blogpost.index.count'|trans({'%count%': pagination.getTotalItemCount}) }}
             </div>
 
+            <div class="page-navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+
             <table class="data">
                 <thead>
                 <tr>
@@ -54,8 +58,8 @@
                         {{ knp_pagination_sortable(pagination, 'blogpost.index.head.title'|trans, 'p.title') }}
                     </th>
                     <th>{{ 'blogpost.index.head.blog'|trans }}</th>
-                    <th{% if pagination.isSorted('a.creted') %} class="sorted"{% endif %}>
-                        {{ knp_pagination_sortable(pagination, 'blogpost.index.head.created'|trans, 'p.created') }}
+                    <th{% if pagination.isSorted('a.publishedDate') %} class="sorted"{% endif %}>
+                        {{ knp_pagination_sortable(pagination, 'blogpost.index.head.publishedDate'|trans, 'p.publishedDate') }}
                     </th>
                     <th class="right">{{ 'blogpost.index.head.actions'|trans }}</th>
                 </tr>
@@ -68,7 +72,7 @@
                                              href="{{ path('blog_post_edit', {id: post.id}) }}">{{ post.title }}</a>
                         </td>
                         <td>{{ post.blog.name|default('') }}</td>
-                        <td class="datetime">{{ post.created | date('Y-m-d H:i:s') }}</td>
+                        <td class="datetime">{{ post.publishedDate | date('Y-m-d H:i:s') }}</td>
                         <td class="actions">
                             <a data-turbo-frame="_top"
                                href="{{ path('blog_post_edit', {id: post.id}) }}"

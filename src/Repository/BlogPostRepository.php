@@ -18,7 +18,7 @@ class BlogPostRepository extends ServiceEntityRepository
     public function createFilterQuery(?BlogPostIndexFilter $filter = null): Query
     {
         $queryBuilder = $this->createQueryBuilder('p')
-            ->orderBy(sort: 'p.created', order: 'DESC');
+            ->orderBy(sort: 'p.publishedDate', order: 'DESC');
 
         $searchQuery = trim((string) $filter?->getSearchQuery());
 

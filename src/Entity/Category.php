@@ -12,6 +12,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity()]
 #[ORM\Table(name: 'category')]
+#[ORM\HasLifecycleCallbacks]
 class Category
 {
     #[ORM\Id]
@@ -47,7 +48,7 @@ class Category
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?DateTimeImmutable $created = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $updated = null;
 
     public function __construct()
@@ -136,4 +137,17 @@ class Category
 
         return $this;
     }
+
+    #[ORM\PrePersist]
+    public function updateCreated(): void
+    {
+        $this->created = new DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function updateUpdated(): void
+    {
+        $this->updated = new DateTimeImmutable();
+    }
+
 }

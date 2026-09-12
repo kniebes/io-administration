@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ORM\Table(name: 'tag')]
+#[ORM\HasLifecycleCallbacks]
 class Tag
 {
     #[ORM\Id]
@@ -48,7 +49,7 @@ class Tag
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?DateTimeImmutable $created = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $updated = null;
 
     public function __construct()
@@ -140,5 +141,16 @@ class Tag
         return $this;
     }
 
+    #[ORM\PrePersist]
+    public function updateCreated(): void
+    {
+        $this->created = new DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function updateUpdated(): void
+    {
+        $this->updated = new DateTimeImmutable();
+    }
 
 }

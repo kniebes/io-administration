@@ -3,6 +3,13 @@
     --image-item-background: #fff;
 }
 
+@media only screen and (prefers-color-scheme: dark) {
+    :root {
+        --image-info-background: #12151c;
+        --image-item-background: #2a3141;
+    }
+}
+
 .image-container {
     width: 100%;
     display: flex;
@@ -21,7 +28,7 @@
 }
 
 .image-item {
-    width: 20%;
+    width: calc(20% - 2rem);
     height: auto;
     aspect-ratio: 3/2;
     overflow: hidden;
@@ -29,14 +36,17 @@
     background-color: var(--image-item-background);
     border-radius: var(--default-border-radius);
     box-shadow: var(--default-box-shadow);
-    @media only screen and (max-width: 1500px) {
-        width: 30%;
+    @media only screen and (max-width: 2880px) {
+        width: calc(25% - 2rem);
+    }
+    @media only screen and (max-width: 1680px) {
+        width: calc(33% - 2rem);
     }
     @media only screen and (max-width: 1024px) {
-        width: 40%;
+        width: calc(50% - 2rem);
     }
     @media only screen and (max-width: 760px) {
-        width: 90%;
+        width: calc(100% - 2rem);
     }
 }
 
@@ -63,8 +73,9 @@
     background: var(--image-info-background);
 }
 
-.count {
-    margin: 1rem 0;
+.count,
+fieldset {
+    margin: 1rem 5rem;
 }
 
 .upload {

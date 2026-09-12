@@ -26,7 +26,7 @@ class Blog
     #[Groups(['blog_post:read'])]
     private ?string $baseUrl = null;
 
-    #[ORM\Column(name:'feed_url', length: 256, unique: true)]
+    #[ORM\Column(name:'feed_url', length: 256)]
     #[Groups(['blog_post:read'])]
     private ?string $feedUrl = null;
 

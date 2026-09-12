@@ -42,7 +42,7 @@ class ImageController extends AbstractController
         $pagination = $this->paginator->paginate(
             target: $this->imageRepository->createFilterQuery($filter),
             page: $request->query->getInt('page', 1),
-            limit: 20
+            limit: 12
         );
 
         return $this->render(

@@ -2,7 +2,6 @@
 
 namespace App\Command\Migration;
 
-use App\Entity\Category;
 use App\Entity\Image;
 use App\Entity\ImageExif;
 use App\Entity\ImageTranslation;
@@ -17,11 +16,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Throwable;
 
-#[AsCommand(name: 'app:migration:migrate_images', description: 'Migrate Images from the current System')]
+#[AsCommand(name: 'app:migrate:images', description: 'Migrate Images from the current System')]
 readonly class ImageMigrationCommand
 {
     public function __construct(
@@ -32,7 +32,10 @@ readonly class ImageMigrationCommand
     ) {
     }
 
-    public function __invoke(SymfonyStyle $io): int
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Option(description: 'Skip collecting imagesmetrics')] bool $skipImageMetrics = false,
+    ): int
     {
         $sql = 'SELECT * FROM journal_image ORDER BY id DESC';
         $images = $this->migrationConnection->fetchAllAssociative($sql);
@@ -49,7 +52,7 @@ readonly class ImageMigrationCommand
             }
 
             // Metrics
-            $imageMetrics = $this->getImageMetrics($importImage['id']);
+            $imageMetrics = $this->getImageMetrics($importImage['id'], skipImageMetrics: $skipImageMetrics);
 
             // customFields
             $customFields = json_decode(($importImage['custom_fields'] ?? ''), true);
@@ -147,8 +150,12 @@ readonly class ImageMigrationCommand
         return Command::SUCCESS;
     }
 
-    private function getImageMetrics(int $imageId): array
+    private function getImageMetrics(int $imageId, bool $skipImageMetrics = false): array
     {
+        if ($skipImageMetrics) {
+            return json_decode('{ "success": true, "original": { "width": 4096, "height": 2731, "mimeType": "image/jpeg", "filesize": 1918280 }, "100": { "width": 100, "height": 66, "mimeType": "image/jpeg", "filesize": 3717 }, "800": { "width": 800, "height": 533, "mimeType": "image/jpeg", "filesize": 77616 }, "1024": { "width": 1024, "height": 682, "mimeType": "image/jpeg", "filesize": 116031 }, "2048": { "width": 2048, "height": 1365, "mimeType": "image/jpeg", "filesize": 362158 } }', true);
+        }
+
         $url = 'https://kniebes.com/api/image-metric?imageId='.$imageId;
         $json = file_get_contents($url);
         $data = json_decode($json, true);

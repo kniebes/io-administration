@@ -87,7 +87,7 @@ class BlogPost
     /**
      * @var Collection<int, Tag>
      */
-    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'blogPosts')]
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'blogPosts', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'blog_post_tag')]
     #[Groups(['blog_post:read'])]
     private Collection $tags;
@@ -95,7 +95,7 @@ class BlogPost
     /**
      * @var Collection<int, Category>
      */
-    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'blogPosts')]
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'blogPosts', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'blog_post_category')]
     #[Groups(['blog_post:read'])]
     private Collection $categories;
@@ -428,7 +428,7 @@ class BlogPost
             }
         }
 
-        $blogPostImage = (new BlogPostImageMapping())
+        $blogPostImage = new BlogPostImageMapping()
             ->setBlogPost($this)
             ->setImage($image)
             ->setPosition($this->blogPostImages->count());
