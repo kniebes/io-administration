@@ -26,9 +26,17 @@ class Blog
     #[Groups(['blog_post:read'])]
     private ?string $baseUrl = null;
 
-    #[ORM\Column(name:'feed_url', length: 256)]
+    #[ORM\Column(name:'feed_path', length: 256, nullable: true)]
     #[Groups(['blog_post:read'])]
-    private ?string $feedUrl = null;
+    private ?string $feedPath = null;
+
+    #[ORM\Column(name:'perma_link_pattern', length: 256)]
+    #[Groups(['blog_post:read'])]
+    private string $permaLinkPattern = '/post/%id%';
+
+    #[ORM\Column(name:'webhook_path', length: 256, nullable: true)]
+    #[Groups(['blog_post:read'])]
+    private ?string $webhookPath = null;
 
     #[ORM\Column(name: 'ping_services', type: Types::JSON, options: ['default' => null])]
     #[Groups(['blog_post:read'])]

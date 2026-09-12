@@ -5,6 +5,7 @@ namespace App\Service\DataCollector\Collector;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 readonly class BaseDataCollector implements DataCollectorInterface
 {
@@ -14,7 +15,7 @@ readonly class BaseDataCollector implements DataCollectorInterface
     {
     }
 
-    public function collect(RequestDataInterface $requestData, ResponseDataBag $data): void
+    public function collect(string $method, Request $request, ResponseDataBag $data): void
     {
         $data->setData('baseData', $this->getBaseData());
     }

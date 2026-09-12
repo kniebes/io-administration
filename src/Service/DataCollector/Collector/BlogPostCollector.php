@@ -7,6 +7,7 @@ use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use App\Repository\BlogPostRepository;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -15,22 +16,21 @@ readonly class BlogPostCollector implements DataCollectorInterface
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private SerializerInterface $serializer,
-    )
-    {
+    ) {
     }
 
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function collect(RequestDataInterface $requestData, ResponseDataBag $data): void
+    public function collect(string $method, Request $request, ResponseDataBag $data): void
     {
-        if ($requestData instanceof BlogPostRequestData) {
-            if (!is_null($requestData->getId())) {
-                $this->collectById(data: $data, id: $requestData->getId());
-                return;
-            }
+        if ($method !== 'blog-post') {
+            return;
+        }
 
-            $this->collectBySlug(data: $data, requestData: $requestData);
+        $id = $request->request->get('id', null);
+        if (!is_null($id)) {
+            $this->collectById(data: $data, id: $id);
         }
     }
 

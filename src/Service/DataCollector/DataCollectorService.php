@@ -7,6 +7,7 @@ use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use App\Service\DataCollector\Interface\DataCollectorServiceInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 readonly class DataCollectorService implements DataCollectorServiceInterface
@@ -19,12 +20,12 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
     ) {
     }
 
-    public function collect(RequestDataInterface $requestData): ResponseDataBag
+    public function collect(string $method, Request $request): ResponseDataBag
     {
         $data = new  ResponseDataBag();
         foreach ($this->handlers as $handler) {
             try {
-                $handler->collect(requestData: $requestData, data: $data);
+                $handler->collect(method: $method, request: $request, data: $data);
             } catch (Throwable $throwable) {
                 $data->addError($throwable->getMessage());
             }

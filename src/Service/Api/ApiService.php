@@ -3,6 +3,7 @@
 namespace App\Service\Api;
 
 use App\Model\DataCollector\BlogPostRequestData;
+use App\Model\DataCollector\BlogPostsRequestData;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Interface\DataCollectorServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,27 +18,7 @@ readonly class ApiService
 
     public function collectData(string $method, Request $request): ResponseDataBag
     {
-        return match ($method) {
-            'blog-post' => $this->getBlogPost($request),
-            default => throw new NotFoundResourceException()
-        };
+        return  $this->dataCollectorService->collect(method: $method, request: $request);
     }
 
-    protected function getBlogPost(Request $request): ResponseDataBag
-    {
-        $requestData = $this->createBlogPostRequestData($request);
-
-        return  $this->dataCollectorService->collect($requestData);
-    }
-
-    protected function createBlogPostRequestData(Request $request): BlogPostRequestData
-    {
-        return new BlogPostRequestData(
-            id: (int) $request->query->get('id'),
-            year: (int) $request->query->get('year'),
-            month: (int) $request->query->get('month'),
-            day: (int) $request->query->get('day'),
-            slug: $request->query->get('slug'),
-        );
-    }
 }

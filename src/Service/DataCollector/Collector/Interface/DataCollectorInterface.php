@@ -5,6 +5,7 @@ namespace App\Service\DataCollector\Collector\Interface;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
@@ -12,5 +13,5 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 #[AutoconfigureTag('app.data_collector')]
 interface DataCollectorInterface
 {
-    public function collect(RequestDataInterface $requestData, ResponseDataBag $data): void;
+    public function collect(string $method, Request $request, ResponseDataBag $data): void;
 }
