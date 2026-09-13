@@ -7,6 +7,7 @@ use App\Model\DataCollector\ResponseDataBag;
 use App\Repository\BlogPostRepository;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use DateTimeImmutable;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -78,25 +79,17 @@ readonly class BlogPostsCollector implements DataCollectorInterface
                 ->setParameter(key: 'tagSlug', value: $tagSlug);
         }
 
-        $countQuery = clone $queryBuilder;
-        $total = $countQuery
-            ->select('COUNT(DISTINCT p.id)')
-            ->resetDQLPart('orderBy')
-            ->setFirstResult(0)
-            ->setMaxResults(null)
-            ->getQuery()
-            ->getSingleScalarResult();
+        $queryBuilder
+            ->addOrderBy('p.publishedDate', 'DESC')
+            ->addOrderBy('p.id', 'DESC')
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage);
 
-        $queryBuilder->setMaxResults(intval($perPage));
-        $queryBuilder->setFirstResult(($page - 1) * $perPage);
-        $queryBuilder->addOrderBy('p.publishedDate', 'DESC');
+        $paginator = new Paginator(query: $queryBuilder->getQuery(), fetchJoinCollection: true);
 
-        $maxMaxResults = $queryBuilder->getQuery()->getMaxResults();
-
-        $result = $queryBuilder->getQuery()->getResult();
-        $serialisedData = $this->serializer->serialize($result, 'json', ['groups' => ['blog_post:read']]);
+        $serialisedData = $this->serializer->serialize(iterator_to_array($paginator), 'json', ['groups' => ['blog_post:read']]);
         $data->setData(key: 'list', data: json_decode($serialisedData, true));
-        $data->setData(key: 'total', data: $total);
+        $data->setData(key: 'total', data: count($paginator));
     }
 
 }
