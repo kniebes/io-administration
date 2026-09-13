@@ -2,6 +2,7 @@
 
 namespace App\Service\Api;
 
+use App\Entity\Blog;
 use App\Model\DataCollector\BlogPostRequestData;
 use App\Model\DataCollector\BlogPostsRequestData;
 use App\Model\DataCollector\ResponseDataBag;
@@ -16,9 +17,9 @@ readonly class ApiService
     ) {
     }
 
-    public function collectData(string $method, Request $request): ResponseDataBag
+    public function collectData(Blog $blog, string $method, Request $request): ResponseDataBag
     {
-        return  $this->dataCollectorService->collect(method: $method, request: $request);
+        return  $this->dataCollectorService->collect(blog: $blog, method: $method, request: $request);
     }
 
 }

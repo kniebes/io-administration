@@ -6,6 +6,7 @@ namespace App\Command\Migration;
 
 use App\Command\Migration\Exception\SkipImportException;
 use App\Entity\BlogPost;
+use App\Entity\BlogPostType;
 use App\Entity\Category;
 use App\Entity\Tag;
 use App\Enum\BlogPostStatus;
@@ -202,23 +203,27 @@ class BlogPostMigrationCommand
     private function assignPostType(BlogPost $blogPostEntity, array $entry): void
     {
         $entrySource = $entry['entrySource'] ?? null;
-        $blogPostTypeId = match ($entrySource) {
-            'notes' => 3,
-            'now' => 4,
-            'photoblog' => 5,
-            'wordpress', 'twitter', 'flickr', 'journal' => 2,
-            default => 1,
+        $blogPostTypeName = match ($entrySource) {
+            'notes' => 'Notes',
+            'now' => 'Now',
+            'photoblog' => 'Photoblog',
+            'wordpress', 'twitter', 'flickr', 'journal' => 'Journal',
+            default => 'Default',
         };
 
-        if (array_key_exists($blogPostTypeId, $this->blogPostTypeCache)) {
-            $blogPostEntity->setBlogPostType($this->blogPostTypeCache[$blogPostTypeId]);
-        }
-
-        $blogPostType = $this->blogPostTypeRepository->find($blogPostTypeId);
-        if (is_null($blogPostType)) {
+        if (array_key_exists($blogPostTypeName, $this->blogPostTypeCache)) {
+            $blogPostEntity->setBlogPostType($this->blogPostTypeCache[$blogPostTypeName]);
             return;
         }
 
+        $blogPostType = $this->blogPostTypeRepository->findOneBy(['name' => $blogPostTypeName]);
+        if (is_null($blogPostType)) {
+            $blogPostType = new BlogPostType();
+            $blogPostType->setName($blogPostTypeName);
+            $this->entityManager->persist($blogPostType);
+        }
+
+        $this->blogPostTypeCache[$blogPostTypeName] = $blogPostType;
         $blogPostEntity->setBlogPostType($blogPostType);
     }
 
@@ -301,6 +306,9 @@ SQL;
 
     private function assignImages(BlogPost $blogPostEntity, array $entry): void
     {
+        if ($entry['id'] === 27419) {
+            sleep(1);
+        }
         if (!empty($entry['imageId'])) {
             $images = $this->imageRepository->find($entry['imageId']);
             if (!is_null($images)) {
@@ -309,7 +317,7 @@ SQL;
         }
 
         $index = json_decode(($entry['metadataIndex'] ?? '[]'), true);
-        $additionalPhotoblogImages = $index['additionalPhotoblogImages'] ?? null;
+        $additionalPhotoblogImages = $index['additional_photoblog_images'] ?? null;
         if (is_null($additionalPhotoblogImages)) {
             return;
         }

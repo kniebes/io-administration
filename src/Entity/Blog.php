@@ -20,11 +20,19 @@ class Blog
 
     #[ORM\Column(length: 180, unique: true)]
     #[Groups(['blog_post:read'])]
-    private ?string $name = null;
+    private string $name = '';
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['blog_post:read'])]
+    private string $title = '';
+
+    #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['blog_post:read'])]
+    private string $description = '';
 
     #[ORM\Column(name: 'base_url', length: 256, unique: true)]
     #[Groups(['blog_post:read'])]
-    private ?string $baseUrl = null;
+    private string $baseUrl = '';
 
     #[ORM\Column(name:'feed_path', length: 256, nullable: true)]
     #[Groups(['blog_post:read'])]
@@ -65,6 +73,30 @@ class Blog
         return $this;
     }
 
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): Blog
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): Blog
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
     public function getBaseUrl(): ?string
     {
         return $this->baseUrl;
@@ -77,14 +109,38 @@ class Blog
         return $this;
     }
 
-    public function getFeedUrl(): ?string
+    public function getFeedPath(): ?string
     {
-        return $this->feedUrl;
+        return $this->feedPath;
     }
 
-    public function setFeedUrl(?string $feedUrl): Blog
+    public function setFeedPath(?string $feedPath): Blog
     {
-        $this->feedUrl = $feedUrl;
+        $this->feedPath = $feedPath;
+
+        return $this;
+    }
+
+    public function getPermaLinkPattern(): string
+    {
+        return $this->permaLinkPattern;
+    }
+
+    public function setPermaLinkPattern(string $permaLinkPattern): Blog
+    {
+        $this->permaLinkPattern = $permaLinkPattern;
+
+        return $this;
+    }
+
+    public function getWebhookPath(): ?string
+    {
+        return $this->webhookPath;
+    }
+
+    public function setWebhookPath(?string $webhookPath): Blog
+    {
+        $this->webhookPath = $webhookPath;
 
         return $this;
     }

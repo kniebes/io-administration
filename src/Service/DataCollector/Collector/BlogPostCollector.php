@@ -2,6 +2,7 @@
 
 namespace App\Service\DataCollector\Collector;
 
+use App\Entity\Blog;
 use App\Model\DataCollector\BlogPostRequestData;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
@@ -22,7 +23,7 @@ readonly class BlogPostCollector implements DataCollectorInterface
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function collect(string $method, Request $request, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
     {
         if ($method !== 'blog-post') {
             return;
@@ -30,14 +31,14 @@ readonly class BlogPostCollector implements DataCollectorInterface
 
         $id = $request->request->get('id', null);
         if (!is_null($id)) {
-            $this->collectById(data: $data, id: $id);
+            $this->collectById(data: $data, id: $id, blog: $blog);
         }
     }
 
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    protected function collectById(ResponseDataBag $data, int $id): void
+    protected function collectById(ResponseDataBag $data, int $id, Blog $blog): void
     {
         $blogPost = $this->blogPostRepository->find($id);
         if (is_null($blogPost)) {

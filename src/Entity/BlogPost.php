@@ -37,10 +37,9 @@ class BlogPost
 
     #[ORM\ManyToOne(targetEntity: Blog::class)]
     #[ORM\JoinColumn(name: 'blog_id', referencedColumnName: 'id')]
-    #[Groups(['blog_post:read'])]
     private ?Blog $blog = null;
 
-    #[ORM\ManyToOne(targetEntity: BlogPostType::class)]
+    #[ORM\ManyToOne(targetEntity: BlogPostType::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'blog_post_type_id', referencedColumnName: 'id')]
     #[Groups(['blog_post:read'])]
     private ?BlogPostType $blogPostType = null;

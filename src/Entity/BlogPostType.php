@@ -10,6 +10,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: BlogPostTypeRepository::class)]
 #[ORM\Table(name: 'blog_post_type')]
+#[ORM\HasLifecycleCallbacks]
 class BlogPostType
 {
     #[ORM\Id]
@@ -25,7 +26,7 @@ class BlogPostType
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private ?DateTimeImmutable $created = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE,nullable: true)]
     private ?DateTimeImmutable $updated = null;
 
     public function getId(): ?int
@@ -67,6 +68,18 @@ class BlogPostType
         $this->updated = $updated;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function updateCreated(): void
+    {
+        $this->created = new DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function updateUpdated(): void
+    {
+        $this->updated = new DateTimeImmutable();
     }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Service\DataCollector\Collector;
 
+use App\Entity\Blog;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Repository\BlogPostRepository;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
@@ -16,7 +17,7 @@ class BlogPostsCollector implements DataCollectorInterface
     ) {
     }
 
-    public function collect(string $method, Request $request, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
     {
         if ($method !== 'blog-posts') {
             return;
@@ -25,7 +26,6 @@ class BlogPostsCollector implements DataCollectorInterface
         $status = $request->request->get('status', null);
         $page = intval($request->request->get('page', 1));
         $perPage = intval($request->request->get('per_page', 10));
-        $blog = $request->request->get('blog', null);
         $isVisibleOnRss = $request->request->get('is_visible_on_rss', null);
         $isVisibleOnWeb = $request->request->get('is_visible_on_web', null);
         $tag = $request->request->get('tag', null);
@@ -36,10 +36,8 @@ class BlogPostsCollector implements DataCollectorInterface
         if (!is_null($status)) {
             $query->andWhere('p.status = :status')->setParameter('status', $status);
         }
-        if (!is_null($blog)) {
-            $query->leftJoin('p.blog', 'b');
-            $query->andWhere('b.name = :blog')->setParameter('blog', $blog);
-        }
+
+        $query->andWhere('p.blog = :blog')->setParameter('blog', $blog);
 
         $countQuery = clone $query;
         $total = $countQuery

@@ -406,6 +406,11 @@ class Image
         return $this;
     }
 
+    public function getExif(): Collection
+    {
+        return $this->exif;
+    }
+
     public function addExif(ImageExif $exif): Image
     {
         $this->exif->add($exif);

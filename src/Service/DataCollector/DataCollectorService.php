@@ -2,6 +2,7 @@
 
 namespace App\Service\DataCollector;
 
+use App\Entity\Blog;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
@@ -20,12 +21,12 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
     ) {
     }
 
-    public function collect(string $method, Request $request): ResponseDataBag
+    public function collect(Blog $blog, string $method, Request $request): ResponseDataBag
     {
         $data = new  ResponseDataBag();
         foreach ($this->handlers as $handler) {
             try {
-                $handler->collect(method: $method, request: $request, data: $data);
+                $handler->collect(blog: $blog, method: $method, request: $request, data: $data);
             } catch (Throwable $throwable) {
                 $data->addError($throwable->getMessage());
             }
