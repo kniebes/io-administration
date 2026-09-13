@@ -35,29 +35,29 @@ readonly class BlogPostsCollector implements DataCollectorInterface
         $month = $request->request->get('month', null);
 
         $queryBuilder = $this->blogPostRepository
-            ->createQueryBuilder('p')
-            ->addSelect('p')
-            ->addSelect('i')
-            ->addSelect('t')
-            ->addSelect('type')
-            ->addSelect('c')
-            ->leftJoin('p.blogPostImages', 'i')
-            ->leftJoin('p.blogPostType', 'type')
-            ->leftJoin('p.tags', 't')
-            ->leftJoin('p.categories', 'c');
+            ->createQueryBuilder('blogPost')
+            ->addSelect('blogPost')
+            ->addSelect('blogPostImages')
+            ->addSelect('tags')
+            ->addSelect('blogPostType')
+            ->addSelect('categories')
+            ->leftJoin('blogPost.blogPostImages', 'blogPostImages')
+            ->leftJoin('blogPost.blogPostType', 'blogPostType')
+            ->leftJoin('blogPost.tags', 'tags')
+            ->leftJoin('blogPost.categories', 'categories');
 
         if (!is_null($status)) {
-            $queryBuilder->andWhere('p.status = :status')->setParameter('status', $status);
+            $queryBuilder->andWhere('blogPost.status = :status')->setParameter('status', $status);
         }
 
-        $queryBuilder->andWhere('p.blog = :blog')->setParameter('blog', $blog);
+        $queryBuilder->andWhere('blogPost.blog = :blog')->setParameter('blog', $blog);
 
         if (!is_null($isVisibleOnRss)) {
-            $queryBuilder->andWhere('p.isVisibleOnRss = :is_visible_on_rss' )->setParameter('is_visible_on_rss', $isVisibleOnRss);
+            $queryBuilder->andWhere('blogPost.isVisibleOnRss = :is_visible_on_rss' )->setParameter('is_visible_on_rss', $isVisibleOnRss);
         }
 
         if (!is_null($isVisibleOnWeb)) {
-            $queryBuilder->andWhere('p.isVisibleOnWeb = :is_visible_on_web' )->setParameter('is_visible_on_web', $isVisibleOnWeb);
+            $queryBuilder->andWhere('blogPost.isVisibleOnWeb = :is_visible_on_web' )->setParameter('is_visible_on_web', $isVisibleOnWeb);
         }
 
         if (!is_null($year)) {
@@ -67,21 +67,21 @@ readonly class BlogPostsCollector implements DataCollectorInterface
             $startOfNextPeriod = $startOfPeriod->modify(is_null($month) ? '+1 year' : '+1 month');
 
             $queryBuilder
-                ->andWhere('p.publishedDate >= :startOfPeriod')
-                ->andWhere('p.publishedDate < :startOfNextPeriod')
+                ->andWhere('blogPost.publishedDate >= :startOfPeriod')
+                ->andWhere('blogPost.publishedDate < :startOfNextPeriod')
                 ->setParameter(key: 'startOfPeriod', value: $startOfPeriod)
                 ->setParameter(key: 'startOfNextPeriod', value: $startOfNextPeriod);
         }
 
         if (!is_null($tagSlug)) {
             $queryBuilder
-                ->innerJoin('p.tags', 'filterTag', 'WITH', 'filterTag.slug = :tagSlug')
+                ->innerJoin('blogPostp.tags', 'filterTag', 'WITH', 'filterTag.slug = :tagSlug')
                 ->setParameter(key: 'tagSlug', value: $tagSlug);
         }
 
         $queryBuilder
-            ->addOrderBy('p.publishedDate', 'DESC')
-            ->addOrderBy('p.id', 'DESC')
+            ->addOrderBy('blogPost.publishedDate', 'DESC')
+            ->addOrderBy('blogPost.id', 'DESC')
             ->setFirstResult(($page - 1) * $perPage)
             ->setMaxResults($perPage);
 

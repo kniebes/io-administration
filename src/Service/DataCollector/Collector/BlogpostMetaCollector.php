@@ -10,13 +10,11 @@ use App\Repository\BlogPostRepository;
 use App\Service\BlogPost\PermaLinkFactory;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\SerializerInterface;
 
 readonly class BlogpostMetaCollector implements DataCollectorInterface
 {
     public function __construct(
         private BlogPostRepository $blogPostRepository,
-        private SerializerInterface $serializer,
         private PermaLinkFactory $permaLinkFactory,
     ) {
     }
@@ -39,13 +37,13 @@ readonly class BlogpostMetaCollector implements DataCollectorInterface
 
     protected function assignPreviousPostUrl(Blog $blog, BlogPost $result, ResponseDataBag $data): void
     {
-        $queryBuilder = $this->blogPostRepository->createQueryBuilder('p');
+        $queryBuilder = $this->blogPostRepository->createQueryBuilder('blogPost');
         $result = $queryBuilder
-            ->select('p.id', 'p.slug', 'p.publishedDate', 'p.title')
-            ->where('p.blog = :blog')->setParameter('blog', $blog)
-            ->andWhere('p.status = :status')->setParameter('status', BlogPostStatus::Published)
-            ->andWhere('p.publishedDate < :now')->setParameter('now', $result->getPublishedDate())
-            ->orderBy('p.publishedDate', 'DESC')
+            ->select('blogPost.id', 'blogPost.slug', 'blogPost.publishedDate', 'blogPost.title')
+            ->where('blogPost.blog = :blog')->setParameter('blog', $blog)
+            ->andWhere('blogPost.status = :status')->setParameter('status', BlogPostStatus::Published)
+            ->andWhere('blogPost.publishedDate < :now')->setParameter('now', $result->getPublishedDate())
+            ->orderBy('blogPost.publishedDate', 'DESC')
             ->setMaxResults(1)
             ->getQuery()->getOneOrNullResult();
 
@@ -61,13 +59,13 @@ readonly class BlogpostMetaCollector implements DataCollectorInterface
 
     protected function assignNextPostUrl(Blog $blog, BlogPost $result, ResponseDataBag $data): void
     {
-        $queryBuilder = $this->blogPostRepository->createQueryBuilder('p');
+        $queryBuilder = $this->blogPostRepository->createQueryBuilder('blogPost');
         $result = $queryBuilder
-            ->select('p.id', 'p.slug', 'p.publishedDate', 'p.title')
-            ->where('p.blog = :blog')->setParameter('blog', $blog)
-            ->andWhere('p.status = :status')->setParameter('status', BlogPostStatus::Published)
-            ->andWhere('p.publishedDate > :now')->setParameter('now', $result->getPublishedDate())
-            ->orderBy('p.publishedDate', 'ASC')
+            ->select('blogPost.id', 'blogPost.slug', 'blogPost.publishedDate', 'blogPost.title')
+            ->where('blogPost.blog = :blog')->setParameter('blog', $blog)
+            ->andWhere('blogPost.status = :status')->setParameter('status', BlogPostStatus::Published)
+            ->andWhere('blogPost.publishedDate > :now')->setParameter('now', $result->getPublishedDate())
+            ->orderBy('blogPost.publishedDate', 'ASC')
             ->setMaxResults(1)
             ->getQuery()->getOneOrNullResult();
 

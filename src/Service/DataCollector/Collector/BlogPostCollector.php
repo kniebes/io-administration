@@ -51,7 +51,7 @@ readonly class BlogPostCollector implements DataCollectorInterface
         $queryBuilder = !is_null($id)
             ? $this->createQueryBuilderForId(data: $data, id: (int)$id, blog: $blog)
             : $this->createQueryBuilderForSlug(data: $data, blog: $blog, year: $year, month: $month, day: $day, slug: $slug);
-        $queryBuilder->andWhere('p.status = :status')->setParameter('status', $status);
+        $queryBuilder->andWhere('blogPost.status = :status')->setParameter('status', $status);
         $blogPost = $queryBuilder->getQuery()->getOneOrNullResult();
 
         if (is_null($blogPost)) {
@@ -69,19 +69,19 @@ readonly class BlogPostCollector implements DataCollectorInterface
     protected function createQueryBuilderForId(ResponseDataBag $data, int $id, Blog $blog): QueryBuilder
     {
         return $this->blogPostRepository
-            ->createQueryBuilder('p')
-            ->addSelect('p')
-            ->addSelect('i')
-            ->addSelect('t')
-            ->addSelect('type')
-            ->addSelect('c')
-            ->leftJoin('p.blogPostImages', 'i')
-            ->leftJoin('p.blogPostType', 'type')
-            ->leftJoin('p.tags', 't')
-            ->leftJoin('p.categories', 'c')
-            ->where('p.id = :id')
-            ->andWhere('p.blog = :blog')
-            ->andWhere('p.status = :status')
+            ->createQueryBuilder('blogPost')
+            ->addSelect('blogPost')
+            ->addSelect('blogPostImages')
+            ->addSelect('tags')
+            ->addSelect('blogPostType')
+            ->addSelect('categories')
+            ->leftJoin('blogPost.blogPostImages', 'blogPostImages')
+            ->leftJoin('blogPost.blogPostType', 'blogPostType')
+            ->leftJoin('blogPost.tags', 'tags')
+            ->leftJoin('blogPost.categories', 'categories')
+            ->where('blogPost.id = :id')
+            ->andWhere('blogPost.blog = :blog')
+            ->andWhere('blogPost.status = :status')
             ->setParameter(key: 'id', value: $id)
             ->setParameter(key: 'blog', value: $blog)
             ->setParameter(key: 'status', value: BlogPostStatus::Published);
@@ -113,21 +113,21 @@ readonly class BlogPostCollector implements DataCollectorInterface
         $startOfNextDay = $startOfDay->modify('+1 day');
 
         return $this->blogPostRepository
-            ->createQueryBuilder('p')
-            ->addSelect('p')
-            ->addSelect('i')
-            ->addSelect('t')
-            ->addSelect('type')
-            ->addSelect('c')
-            ->leftJoin('p.blogPostImages', 'i')
-            ->leftJoin('p.blogPostType', 'type')
-            ->leftJoin('p.tags', 't')
-            ->leftJoin('p.categories', 'c')
-            ->where('p.slug = :slug')
-            ->andWhere('p.blog = :blog')
-            ->andWhere('p.publishedDate >= :startOfDay')
-            ->andWhere('p.publishedDate < :startOfNextDay')
-            ->andWhere('p.status = :status')
+            ->createQueryBuilder('blogPost')
+            ->addSelect('blogPost')
+            ->addSelect('blogPostImages')
+            ->addSelect('tags')
+            ->addSelect('blogPostType')
+            ->addSelect('categories')
+            ->leftJoin('blogPost.blogPostImages', 'blogPostImages')
+            ->leftJoin('blogPost.blogPostType', 'blogPostType')
+            ->leftJoin('blogPost.tags', 'tags')
+            ->leftJoin('blogPost.categories', 'categories')
+            ->where('blogPost.slug = :slug')
+            ->andWhere('blogPost.blog = :blog')
+            ->andWhere('blogPost.publishedDate >= :startOfDay')
+            ->andWhere('blogPost.publishedDate < :startOfNextDay')
+            ->andWhere('blogPost.status = :status')
             ->setParameter(key: 'slug', value: $slug)
             ->setParameter(key: 'blog', value: $blog)
             ->setParameter(key: 'startOfDay', value: $startOfDay)
