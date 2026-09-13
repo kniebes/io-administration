@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: BlogPostRepository::class)]
 #[ORM\Table(name: 'blog_post')]
 #[ORM\Index(name: 'post_fulltext', columns: ['searchable_text'], flags: ['fulltext'])]
+#[ORM\Index(name: 'blog_post_blog_slug_published', columns: ['blog_id', 'slug', 'published_date'])]
 #[ORM\HasLifecycleCallbacks]
 class BlogPost
 {

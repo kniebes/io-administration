@@ -14,5 +14,9 @@ use Symfony\Component\HttpFoundation\Request;
 #[AutoconfigureTag('app.data_collector')]
 interface DataCollectorInterface
 {
+    public const string METHOD_BLOG_POSTS = 'blog-posts';
+    public const string METHOD_BLOG_POST = 'blog-post';
+    public const string METHOD_BLOG_POST_META = 'blog-post-meta';
+    public const string METHOD_PAGE = 'page';
     public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void;
 }

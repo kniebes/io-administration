@@ -4,23 +4,23 @@ namespace App\Service\DataCollector\Collector;
 
 use App\Entity\Blog;
 use App\Model\DataCollector\ResponseDataBag;
+use App\Repository\TagRepository;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class BlogCollector implements DataCollectorInterface
+class FeaturedTagsCollector implements DataCollectorInterface
 {
     public function __construct(
+        private TagRepository $tagRepository,
         private SerializerInterface $serializer,
     ) {
     }
 
-    /**
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
-     */
     public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
     {
-        if (!in_array($method,
+        if (!in_array(
+            $method,
             [
                 DataCollectorInterface::METHOD_BLOG_POST,
                 DataCollectorInterface::METHOD_BLOG_POSTS,
@@ -31,7 +31,14 @@ class BlogCollector implements DataCollectorInterface
             return;
         }
 
-        $serializedData = $this->serializer->serialize($blog, 'json');
-        $data->setData('blog', json_decode($serializedData, true));
+        $featuredTags = $this->tagRepository->findBy(['isFeaturedTag' => true]);
+
+        $serializedData = $this->serializer->serialize(
+            data: $featuredTags,
+            format: 'json',
+            context: ['groups' => ['blog_post:read']]
+        );
+        $data->setData('featured_tags', json_decode($serializedData, true));
     }
+
 }
