@@ -20,4 +20,13 @@ class PermaLinkFactory
 
         return $blog->getBaseUrl().strtr($pattern, $replacements);
     }
+
+    public function createFormBlogPost(BlogPost $blogPost): string
+    {
+        return $this->create(blog: $blogPost->getBlog(), blogPostData: [
+            'id' => $blogPost->getId(),
+            'slug' => $blogPost->getSlug(),
+            'publishedDate' => $blogPost->getPublishedDate()
+        ]);
+    }
 }
