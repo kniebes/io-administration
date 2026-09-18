@@ -21,11 +21,11 @@ class BlogPost
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private string $title;
 
     #[ORM\Column(length: 255)]
@@ -33,7 +33,7 @@ class BlogPost
     private string $slug;
 
     #[ORM\Column(name: 'published_date', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private ?DateTimeImmutable $publishedDate = null;
 
     #[ORM\ManyToOne(targetEntity: Blog::class)]
@@ -42,19 +42,19 @@ class BlogPost
 
     #[ORM\ManyToOne(targetEntity: BlogPostType::class, cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'blog_post_type_id', referencedColumnName: 'id')]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private ?BlogPostType $blogPostType = null;
 
     #[ORM\Column(type: TYPES::ENUM, enumType: BlogPostStatus::class)]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private BlogPostStatus $status = BlogPostStatus::Draft;
 
     #[ORM\Column(name: 'is_visible_on_rss', type: Types::BOOLEAN, options: ['default' => true])]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private bool $isVisibleOnRss = true;
 
     #[ORM\Column(name: 'is_visible_on_web', type: Types::BOOLEAN, options: ['default' => true])]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private bool $isVisibleOnWeb = true;
 
     #[ORM\Column(length: 8 )]
@@ -112,7 +112,7 @@ class BlogPost
     private ?string $searchableText = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    #[Groups(['blog_post:read'])]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
     private DateTimeImmutable $created;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]

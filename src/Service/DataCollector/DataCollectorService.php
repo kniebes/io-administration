@@ -22,7 +22,7 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
 
     public function collect(Blog $blog, string $method, Request $request): ResponseDataBag
     {
-        $data = new  ResponseDataBag();
+        $data = new ResponseDataBag();
         foreach ($this->handlers as $handler) {
             try {
                 $handler->collect(blog: $blog, method: $method, request: $request, data: $data);
