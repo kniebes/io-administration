@@ -13,8 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: LinkRepository::class)]
-#[ORM\Table(name: 'tag')]
-#[ORM\Index(name: 'is_featured_tag', columns: ['is_featured_tag'])]
+#[ORM\Table(name: 'link')]
 #[ORM\HasLifecycleCallbacks]
 class Link
 {
