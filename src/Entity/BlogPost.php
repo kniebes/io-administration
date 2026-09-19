@@ -101,6 +101,14 @@ class BlogPost
     private Collection $categories;
 
     /**
+     * @var Collection<int, Link>
+     */
+    #[ORM\ManyToMany(targetEntity: Link::class, inversedBy: 'blogPosts', cascade: ['persist'])]
+    #[ORM\JoinTable(name: 'blog_post_link')]
+    #[Groups(['blog_post:read'])]
+    private Collection $links;
+
+    /**
      * @var Collection<int, BlogPostImageMapping>
      */
     #[ORM\OneToMany(targetEntity: BlogPostImageMapping::class, mappedBy: 'blogPost', cascade: ['persist', 'remove'], orphanRemoval: true)]
@@ -124,6 +132,7 @@ class BlogPost
         $this->tags = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->blogPostImages = new ArrayCollection();
+        $this->links = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -323,6 +332,34 @@ class BlogPost
     public function removeTag(Tag $tag): BlogPost
     {
         $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    public function getLinks(): Collection
+    {
+        return $this->links;
+    }
+
+    public function setLinks(Collection $links): BlogPost
+    {
+        $this->links = $links;
+
+        return $this;
+    }
+
+    public function addLink(Link $link): BlogPost
+    {
+        if (!$this->links->contains($link)) {
+            $this->links->add($link);
+        }
+
+        return $this;
+    }
+
+    public function removeLink(Link $link): BlogPost
+    {
+        $this->links->removeElement($link);
 
         return $this;
     }
