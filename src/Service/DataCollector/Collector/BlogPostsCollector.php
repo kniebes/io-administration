@@ -41,10 +41,13 @@ readonly class BlogPostsCollector implements DataCollectorInterface
             ->addSelect('tags')
             ->addSelect('blogPostType')
             ->addSelect('categories')
+            ->addSelect('links')
             ->leftJoin('blogPost.blogPostImages', 'blogPostImages')
             ->leftJoin('blogPost.blogPostType', 'blogPostType')
             ->leftJoin('blogPost.tags', 'tags')
-            ->leftJoin('blogPost.categories', 'categories');
+            ->leftJoin('blogPost.categories', 'categories')
+            ->leftJoin('blogPost.links', 'links')
+        ;
 
         if (!is_null($status)) {
             $queryBuilder->andWhere('blogPost.status = :status')->setParameter('status', $status);

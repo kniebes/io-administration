@@ -336,6 +336,9 @@ class BlogPost
         return $this;
     }
 
+    /**
+     * @return Collection<Link>
+     */
     public function getLinks(): Collection
     {
         return $this->links;

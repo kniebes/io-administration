@@ -3,6 +3,7 @@
 namespace App\Serializer;
 
 use App\Entity\BlogPost;
+use App\Enum\LinkType;
 use App\Service\BlogPost\PermaLinkFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -22,6 +23,7 @@ readonly class BlogPostNormalizer implements NormalizerInterface
 
         if (in_array('blog_post:read', $context['groups'] ?? [], true)) {
             $normalized['permaLink'] = $this->buildPermaLink($data);
+            $normalized['contentEncoded'] = $this->replaceLinks($data);
         }
 
         return $normalized;
@@ -35,6 +37,19 @@ readonly class BlogPostNormalizer implements NormalizerInterface
     public function getSupportedTypes(?string $format): array
     {
         return [BlogPost::class => true];
+    }
+
+    private function replaceLinks(BlogPost $blogPost): string
+    {
+        $contentEncoded = $blogPost->getContentEncoded();
+        foreach ($blogPost->getLinks() as $link) {
+            if ($link->getType() !== LinkType::BlogPostLink || empty($link->getAlternateUrl())) {
+                continue;
+            }
+            $contentEncoded = str_replace($link->getUrl(), $link->getAlternateUrl(), $contentEncoded);
+        }
+
+        return $contentEncoded;
     }
 
     private function buildPermaLink(BlogPost $blogPost): ?string
