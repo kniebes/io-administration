@@ -4,6 +4,8 @@ namespace App\EventSubscriber;
 
 use App\Enum\BlogPostStatus;
 use App\Event\BlogPostPreSaveEvent;
+use App\Service\BlogPost\LinkExtractor;
+use App\Service\BlogPost\LinkUpdater;
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\IoTag\IoTagEncoder;
 use League\CommonMark\CommonMarkConverter;
@@ -15,6 +17,7 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
     public function __construct(
         private IoTagEncoder $ioTagEncoder,
         private CommonMarkConverter $converter,
+        private LinkUpdater $linkUpdater,
         private ErrorLoggerInterface $errorLogger,
     )
     {
@@ -24,11 +27,17 @@ readonly class BlogPostPreSaveEventSubscriber implements EventSubscriberInterfac
     {
         return [
             BlogPostPreSaveEvent::class => [
-                ['handlePublishedState', 20],
-                ['createEncodeFields', 10],
-                ['createSearchableText', 0],
+                ['handlePublishedState', 30],
+                ['createEncodeFields', 20],
+                ['createSearchableText', 10],
+                ['updateLinks', 0],
             ],
         ];
+    }
+
+    public function updateLinks(BlogPostPreSaveEvent $event): void
+    {
+        $this->linkUpdater->update($event->getBlogPost());
     }
 
     public function handlePublishedState(BlogPostPreSaveEvent $event): void
