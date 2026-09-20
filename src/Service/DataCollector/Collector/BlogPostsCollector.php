@@ -3,15 +3,15 @@
 namespace App\Service\DataCollector\Collector;
 
 use App\Entity\Blog;
+use App\Model\ContentApi\RequestData;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Repository\BlogPostRepository;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
-readonly class BlogPostsCollector implements DataCollectorInterface
+class BlogPostsCollector implements DataCollectorInterface
 {
     public function __construct(
         private BlogPostRepository $blogPostRepository,
@@ -19,20 +19,20 @@ readonly class BlogPostsCollector implements DataCollectorInterface
     ) {
     }
 
-    public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, RequestData $requestData, ResponseDataBag $data): void
     {
         if ($method !== DataCollectorInterface::METHOD_BLOG_POSTS) {
             return;
         }
 
-        $status = $request->request->get('status', null);
-        $page = intval($request->request->get('page', 1));
-        $perPage = intval($request->request->get('per_page', 10));
-        $isVisibleOnRss = $request->request->get('is_visible_on_rss', null);
-        $isVisibleOnWeb = $request->request->get('is_visible_on_web', null);
-        $tagSlug = $request->request->get('tag', null);
-        $year = $request->request->get('year', null);
-        $month = $request->request->get('month', null);
+        $status = $requestData->getQueryAsString('status');
+        $page = $requestData->getQueryAsInt('page', 1);
+        $perPage = $requestData->getQueryAsInt('per_page', 10);
+        $isVisibleOnRss = $requestData->getQueryAsBool('is_visible_on_rss');
+        $isVisibleOnWeb = $requestData->getQueryAsBool('is_visible_on_web');
+        $tagSlug = $requestData->getQueryAsString('tag');
+        $year = $requestData->getQueryAsInt('year');
+        $month = $requestData->getQueryAsInt('month');
 
         $queryBuilder = $this->blogPostRepository
             ->createQueryBuilder('blogPost')
@@ -90,7 +90,14 @@ readonly class BlogPostsCollector implements DataCollectorInterface
 
         $paginator = new Paginator(query: $queryBuilder->getQuery(), fetchJoinCollection: true);
 
-        $serialisedData = $this->serializer->serialize(iterator_to_array($paginator), 'json', ['groups' => ['blog_post:read']]);
+        $serialisedData = $this->serializer->serialize(
+            data: iterator_to_array($paginator),
+            format: 'json',
+            context: [
+                'groups' => ['blog_post:read'],
+                'config' => $requestData->getConfig(),
+            ]
+        );
         $data->setData(key: 'list', data: json_decode($serialisedData, true));
         $data->setData(key: 'total', data: count($paginator));
     }

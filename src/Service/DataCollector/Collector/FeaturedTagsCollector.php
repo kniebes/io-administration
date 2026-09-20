@@ -3,10 +3,10 @@
 namespace App\Service\DataCollector\Collector;
 
 use App\Entity\Blog;
+use App\Model\ContentApi\RequestData;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Repository\TagRepository;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class FeaturedTagsCollector implements DataCollectorInterface
@@ -17,7 +17,7 @@ class FeaturedTagsCollector implements DataCollectorInterface
     ) {
     }
 
-    public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, RequestData $requestData, ResponseDataBag $data): void
     {
         if (!in_array(
             $method,
@@ -36,7 +36,10 @@ class FeaturedTagsCollector implements DataCollectorInterface
         $serializedData = $this->serializer->serialize(
             data: $featuredTags,
             format: 'json',
-            context: ['groups' => ['blog_post:read']]
+            context: [
+                'groups' => ['blog_post:read'],
+                'config' => $requestData->getConfig()
+            ]
         );
         $data->setData('featured_tags', json_decode($serializedData, true));
     }

@@ -5,11 +5,11 @@ namespace App\Service\DataCollector\Collector;
 use App\Entity\Blog;
 use App\Entity\BlogPost;
 use App\Enum\BlogPostStatus;
+use App\Model\ContentApi\RequestData;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Repository\BlogPostRepository;
 use App\Service\BlogPost\PermaLinkFactory;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 readonly class BlogpostMetaCollector implements DataCollectorInterface
 {
@@ -19,13 +19,13 @@ readonly class BlogpostMetaCollector implements DataCollectorInterface
     ) {
     }
 
-    public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, RequestData $requestData, ResponseDataBag $data): void
     {
         if ($method !== DataCollectorInterface::METHOD_BLOG_POST_META) {
             return;
         }
 
-        $id = $request->request->get('id', null);
+        $id = $requestData->getQueryAsInt('id', null);
         if (is_null($id)) {
             return;
         }

@@ -13,13 +13,12 @@ class FigureTagFactory
     ) {
     }
 
-    public function create(Image $image, ?string $contentWidth = null): string
+    public function create(Image $image, ?string $imageContentWidth = null): string
     {
-        $contentWidth = $contentWidth ?? '1024px';
         try {
             return $this->twig->render('figure_tag/figure.html.twig', [
                 'image' => $image,
-                'content_width' => $contentWidth,
+                'image_content_width' => $imageContentWidth,
                 'hasFigure' => true,
                 'figCaption' => $image->getCustomFields()['caption'] ?? null,
                 'figureClasses' => '',

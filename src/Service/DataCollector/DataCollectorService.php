@@ -3,7 +3,7 @@
 namespace App\Service\DataCollector;
 
 use App\Entity\Blog;
-use App\Model\DataCollector\RequestDataInterface;
+use App\Model\ContentApi\RequestData;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use App\Service\DataCollector\Interface\DataCollectorServiceInterface;
@@ -23,14 +23,29 @@ readonly class DataCollectorService implements DataCollectorServiceInterface
     public function collect(Blog $blog, string $method, Request $request): ResponseDataBag
     {
         $data = new ResponseDataBag();
+        $requestData = $this->generateRequestData($request);
         foreach ($this->handlers as $handler) {
             try {
-                $handler->collect(blog: $blog, method: $method, request: $request, data: $data);
+
+                $handler->collect(
+                    blog: $blog,
+                    method: $method,
+                    requestData: $requestData,
+                    data: $data
+                );
             } catch (Throwable $throwable) {
                 $data->addError($throwable->getMessage());
             }
         }
 
         return $data;
+    }
+
+    private function generateRequestData(Request $request): RequestData
+    {
+        $query = $request->request->all('query');
+        $config = $request->request->all('config');
+
+        return new RequestData(query: $query, config: $config);
     }
 }

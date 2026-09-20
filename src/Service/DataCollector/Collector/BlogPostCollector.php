@@ -3,8 +3,8 @@
 namespace App\Service\DataCollector\Collector;
 
 use App\Entity\Blog;
-use App\Entity\BlogPost;
 use App\Enum\BlogPostStatus;
+use App\Model\ContentApi\RequestData;
 use App\Model\DataCollector\BlogPostRequestData;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
@@ -13,7 +13,6 @@ use App\Repository\BlogPostRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpClient\Exception\InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -28,29 +27,26 @@ readonly class BlogPostCollector implements DataCollectorInterface
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function collect(Blog $blog, string $method, Request $request, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, RequestData $requestData, ResponseDataBag $data): void
     {
         if ($method !== DataCollectorInterface::METHOD_BLOG_POST) {
             return;
         }
 
-        $id = $request->request->get('id', null);
-        $year = $request->request->get('year', null);
-        $year = !is_null($year) ? (int) $year : null;
-        $month = $request->request->get('month', null);
-        $month = !is_null($month) ? (int) $month : null;
-        $day = $request->request->get('day', null);
-        $day = !is_null($day) ? (int) $day : null;
-        $slug = $request->request->get('slug', null);
-        $statusText = $request->request->get('status', 'published');
+        $id = $requestData->getQueryAsInt('id');
+        $year = $requestData->getQueryAsInt('year');
+        $month = $requestData->getQueryAsInt('month');
+        $day = $requestData->getQueryAsInt('day');
+        $slug = $requestData->getQueryAsString('slug');
+        $statusText = $requestData->getQueryAsString('status', 'published');
         $status = BlogPostStatus::tryFrom($statusText);
         if (is_null($status)) {
             $status = BlogPostStatus::Published;
         }
 
         $queryBuilder = !is_null($id)
-            ? $this->createQueryBuilderForId(data: $data, id: (int)$id, blog: $blog)
-            : $this->createQueryBuilderForSlug(data: $data, blog: $blog, year: $year, month: $month, day: $day, slug: $slug);
+            ? $this->createQueryBuilderForId(id: (int)$id, blog: $blog)
+            : $this->createQueryBuilderForSlug(blog: $blog, year: $year, month: $month, day: $day, slug: $slug);
         $queryBuilder->andWhere('blogPost.status = :status')->setParameter('status', $status);
         $blogPost = $queryBuilder->getQuery()->getOneOrNullResult();
 
@@ -58,7 +54,10 @@ readonly class BlogPostCollector implements DataCollectorInterface
             throw new NotFoundHttpException('Blog post not found');
         }
 
-        $serializedBlogPost = $this->serializer->serialize($blogPost, 'json', ['groups' => ['blog_post:read']]);
+        $serializedBlogPost = $this->serializer->serialize(data: $blogPost, format: 'json', context: [
+            'groups' => ['blog_post:read'],
+            'config' => $requestData->getConfig(),
+        ]);
         $data->setData('blog_post', json_decode($serializedBlogPost, true));
 
     }
@@ -66,7 +65,7 @@ readonly class BlogPostCollector implements DataCollectorInterface
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    protected function createQueryBuilderForId(ResponseDataBag $data, int $id, Blog $blog): QueryBuilder
+    protected function createQueryBuilderForId(int $id, Blog $blog): QueryBuilder
     {
         return $this->blogPostRepository
             ->createQueryBuilder('blogPost')
@@ -94,7 +93,6 @@ readonly class BlogPostCollector implements DataCollectorInterface
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     protected function createQueryBuilderForSlug(
-        ResponseDataBag $data,
         Blog $blog,
         ?int $year = null,
         ?int $month = null,

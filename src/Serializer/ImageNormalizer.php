@@ -3,6 +3,7 @@
 namespace App\Serializer;
 
 use App\Entity\Image;
+use App\Model\ContentApi\RequestConfigData;
 use App\Service\Image\FigureTag\FigureTagFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -18,10 +19,11 @@ class ImageNormalizer implements NormalizerInterface
 
     public function normalize(mixed $data, ?string $format = null, array $context = []): array
     {
+        $config = $this->getConfigFromContext($context);
         $normalized = $this->objectNormalizer->normalize(data: $data, format: $format, context: $context);
 
         if (in_array('blog_post:read', $context['groups'] ?? [], true)) {
-            $normalized['figureTag'] = $this->buildFigureTag(image: $data, context: $context);
+            $normalized['figureTag'] = $this->buildFigureTag(image: $data, config: $config);
         }
 
         return $normalized;
@@ -37,8 +39,17 @@ class ImageNormalizer implements NormalizerInterface
         return [Image::class => true];
     }
 
-    private function buildFigureTag(Image $image, array $context = []): ?string
+    private function buildFigureTag(Image $image, ?RequestConfigData $config = null): ?string
     {
-        return $this->figureTagFactory->create(image: $image, contentWidth: $context['content_width'] ?? null);
+        $imageContentWith = $config?->getImageContentWidth() ?? null;
+
+        return $this->figureTagFactory->create(image: $image, imageContentWidth: $imageContentWith);
+    }
+
+    private function getConfigFromContext(array $context): ?RequestConfigData
+    {
+        return isset($context['config']) && ($context['config'] instanceof RequestConfigData)
+            ? $context['config']
+            : null;
     }
 }

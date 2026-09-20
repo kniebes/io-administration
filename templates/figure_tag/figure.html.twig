@@ -20,7 +20,7 @@
 
             <img src="{{ image.host ~ previewVersion.url }}"
                  srcset="{{ image.versions|sort((a, b) => a.width <=> b.width)|map(version => image.host ~ version.url ~ ' ' ~ version.width ~ 'w')|join(', ') }}"
-                 sizes="(max-width: {{ content_width }}) 100vw, {{ content_width }}"
+                 sizes="(max-width: {{ image_content_width }}) 100vw, {{ image_content_width }}"
                  width="{{ previewVersion.width }}" height="{{ previewVersion.height }}"
                  loading="lazy"
                  alt="{{ image.altText|default('')|striptags|escape }}">
