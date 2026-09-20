@@ -6,17 +6,22 @@ namespace App\Command\Migration;
 
 use App\Command\Migration\Exception\SkipImportException;
 use App\Entity\BlogPost;
+use App\Entity\BlogPostType;
 use App\Entity\Category;
+use App\Entity\Link;
 use App\Entity\Tag;
 use App\Enum\BlogPostStatus;
 use App\Enum\CategoryType;
+use App\Enum\LinkType;
 use App\Enum\TagType;
 use App\Repository\BlogPostRepository;
 use App\Repository\BlogPostTypeRepository;
 use App\Repository\BlogRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\LinkRepository;
 use App\Repository\TagRepository;
+use App\Service\BlogPost\LinkExtractor;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,6 +40,8 @@ class BlogPostMigrationCommand
     private array $blogPostTypeCache = [];
     private array $tagCache = [];
     private array $categoryCache = [];
+    private array $linkCache = [];
+
     public function __construct(
         private Connection $migrationConnection,
         private BlogRepository $blogRepository,
@@ -43,7 +50,9 @@ class BlogPostMigrationCommand
         private TagRepository $tagRepository,
         private CategoryRepository $categoryRepository,
         private ImageRepository $imageRepository,
+        private LinkRepository $linkRepository,
         private EntityManagerInterface $entityManager,
+        private LinkExtractor $linkExtractor,
     ) {
     }
     public function __invoke(SymfonyStyle $io): int
@@ -78,6 +87,7 @@ class BlogPostMigrationCommand
 
                 $this->assignTags(blogPostEntity: $blogPostEntity, entry: $entry);
                 $this->assignCategories(blogPostEntity: $blogPostEntity, entry: $entry);
+                $this->assignLinks(blogPostEntity: $blogPostEntity, entry: $entry);
 
                 $this->assignImages(blogPostEntity: $blogPostEntity, entry: $entry);
                 $this->assignCustomFields(blogPostEntity: $blogPostEntity, entry: $entry);
@@ -102,6 +112,7 @@ class BlogPostMigrationCommand
                     $this->blogPostTypeCache = [];
                     $this->tagCache = [];
                     $this->categoryCache = [];
+                    $this->linkCache = [];
                 } catch (Throwable $throwable) {
                     $io->error($throwable->getMessage());
                 }
@@ -202,23 +213,27 @@ class BlogPostMigrationCommand
     private function assignPostType(BlogPost $blogPostEntity, array $entry): void
     {
         $entrySource = $entry['entrySource'] ?? null;
-        $blogPostTypeId = match ($entrySource) {
-            'notes' => 3,
-            'now' => 4,
-            'photoblog' => 5,
-            'wordpress', 'twitter', 'flickr', 'journal' => 2,
-            default => 1,
+        $blogPostTypeName = match ($entrySource) {
+            'notes' => 'Notes',
+            'now' => 'Now',
+            'photoblog' => 'Photoblog',
+            'wordpress', 'twitter', 'flickr', 'journal' => 'Journal',
+            default => 'Default',
         };
 
-        if (array_key_exists($blogPostTypeId, $this->blogPostTypeCache)) {
-            $blogPostEntity->setBlogPostType($this->blogPostTypeCache[$blogPostTypeId]);
-        }
-
-        $blogPostType = $this->blogPostTypeRepository->find($blogPostTypeId);
-        if (is_null($blogPostType)) {
+        if (array_key_exists($blogPostTypeName, $this->blogPostTypeCache)) {
+            $blogPostEntity->setBlogPostType($this->blogPostTypeCache[$blogPostTypeName]);
             return;
         }
 
+        $blogPostType = $this->blogPostTypeRepository->findOneBy(['name' => $blogPostTypeName]);
+        if (is_null($blogPostType)) {
+            $blogPostType = new BlogPostType();
+            $blogPostType->setName($blogPostTypeName);
+            $this->entityManager->persist($blogPostType);
+        }
+
+        $this->blogPostTypeCache[$blogPostTypeName] = $blogPostType;
         $blogPostEntity->setBlogPostType($blogPostType);
     }
 
@@ -299,8 +314,41 @@ SQL;
         return $categoryEntity;
     }
 
+    private function assignLinks(BlogPost $blogPostEntity, array $entry): void
+    {
+        $links = $this->linkExtractor->extract(html: $entry['contentEncoded'] ?? '');
+        foreach ($links as $link) {
+            if (strlen($link) > 255) {
+                continue;
+            }
+            $blogPostEntity->addLink($this->resolveLink($link));
+        }
+    }
+
+    private function resolveLink(string $url): Link
+    {
+        if (array_key_exists($url, $this->linkCache)) {
+            return $this->linkCache[$url];
+        }
+
+        $linkEntity = $this->linkRepository->findOneBy(['url' => $url]);
+        if (is_null($linkEntity)) {
+            $linkEntity = new Link();
+            $linkEntity->setUrl($url);
+            $linkEntity->setType(LinkType::BlogPostLink);
+            $this->entityManager->persist($linkEntity);
+        }
+
+        $this->linkCache[$url] = $linkEntity;
+
+        return $linkEntity;
+    }
+
     private function assignImages(BlogPost $blogPostEntity, array $entry): void
     {
+        if ($entry['id'] === 27419) {
+            sleep(1);
+        }
         if (!empty($entry['imageId'])) {
             $images = $this->imageRepository->find($entry['imageId']);
             if (!is_null($images)) {
@@ -309,7 +357,7 @@ SQL;
         }
 
         $index = json_decode(($entry['metadataIndex'] ?? '[]'), true);
-        $additionalPhotoblogImages = $index['additionalPhotoblogImages'] ?? null;
+        $additionalPhotoblogImages = $index['additional_photoblog_images'] ?? null;
         if (is_null($additionalPhotoblogImages)) {
             return;
         }

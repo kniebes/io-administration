@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\Api\ApiService;
+use App\Entity\Blog;
+use App\Service\ContentApi\ContentApiService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,25 +14,27 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Throwable;
 
-class ApiController extends AbstractController
+class ContentApiController extends AbstractController
 {
     public function __construct(
-        private readonly APiService $apiService,
+        private readonly ContentApiService $contentApiService,
         private readonly LoggerInterface $logger,
-    )
-    {
+    ) {
     }
 
     #[Route(
-        path:'/content-api/{method}',
+        path: '/content-api/{blog}/{method}',
         name: 'content_api',
         requirements: ['method' => '[a-z\-]+'],
         methods: ['POST'],
     )]
-    public function index(string $method, Request $request): Response
-    {
+    public function index(
+        Blog $blog,
+        string $method,
+        Request $request
+    ): Response {
         try {
-            $response = $this->apiService->collectData(method: $method, request: $request);
+            $response = $this->contentApiService->collectData(blog: $blog, method: $method, request: $request);
             $data = $response->getData();
             $data['success'] = !$response->hasErrors();
             $data['errors'] = $response->getErrors();

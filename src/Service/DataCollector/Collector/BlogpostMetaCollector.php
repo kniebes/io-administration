@@ -1,0 +1,83 @@
+<?php declare(strict_types=1);
+
+namespace App\Service\DataCollector\Collector;
+
+use App\Entity\Blog;
+use App\Entity\BlogPost;
+use App\Enum\BlogPostStatus;
+use App\Model\ContentApi\RequestData;
+use App\Model\DataCollector\ResponseDataBag;
+use App\Repository\BlogPostRepository;
+use App\Service\BlogPost\PermaLinkFactory;
+use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
+
+readonly class BlogpostMetaCollector implements DataCollectorInterface
+{
+    public function __construct(
+        private BlogPostRepository $blogPostRepository,
+        private PermaLinkFactory $permaLinkFactory,
+    ) {
+    }
+
+    public function collect(Blog $blog, string $method, RequestData $requestData, ResponseDataBag $data): void
+    {
+        if ($method !== DataCollectorInterface::METHOD_BLOG_POST_META) {
+            return;
+        }
+
+        $id = $requestData->getQueryAsInt('id', null);
+        if (is_null($id)) {
+            return;
+        }
+
+        $blogPost = $this->blogPostRepository->find($id);
+        $this->assignPreviousPostUrl(blog: $blog, result: $blogPost, data: $data);
+        $this->assignNextPostUrl(blog: $blog, result: $blogPost, data: $data);
+    }
+
+    protected function assignPreviousPostUrl(Blog $blog, BlogPost $result, ResponseDataBag $data): void
+    {
+        $queryBuilder = $this->blogPostRepository->createQueryBuilder('blogPost');
+        $result = $queryBuilder
+            ->select('blogPost.id', 'blogPost.slug', 'blogPost.publishedDate', 'blogPost.title')
+            ->where('blogPost.blog = :blog')->setParameter('blog', $blog)
+            ->andWhere('blogPost.status = :status')->setParameter('status', BlogPostStatus::Published)
+            ->andWhere('blogPost.publishedDate < :now')->setParameter('now', $result->getPublishedDate())
+            ->orderBy('blogPost.publishedDate', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()->getOneOrNullResult();
+
+        if (empty($result)) {
+            $data->setData(key: 'previous_post', data: null);
+            return;
+        }
+
+        $data->setData(key:'previous_post', data: [
+            'url' => $this->permaLinkFactory->create(blog: $blog, blogPostData: $result),
+            'title' => $result['title']
+        ]);
+    }
+
+    protected function assignNextPostUrl(Blog $blog, BlogPost $result, ResponseDataBag $data): void
+    {
+        $queryBuilder = $this->blogPostRepository->createQueryBuilder('blogPost');
+        $result = $queryBuilder
+            ->select('blogPost.id', 'blogPost.slug', 'blogPost.publishedDate', 'blogPost.title')
+            ->where('blogPost.blog = :blog')->setParameter('blog', $blog)
+            ->andWhere('blogPost.status = :status')->setParameter('status', BlogPostStatus::Published)
+            ->andWhere('blogPost.publishedDate > :now')->setParameter('now', $result->getPublishedDate())
+            ->orderBy('blogPost.publishedDate', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()->getOneOrNullResult();
+
+        if (empty($result)) {
+            $data->setData(key: 'next_post', data: null);
+            return;
+        }
+
+        $data->setData(key: 'next_post', data: [
+            'url' => $this->permaLinkFactory->create(blog: $blog, blogPostData: $result),
+            'title' => $result['title'],
+        ]);
+    }
+}

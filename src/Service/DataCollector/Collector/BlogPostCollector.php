@@ -2,11 +2,17 @@
 
 namespace App\Service\DataCollector\Collector;
 
+use App\Entity\Blog;
+use App\Enum\BlogPostStatus;
+use App\Model\ContentApi\RequestData;
 use App\Model\DataCollector\BlogPostRequestData;
 use App\Model\DataCollector\RequestDataInterface;
 use App\Model\DataCollector\ResponseDataBag;
 use App\Service\DataCollector\Collector\Interface\DataCollectorInterface;
 use App\Repository\BlogPostRepository;
+use DateTimeImmutable;
+use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpClient\Exception\InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -15,50 +21,119 @@ readonly class BlogPostCollector implements DataCollectorInterface
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private SerializerInterface $serializer,
-    )
-    {
+    ) {
     }
 
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function collect(RequestDataInterface $requestData, ResponseDataBag $data): void
+    public function collect(Blog $blog, string $method, RequestData $requestData, ResponseDataBag $data): void
     {
-        if ($requestData instanceof BlogPostRequestData) {
-            if (!is_null($requestData->getId())) {
-                $this->collectById(data: $data, id: $requestData->getId());
-                return;
-            }
-
-            $this->collectBySlug(data: $data, requestData: $requestData);
+        if ($method !== DataCollectorInterface::METHOD_BLOG_POST) {
+            return;
         }
-    }
 
-    /**
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
-     */
-    protected function collectById(ResponseDataBag $data, int $id): void
-    {
-        $blogPost = $this->blogPostRepository->find($id);
+        $id = $requestData->getQueryAsInt('id');
+        $year = $requestData->getQueryAsInt('year');
+        $month = $requestData->getQueryAsInt('month');
+        $day = $requestData->getQueryAsInt('day');
+        $slug = $requestData->getQueryAsString('slug');
+        $statusText = $requestData->getQueryAsString('status', 'published');
+        $status = BlogPostStatus::tryFrom($statusText);
+        if (is_null($status)) {
+            $status = BlogPostStatus::Published;
+        }
+
+        $queryBuilder = !is_null($id)
+            ? $this->createQueryBuilderForId(id: (int)$id, blog: $blog)
+            : $this->createQueryBuilderForSlug(blog: $blog, year: $year, month: $month, day: $day, slug: $slug);
+        $queryBuilder->andWhere('blogPost.status = :status')->setParameter('status', $status);
+        $blogPost = $queryBuilder->getQuery()->getOneOrNullResult();
+
         if (is_null($blogPost)) {
             throw new NotFoundHttpException('Blog post not found');
         }
 
-        $serializedBlogPost = $this->serializer->serialize($blogPost, 'json', ['groups' => ['blog_post:read']]);
-        $data->setData('blogPost', json_decode($serializedBlogPost, true));
+        $serializedBlogPost = $this->serializer->serialize(data: $blogPost, format: 'json', context: [
+            'groups' => ['blog_post:read'],
+            'config' => $requestData->getConfig(),
+        ]);
+        $data->setData('blog_post', json_decode($serializedBlogPost, true));
+
     }
 
     /**
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    protected function collectBySlug(ResponseDataBag $data, BlogPostRequestData $requestData): void
+    protected function createQueryBuilderForId(int $id, Blog $blog): QueryBuilder
     {
-        $blogPost = $this->blogPostRepository->findBy(['slug' => $requestData->getSlug()]);
-        if (is_null($blogPost)) {
-            throw new NotFoundHttpException('Blog post not found');
+        return $this->blogPostRepository
+            ->createQueryBuilder('blogPost')
+            ->addSelect('blogPost')
+            ->addSelect('blogPostImages')
+            ->addSelect('tags')
+            ->addSelect('blogPostType')
+            ->addSelect('categories')
+            ->addSelect('links')
+            ->leftJoin('blogPost.blogPostImages', 'blogPostImages')
+            ->leftJoin('blogPost.blogPostType', 'blogPostType')
+            ->leftJoin('blogPost.tags', 'tags')
+            ->leftJoin('blogPost.categories', 'categories')
+            ->leftJoin('blogPost.links', 'links')
+            ->where('blogPost.id = :id')
+            ->andWhere('blogPost.blog = :blog')
+            ->andWhere('blogPost.status = :status')
+            ->setParameter(key: 'id', value: $id)
+            ->setParameter(key: 'blog', value: $blog)
+            ->setParameter(key: 'status', value: BlogPostStatus::Published);
+    }
+
+
+    /**
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    protected function createQueryBuilderForSlug(
+        Blog $blog,
+        ?int $year = null,
+        ?int $month = null,
+        ?int $day = null,
+        ?string $slug = null
+    ): QueryBuilder {
+        if (is_null($slug) || is_null($year) || is_null($month) || is_null($day)) {
+            throw new InvalidArgumentException('invalid Arguments');
         }
 
-        $serializedBlogPost = $this->serializer->serialize($blogPost, 'json', ['groups' => ['blog_post:read']]);
-        $data->setData('blogPost', json_decode($serializedBlogPost, true));
+        if (!checkdate($month, $day, $year)) {
+            throw new InvalidArgumentException('no proper date given');
+        }
+
+        $startOfDay = new DateTimeImmutable()
+            ->setDate(year: $year, month: $month, day: $day)
+            ->setTime(hour: 0, minute: 0);
+        $startOfNextDay = $startOfDay->modify('+1 day');
+
+        return $this->blogPostRepository
+            ->createQueryBuilder('blogPost')
+            ->addSelect('blogPost')
+            ->addSelect('blogPostImages')
+            ->addSelect('tags')
+            ->addSelect('blogPostType')
+            ->addSelect('categories')
+            ->addSelect('links')
+            ->leftJoin('blogPost.blogPostImages', 'blogPostImages')
+            ->leftJoin('blogPost.blogPostType', 'blogPostType')
+            ->leftJoin('blogPost.tags', 'tags')
+            ->leftJoin('blogPost.categories', 'categories')
+            ->leftJoin('blogPost.links', 'links')
+            ->where('blogPost.slug = :slug')
+            ->andWhere('blogPost.blog = :blog')
+            ->andWhere('blogPost.publishedDate >= :startOfDay')
+            ->andWhere('blogPost.publishedDate < :startOfNextDay')
+            ->andWhere('blogPost.status = :status')
+            ->setParameter(key: 'slug', value: $slug)
+            ->setParameter(key: 'blog', value: $blog)
+            ->setParameter(key: 'startOfDay', value: $startOfDay)
+            ->setParameter(key: 'startOfNextDay', value: $startOfNextDay)
+            ->setParameter(key: 'status', value: BlogPostStatus::Published);
     }
 }

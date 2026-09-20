@@ -6,6 +6,7 @@
     "require": {
         "php": ">=8.4",
         "ext-ctype": "*",
+        "ext-curl": "*",
         "ext-iconv": "*",
         "doctrine/doctrine-bundle": "^3.3",
         "doctrine/doctrine-migrations-bundle": "^4.0",
@@ -23,6 +24,7 @@
         "symfony/flex": "^2",
         "symfony/form": "8.1.*",
         "symfony/framework-bundle": "8.1.*",
+        "symfony/html-sanitizer": "8.1.*",
         "symfony/http-client": "8.1.*",
         "symfony/intl": "8.1.*",
         "symfony/mailer": "8.1.*",
@@ -47,8 +49,7 @@
         "symfony/web-link": "8.1.*",
         "symfony/yaml": "8.1.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
-        "ext-curl": "*"
+        "twig/twig": "^2.12|^3.0"
     },
     "config": {
         "allow-plugins": {

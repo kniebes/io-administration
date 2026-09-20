@@ -1,0 +1,40 @@
+{% block figure_tag %}
+    {%- if hasFigure is defined -%}
+        <figure
+        {% if figureClasses -%}class="{{- figureClasses -}}"{%- endif -%}
+        {% if figureStyles -%}style="{{ figureStyles }}{%- endif -%}">
+    {%- endif -%}
+
+    {% block figure_tag_anker %}
+        {%- if hasAnker is defined -%}
+            <a href="{{ ankerUrl }}"{{ ankerAttributes }}>
+        {%- endif -%}
+
+        {% block figure_tag_img %}
+            {% set previewVersion = image %}
+            {% for version in image.versions %}
+                {% if version.width == 1024 %}
+                    {% set previewVersion = version %}
+                {% endif %}
+            {% endfor %}
+
+            <img src="{{ image.host ~ previewVersion.url }}"
+                 srcset="{{ image.versions|sort((a, b) => a.width <=> b.width)|map(version => image.host ~ version.url ~ ' ' ~ version.width ~ 'w')|join(', ') }}"
+                 sizes="(max-width: {{ image_content_width }}) 100vw, {{ image_content_width }}"
+                 width="{{ previewVersion.width }}" height="{{ previewVersion.height }}"
+                 loading="lazy"
+                 alt="{{ image.altText|default('')|striptags|escape }}">
+        {% endblock %}
+
+        {%- if hasAnker is defined -%}
+            </a>
+        {%- endif -%}
+    {% endblock %}
+
+    {%- if hasFigure is defined -%}
+        {%- if figCaption -%}
+            <figcaption>{{ figCaption|sanitize_html }}</figcaption>
+        {%- endif -%}
+        </figure>
+    {%- endif -%}
+{% endblock %}

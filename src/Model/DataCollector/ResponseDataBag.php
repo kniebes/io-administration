@@ -14,10 +14,10 @@ class ResponseDataBag
         return $this->data;
     }
 
-    public function setData(string $key, array $data): void
+    public function setData(string $key, mixed $data): void
     {
         if (array_key_exists($key, $this->data)) {
-            throw new \LogicException('Data already exists');
+            throw new \LogicException('Data key "'.$key.'" already exists!');
         }
         $this->data[$key] = $data;
     }
