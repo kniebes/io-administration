@@ -49,6 +49,7 @@ readonly class BlogpostMetaCollector implements DataCollectorInterface
 
         if (empty($result)) {
             $data->setData(key: 'previous_post', data: null);
+            return;
         }
 
         $data->setData(key:'previous_post', data: [
@@ -71,6 +72,7 @@ readonly class BlogpostMetaCollector implements DataCollectorInterface
 
         if (empty($result)) {
             $data->setData(key: 'next_post', data: null);
+            return;
         }
 
         $data->setData(key: 'next_post', data: [
