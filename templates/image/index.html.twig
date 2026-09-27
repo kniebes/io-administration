@@ -50,7 +50,7 @@
             <div class="image-table">
                 {% for image in pagination %}
                     <div class="image-item">
-                        <a href="{{ path('image_edit', { id: image.id }) }}">
+                        <a data-turbo-frame="_top" href="{{ path('image_edit', { id: image.id }) }}">
                             <img src="{{ getImagePreviewUrl(image) }}" alt="{{ image.altText }}"/>
                             <span class="image-info">{{ image.title }}</span>
                         </a>

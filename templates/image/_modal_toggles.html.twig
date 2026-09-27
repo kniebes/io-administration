@@ -1,0 +1,14 @@
+<a href="#" class="{% if image.categories|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="category-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal.toggle.categories'|trans }}</h3>
+    {% for category in image.categories %}
+        {{ category.term }}
+    {% endfor %}
+</a>
+
+<a href="#" class="{% if image.exif|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="exif-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.exif'|trans }}</h3>
+    <span>
+    {% for exif in image.exif %}{{ exif.label.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+    </span>
+</a>
+

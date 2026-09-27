@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Image;
 use App\Form\Filter\ImageIndexFilterType;
+use App\Form\ImageFormType;
 use App\Model\Filter\ImageIndexFilter;
 use App\Repository\ImageRepository;
 use Knp\Component\Pager\PaginatorInterface;
@@ -59,8 +61,13 @@ class ImageController extends AbstractController
         name: 'image_edit',
         methods: ['GET', 'POST']
     )]
-    public function image(Request $request): Response
+    public function edit(Request $request, Image $image): Response
     {
-
+        $form = $this->createForm(type: ImageFormType::class, data: $image);
+        $form->handleRequest($request);
+        return $this->render(view: 'image/edit.html.twig', parameters: [
+            'form' => $form,
+            'image' => $image,
+        ]);
     }
 }

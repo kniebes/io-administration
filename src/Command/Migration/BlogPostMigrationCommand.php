@@ -321,11 +321,11 @@ SQL;
             if (strlen($link) > 255) {
                 continue;
             }
-            $blogPostEntity->addLink($this->resolveLink($link));
+            $blogPostEntity->addLink($this->resolveLink(url: $link, blogPostEntity: $blogPostEntity));
         }
     }
 
-    private function resolveLink(string $url): Link
+    private function resolveLink(string $url, BlogPost $blogPostEntity): Link
     {
         if (array_key_exists($url, $this->linkCache)) {
             return $this->linkCache[$url];
@@ -336,6 +336,7 @@ SQL;
             $linkEntity = new Link();
             $linkEntity->setUrl($url);
             $linkEntity->setType(LinkType::BlogPostLink);
+            $linkEntity->setPublishedDate($blogPostEntity->getPublishedDate());
             $this->entityManager->persist($linkEntity);
         }
 
