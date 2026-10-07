@@ -1,7 +1,14 @@
 <a href="#" class="{% if image.categories|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="category-settings" data-action="click->modal#open">
-    <h3>{{ 'image.form.modal.toggle.categories'|trans }}</h3>
+    <h3>{{ 'image.form.modal_toggle.data'|trans }}</h3>
     {% for category in image.categories %}
         {{ category.term }}
+    {% endfor %}
+</a>
+
+<a href="#" class="{% if image.tags|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="tags-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.tags'|trans }}</h3>
+    {% for tag in image.tags %}
+        {{ tag.term }}
     {% endfor %}
 </a>
 

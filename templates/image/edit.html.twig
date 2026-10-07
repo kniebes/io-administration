@@ -34,9 +34,19 @@
             </div>
         </div>
 
+        <aside class="backdrop" id="tags-settings">
+            <div class="modal default-width">
+                <header>{{ 'image.form.modal.header.tags'|trans }}</header>
+                <footer>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
         <aside class="backdrop" id="exif-settings">
             <div class="modal default-width">
-                <header>{{ 'image.form.modal.header.summary'|trans }}</header>
+                <header>{{ 'image.form.modal.header.exif'|trans }}</header>
                 {% for exif in image.exif %}
                     {{ exif.label.name }}: {{ exif.value }}<br>
                 {% endfor %}

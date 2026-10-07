@@ -112,5 +112,20 @@ image:
             legend: Filter
             reset: Filter löschen
             search_query: Suchbegriff
-
+    form:
+        title: Titel
+        altText: Text für alt-Attribut
+        description: Bildbeschreibung
+        submit: Speichern
+        modal_toggle:
+            data: Zusatzdaten
+            exif: Exif-Daten
+            tags: Tags
+        modal:
+            header:
+                categories: Kategorien
+                exif: Exif-Daten
+            legend:
+                categories: Kategorien
+                license: Lizenz
 
