@@ -28,7 +28,7 @@
 
             <div class="sidebar">
                 <p>
-                    <button type="submit" data-turbo-submits-with="{{ 'blogpost.form.submit_in_progress'|trans }}">{{ 'blogpost.form.submit'|trans }}</button>
+                    <button type="submit" data-turbo-submits-with="{{ 'blogpost.form.submit_in_progress'|trans }}">{{ 'button.submit'|trans }}</button>
                 </p>
 
                 <div id="blog-post-modal-toggles">
@@ -50,8 +50,8 @@
                 <header>{{ 'blogpost.form.modal.header.summary'|trans }}</header>
                 {{ form_row(form.summary) }}
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>
@@ -74,8 +74,8 @@
                     {{ form_row(form.isVisibleOnWeb) }}
                 </fieldset>
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>
@@ -94,8 +94,8 @@
                     <p>{{ form_row(form.categories) }}</p>
                 </fieldset>
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>
@@ -107,8 +107,8 @@
                     {% include 'blog_post/_images_picker.html.twig' with {form: form} %}
                 </div>
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>
@@ -120,8 +120,8 @@
                     {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}
                 </div>
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>

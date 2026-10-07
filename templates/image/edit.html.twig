@@ -26,7 +26,7 @@
 
             <div class="sidebar">
                 <p>
-                    <button type="submit" data-turbo-submits-with="{{ 'image.form.submit_in_progress'|trans }}">{{ 'image.form.submit'|trans }}</button>
+                    <button type="submit" data-turbo-submits-with="{{ 'image.form.submit_in_progress'|trans }}">{{ 'button.submit'|trans }}</button>
                 </p>
                 <div id="image-modal-toggles">
                     {% include 'image/_modal_toggles.html.twig' with {image: image} %}
@@ -38,8 +38,8 @@
             <div class="modal default-width">
                 <header>{{ 'image.form.modal.header.tags'|trans }}</header>
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>
@@ -51,7 +51,7 @@
                     {{ exif.label.name }}: {{ exif.value }}<br>
                 {% endfor %}
                 <footer>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
                 </footer>
             </div>
         </aside>
@@ -68,8 +68,8 @@
                     {{ form_row(form.license) }}
                 </fieldset>
                 <footer>
-                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'blogpost.form.submit'|trans }}</button>
-                    <button class="close" type="button" data-action="click->modal#close">{{ 'blogpost.form.cancel'|trans }}</button>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
                 </footer>
             </div>
         </aside>
