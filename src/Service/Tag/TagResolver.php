@@ -38,6 +38,12 @@ readonly class TagResolver
             return $tag;
         }
 
+        foreach ($this->entityManager->getUnitOfWork()->getScheduledEntityInsertions() as $scheduledEntity) {
+            if ($scheduledEntity instanceof Tag && $scheduledEntity->getSlug() === $slug) {
+                return $scheduledEntity;
+            }
+        }
+
         $now = new DateTimeImmutable();
         $tag = (new Tag())
             ->setTerm($term)
@@ -46,7 +52,6 @@ readonly class TagResolver
             ->setUpdated($now);
 
         $this->entityManager->persist($tag);
-        $this->entityManager->flush();
 
         return $tag;
     }
