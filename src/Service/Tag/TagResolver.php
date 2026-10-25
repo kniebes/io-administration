@@ -9,6 +9,8 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 readonly class TagResolver
 {
+    public const string NEW_TAG_PREFIX = 'new:';
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private SluggerInterface $slugger,
@@ -17,12 +19,10 @@ readonly class TagResolver
 
     public function resolve(string $value): ?Tag
     {
-        if (ctype_digit($value)) {
-            $tag = $this->entityManager->find(Tag::class, (int) $value);
-
-            if ($tag instanceof Tag) {
-                return $tag;
-            }
+        if (str_starts_with($value, self::NEW_TAG_PREFIX)) {
+            $value = substr($value, strlen(self::NEW_TAG_PREFIX));
+        } elseif (ctype_digit($value)) {
+            return $this->entityManager->find(Tag::class, (int) $value);
         }
 
         $term = trim($value);

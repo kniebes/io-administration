@@ -229,6 +229,10 @@ final class BlogPostFormType extends AbstractType
         foreach ($view->children['tags']->children as $tagRowView) {
             $value = (string) ($tagRowView->vars['value'] ?? '');
 
+            if (str_starts_with($value, TagResolver::NEW_TAG_PREFIX)) {
+                $tagRowView->vars['tagTerm'] = substr($value, strlen(TagResolver::NEW_TAG_PREFIX));
+            }
+
             if (ctype_digit($value)) {
                 $tagIds[] = (int) $value;
             }
