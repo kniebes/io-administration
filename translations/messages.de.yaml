@@ -115,6 +115,16 @@ image:
             legend: Filter
             reset: Filter löschen
             search_query: Suchbegriff
+        upload:
+            label: Bilder hochladen
+            uploading: lädt …
+            edit: Bearbeiten
+            error:
+                csrf: Sitzung abgelaufen, bitte Seite neu laden.
+                invalid_file: Datei ungültig oder zu groß.
+                unsupported_type: Dateityp wird nicht unterstützt.
+                failed: Upload fehlgeschlagen.
+                network: Verbindung fehlgeschlagen.
     form:
         title_new: Neues Bild
         title: Titel

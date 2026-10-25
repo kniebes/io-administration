@@ -79,18 +79,85 @@ fieldset {
 }
 
 .upload {
+    box-sizing: border-box;
     background-color: transparent;
     border: 2px dashed var(--empty-input-border-color);
     border-radius: var(--default-border-radius);
-    padding: 10px 8px;
+    padding: 1rem;
     color: var(--very-muted-text-color);
     text-decoration: none;
+    text-align: center;
     box-shadow: none;
     max-width: 640px;
     width: 640px;
-    height: 50px;
     margin: 0 auto;
-    font-size: 2rem;
-    line-height: 50px;
+    font-size: 1rem;
     cursor: pointer;
+}
+
+.upload.dragover {
+    border-color: var(--text-color);
+    background-color: var(--highlight-background-color);
+    color: var(--text-color);
+}
+
+.upload-status {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    max-width: 640px;
+    width: 640px;
+    margin: .5rem auto 0;
+    padding: 0;
+    list-style: none;
+    font-family: ui-monospace, monospace;
+    font-size: .9rem;
+}
+
+.upload-status li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .5rem 1ch;
+    background-color: var(--default-input-background-color);
+    border-left: 3px solid transparent;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+}
+
+.upload-status__name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.upload-status__state {
+    flex-shrink: 0;
+    color: var(--muted-text-color);
+}
+
+.upload-status li.done {
+    border-left-color: var(--status-published-color);
+}
+
+.upload-status li.error {
+    border-left-color: var(--error-color);
+}
+
+.upload-status li.error .upload-status__state {
+    color: var(--error-color);
+}
+
+.upload-status a.button {
+    display: inline-flex;
+    align-items: center;
+    padding: .3rem .6rem;
+    background: var(--submit-background-color);
+    color: var(--submit-text-color);
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+    text-decoration: none;
+    transition: all .2s ease-in;
 }

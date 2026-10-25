@@ -37,3 +37,5 @@ desktop.ini
 /.php-cs-fixer.cache
 /.phpstan.cache/
 /node_modules/
+files/photodomain/photo/*
+!files/photodomain/photo/.gitkeep

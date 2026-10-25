@@ -8,15 +8,20 @@ use App\Form\Filter\ImageIndexFilterType;
 use App\Form\ImageFormType;
 use App\Model\Filter\ImageIndexFilter;
 use App\Repository\ImageRepository;
+use App\Service\Image\Upload\Uploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\Turbo\TurboBundle;
 
 #[IsGranted('ROLE_USER')]
@@ -27,6 +32,8 @@ final class ImageController extends AbstractController
         private readonly ImageRepository $imageRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Uploader $uploader,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -91,6 +98,56 @@ final class ImageController extends AbstractController
             'form' => $form,
             'image' => $image,
         ]);
+    }
+
+    #[Route(
+        path: '/image/upload',
+        name: 'image_upload',
+        methods: ['POST']
+    )]
+    public function upload(Request $request): JsonResponse
+    {
+        $isValidToken = $this->isCsrfTokenValid(
+            id: 'image-upload',
+            token: $request->request->get('_csrf_token'),
+        );
+
+        if (!$isValidToken) {
+            return $this->createUploadErrorResponse(messageKey: 'image.index.upload.error.csrf', status: Response::HTTP_FORBIDDEN);
+        }
+
+        $uploadedFile = $request->files->get('file');
+
+        if (!$uploadedFile instanceof UploadedFile || !$uploadedFile->isValid()) {
+            return $this->createUploadErrorResponse(messageKey: 'image.index.upload.error.invalid_file', status: Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $image = $this->uploader->upload($uploadedFile);
+        } catch (RuntimeException) {
+            return $this->createUploadErrorResponse(messageKey: 'image.index.upload.error.unsupported_type', status: Response::HTTP_UNSUPPORTED_MEDIA_TYPE);
+        }
+
+        if ($image === null) {
+            return $this->createUploadErrorResponse(messageKey: 'image.index.upload.error.failed', status: Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new JsonResponse(
+            data: [
+                'id' => $image->getId(),
+                'title' => $image->getTitle(),
+                'editUrl' => $this->generateUrl(route: 'image_edit', parameters: ['id' => $image->getId()]),
+            ],
+            status: Response::HTTP_CREATED,
+        );
+    }
+
+    private function createUploadErrorResponse(string $messageKey, int $status): JsonResponse
+    {
+        return new JsonResponse(
+            data: ['message' => $this->translator->trans($messageKey)],
+            status: $status,
+        );
     }
 
     private function isTurboStreamRequest(Request $request): bool

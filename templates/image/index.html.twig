@@ -16,7 +16,29 @@
 {% block body %}
     <main class="image-container">
 
-        <div class="upload">Upload</div>
+        <div class="upload-area"
+             data-controller="image-upload"
+             data-image-upload-url-value="{{ path('image_upload') }}"
+             data-image-upload-csrf-token-value="{{ csrf_token('image-upload') }}"
+             data-image-upload-uploading-label-value="{{ 'image.index.upload.uploading'|trans }}"
+             data-image-upload-edit-label-value="{{ 'image.index.upload.edit'|trans }}"
+             data-image-upload-error-label-value="{{ 'image.index.upload.error.network'|trans }}"
+             data-image-upload-frame-id-value="image-list"
+        >
+            <div class="upload"
+                 data-image-upload-target="area"
+                 data-action="click->image-upload#open dragover->image-upload#dragOver dragleave->image-upload#dragLeave drop->image-upload#drop"
+            >{{ 'image.index.upload.label'|trans }}</div>
+            <input type="file"
+                   multiple
+                   accept="image/jpeg,image/png,image/webp"
+                   hidden
+                   data-image-upload-target="input"
+                   data-action="change->image-upload#select"
+            >
+            <ul class="upload-status" data-image-upload-target="list"></ul>
+            <template data-image-upload-target="editIcon">{{ ux_icon('lucide:pencil', {'aria-hidden': 'true'}) }}</template>
+        </div>
 
         <turbo-frame id="image-list">
 
