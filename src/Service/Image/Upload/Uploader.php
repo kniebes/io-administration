@@ -18,7 +18,7 @@ readonly class Uploader
     {
     }
 
-    public function upload(UploadedFile $uploadedFile): Image
+    public function upload(UploadedFile $uploadedFile): ?Image
     {
         $mimeType = $uploadedFile->getMimeType();
         foreach ($this->handlers as $handler) {

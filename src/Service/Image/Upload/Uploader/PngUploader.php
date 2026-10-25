@@ -3,6 +3,8 @@
 namespace App\Service\Image\Upload\Uploader;
 
 use App\Service\Image\Upload\Uploader\Abstract\AbstractUploader;
+use Imagick;
+use ImagickException;
 
 class PngUploader extends AbstractUploader
 {
@@ -11,14 +13,12 @@ class PngUploader extends AbstractUploader
         return $mimeType === 'image/png';
     }
 
-    protected function createImageFrom(string $path): \GdImage|false
+    /**
+     * @throws ImagickException
+     */
+    protected function configureOutput(Imagick $image): void
     {
-        return imagecreatefrompng($path);
-    }
-
-    protected function writeImage(\GdImage $image, string $path): bool
-    {
-        return imagepng($image, $path);
+        $image->setImageFormat('png');
     }
 
     protected function getImageFileNameExtension(): string

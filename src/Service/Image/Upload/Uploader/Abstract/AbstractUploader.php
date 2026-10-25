@@ -6,17 +6,20 @@ use App\Entity\Image;
 use App\Entity\ImageExif;
 use App\Entity\ImageVersion;
 use App\Enum\ImageExifLabel;
+use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
 use App\Service\Image\ImageService;
 use App\Service\Image\Upload\ExifParser;
 use App\Service\Image\Upload\Uploader\Exception\ImageSizeException;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use Imagick;
+use ImagickException;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Throwable;
 
 #[AutoconfigureTag('app.image_uploader')]
 abstract class AbstractUploader
@@ -27,6 +30,7 @@ abstract class AbstractUploader
         protected readonly EntityManagerInterface $entityManager,
         protected readonly SluggerInterface $slugger,
         protected readonly ExifParser $exifParser,
+        protected readonly ErrorLoggerInterface $errorLogger,
         #[Autowire(env: 'PHOTO_DOMAIN_PATH')] protected readonly string $photoDomainPath,
         #[Autowire(env: 'PHOTO_HOST')] protected readonly string $photoHost,
     ) {
@@ -35,62 +39,91 @@ abstract class AbstractUploader
 
     abstract public function supports(?string $mimeType = null): bool;
 
-    abstract protected function createImageFrom(string $path): \GdImage|false;
-
-    abstract protected function writeImage(\GdImage $image, string $path): bool;
+    /**
+     * @throws ImagickException
+     */
+    abstract protected function configureOutput(Imagick $image): void;
 
     abstract protected function getImageFileNameExtension(): string;
+
+    /**
+     * @throws ImagickException
+     */
+    protected function configureRead(Imagick $image): void
+    {
+    }
 
     protected function generateExif(string $filename): array
     {
         return $this->exifParser->generateExif($filename);
     }
 
-    public function upload(UploadedFile $uploadedFile): Image
+    public function upload(UploadedFile $uploadedFile): ?Image
     {
-        $targetDir = $this->getTargetDir();
-        $targetFilename = $this->prepareFilename(filename: $uploadedFile->getClientOriginalName(), targetDir: $targetDir);
-        $file = $uploadedFile->move($targetDir, $targetFilename);
-        $metrics = $this->getImageMetrics($file);
-        $exif = $this->generateExif($file->getPathname());
+        $file = null;
+        $image = null;
 
-        $title = trim((string) ($exif['title'] ?? ''));
-        if ($title === '') {
-            $title = pathinfo($file->getFilename(), PATHINFO_FILENAME);
-        }
+        try {
+            $targetDir = $this->getTargetDir();
+            $targetFilename = $this->prepareFilename(filename: $uploadedFile->getClientOriginalName(), targetDir: $targetDir);
+            $file = $uploadedFile->move($targetDir, $targetFilename);
+            $metrics = $this->getImageMetrics($file);
+            $exif = $this->generateExif($file->getPathname());
 
-        $image = new Image()
-            ->setDate(new DateTimeImmutable())
-            ->setHost($this->photoHost)
-            ->setUrl($this->convertToUrl($file->getPathname()))
-            ->setMimeType($file->getMimeType() ?? '')
-            ->setWidth($metrics['width'])
-            ->setHeight($metrics['height'])
-            ->setByteSize($metrics['byteSize'])
-            ->setAspectRatio($metrics['aspectRatio'])
-            ->setTitle($title);
-
-        foreach ($this->createVersions($file) as $imageVersion) {
-            $image->addImageVersion($imageVersion);
-        }
-
-        foreach ($exif as $key => $value) {
-            $label = $this->matchExifLabel((string) $key);
-            $value = trim((string) $value);
-
-            if ($label === null || $value === '' || $value === 'ISO') {
-                continue;
+            $title = trim((string) ($exif['title'] ?? ''));
+            if ($title === '') {
+                $title = pathinfo($file->getFilename(), PATHINFO_FILENAME);
             }
 
-            $image->addExif(
-                new ImageExif()
-                    ->setLabel($label)
-                    ->setValue($value)
-            );
-        }
+            $image = new Image()
+                ->setDate(new DateTimeImmutable())
+                ->setHost($this->photoHost)
+                ->setUrl($this->convertToUrl($file->getPathname()))
+                ->setMimeType($file->getMimeType() ?? '')
+                ->setWidth($metrics['width'])
+                ->setHeight($metrics['height'])
+                ->setByteSize($metrics['byteSize'])
+                ->setAspectRatio($metrics['aspectRatio'])
+                ->setTitle($title);
 
-        $this->entityManager->persist($image);
-        $this->entityManager->flush();
+            if ($metrics['width'] >= 1280) {
+                $sourceImage = $this->readImage($file->getPathname());
+                foreach (ImageService::RESOLUTION as $length) {
+                    if ($metrics['width'] < $length) {
+                        continue;
+                    }
+
+                    try {
+                        $image->addImageVersion($this->createVersion(sourceImage: $sourceImage, file: $file, length: $length));
+                    } catch (ImagickException $exception) {
+                        $this->errorLogger->log($exception, ErrorLoggerInterface::TYPE_LOG);
+                    }
+                }
+            }
+
+            foreach ($exif as $key => $value) {
+                $label = $this->matchExifLabel((string) $key);
+                $value = trim((string) $value);
+
+                if ($label === null || $value === '' || $value === 'ISO') {
+                    continue;
+                }
+
+                $image->addExif(
+                    new ImageExif()
+                        ->setLabel($label)
+                        ->setValue($value)
+                );
+            }
+
+            $this->entityManager->persist($image);
+            $this->entityManager->flush();
+        } catch (Throwable $throwable) {
+            $this->errorLogger->log($throwable);
+            $this->removeWrittenFiles(file: $file, image: $image);
+
+            return null;
+        }
 
         return $image;
     }
@@ -108,64 +141,48 @@ abstract class AbstractUploader
     }
 
     /**
-     * @return list<ImageVersion>
+     * @throws ImagickException
      */
-    protected function createVersions(File $file): array
+    protected function createVersion(Imagick $sourceImage, File $file, int $length): ImageVersion
     {
-        $versions = [];
-        foreach (ImageService::RESOLUTION as $length) {
-            try {
-                $versionPath = $this->resizeImage(path: $file->getPathname(), length: $length);
-            } catch (ImageSizeException) {
-                return [];
-            } catch (Exception) {
-                continue;
-            }
+        $versionImage = clone $sourceImage;
+        $versionImage->resizeImage(columns: $length, rows: 0, filter: Imagick::FILTER_LANCZOS, blur: 1);
+        $this->configureOutput($versionImage);
 
-            $metrics = $this->getImageMetrics(new File($versionPath));
-            $versions[] = new ImageVersion()
-                ->setVersionIdentifier((string) $length)
-                ->setUrl($this->convertToUrl($versionPath))
-                ->setWidth($metrics['width'])
-                ->setHeight($metrics['height'])
-                ->setByteSize($metrics['byteSize'])
-                ->setAspectRatio($metrics['aspectRatio']);
-        }
+        $versionPath = $this->getVersionFilename(
+            targetFilename: $file->getPathname(),
+            width: $versionImage->getImageWidth(),
+            height: $versionImage->getImageHeight(),
+        );
+        $versionImage->writeImage($versionPath);
 
-        return $versions;
+        $metrics = $this->getImageMetrics(new File($versionPath));
+
+        return new ImageVersion()
+            ->setVersionIdentifier((string) $length)
+            ->setUrl($this->convertToUrl($versionPath))
+            ->setWidth($metrics['width'])
+            ->setHeight($metrics['height'])
+            ->setByteSize($metrics['byteSize'])
+            ->setAspectRatio($metrics['aspectRatio']);
     }
 
     /**
-     * @throws ImageSizeException|Exception
+     * @throws ImagickException
      */
-    protected function resizeImage(string $path, int $length): string
+    protected function readImage(string $path): Imagick
     {
-        $image = $this->createImageFrom($path);
-        $width = imagesx($image);
-        $height = imagesy($image);
-        if ($width <= 1280 && $height <= 1280) {
-            throw new ImageSizeException('The image is too small');
+        $image = new Imagick();
+        $this->configureRead($image);
+        $image->readImage($path);
+
+        $iccProfiles = $image->getImageProfiles('icc');
+        $image->stripImage();
+        if (isset($iccProfiles['icc'])) {
+            $image->profileImage(name: 'icc', profile: $iccProfiles['icc']);
         }
 
-        $ratio = $width / $height;
-        $newWidth = (int) $length;
-        $newHeight = (int) ($newWidth / $ratio);
-        $measure = $width;
-
-        if ($measure < $length) {
-            throw new Exception(sprintf('Image is %dx%d and will not be resized to %d!', $width, $height, $length));
-        }
-
-        $newImage = imagecreatetruecolor($newWidth, $newHeight);
-        imagealphablending($newImage, false);
-        imagesavealpha($newImage, true);
-        imagecopyresampled($newImage, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-        $versionFilename = $this->getVersionFilename($path, $newWidth, $newHeight);
-        if (!$this->writeImage($newImage, $versionFilename)) {
-            throw new Exception(sprintf('imageVersion %d was not created!', $length));
-        }
-
-        return $versionFilename;
+        return $image;
     }
 
     protected function convertToUrl(string $filepath): string
@@ -220,7 +237,32 @@ abstract class AbstractUploader
         return $candidate;
     }
 
-    private function matchExifLabel(string $key): ?ImageExifLabel
+    protected function removeWrittenFiles(?File $file, ?Image $image): void
+    {
+        $paths = [];
+
+        if ($file instanceof File) {
+            $paths[] = $file->getPathname();
+        }
+
+        if ($image instanceof Image) {
+            foreach ($image->getVersions() as $imageVersion) {
+                $paths[] = $this->photoDomainPath . $imageVersion->getUrl();
+            }
+        }
+
+        foreach ($paths as $path) {
+            try {
+                if (is_file($path)) {
+                    unlink($path);
+                }
+            } catch (Throwable $throwable) {
+                $this->errorLogger->log($throwable);
+            }
+        }
+    }
+
+    protected function matchExifLabel(string $key): ?ImageExifLabel
     {
         return match ($key) {
             'model' => ImageExifLabel::Model,

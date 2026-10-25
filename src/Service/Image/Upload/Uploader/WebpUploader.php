@@ -3,22 +3,25 @@
 namespace App\Service\Image\Upload\Uploader;
 
 use App\Service\Image\Upload\Uploader\Abstract\AbstractUploader;
+use Imagick;
+use ImagickException;
 
 class WebpUploader extends AbstractUploader
 {
+    private const int QUALITY = 80;
+
     public function supports(?string $mimeType = null): bool
     {
         return $mimeType === 'image/webp';
     }
 
-    protected function createImageFrom(string $path): \GdImage|false
+    /**
+     * @throws ImagickException
+     */
+    protected function configureOutput(Imagick $image): void
     {
-        return imagecreatefromwebp($path);
-    }
-
-    protected function writeImage(\GdImage $image, string $path): bool
-    {
-        return imagewebp($image, $path);
+        $image->setImageFormat('webp');
+        $image->setImageCompressionQuality(self::QUALITY);
     }
 
     protected function getImageFileNameExtension(): string

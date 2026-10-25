@@ -2,7 +2,10 @@
 
 namespace App\Service\Image\Upload\Uploader;
 
+use App\Service\Image\ImageService;
 use App\Service\Image\Upload\Uploader\Abstract\AbstractUploader;
+use Imagick;
+use ImagickException;
 
 class JpegUploader extends AbstractUploader
 {
@@ -13,14 +16,22 @@ class JpegUploader extends AbstractUploader
         return in_array($mimeType, ['image/jpeg', 'image/jpg'], true);
     }
 
-    protected function createImageFrom(string $path): \GdImage|false
+    /**
+     * @throws ImagickException
+     */
+    protected function configureRead(Imagick $image): void
     {
-        return imagecreatefromjpeg($path);
+        $maxLength = max(ImageService::RESOLUTION);
+        $image->setOption(key: 'jpeg:size', value: $maxLength . 'x' . $maxLength);
     }
 
-    protected function writeImage(\GdImage $image, string $path): bool
+    /**
+     * @throws ImagickException
+     */
+    protected function configureOutput(Imagick $image): void
     {
-        return imagejpeg($image, $path, self::QUALITY);
+        $image->setImageFormat('jpeg');
+        $image->setImageCompressionQuality(self::QUALITY);
     }
 
     protected function getImageFileNameExtension(): string
