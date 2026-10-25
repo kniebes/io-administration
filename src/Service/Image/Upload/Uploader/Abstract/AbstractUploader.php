@@ -55,7 +55,13 @@ abstract class AbstractUploader
 
     protected function generateExif(string $filename): array
     {
-        return $this->exifParser->generateExif($filename);
+        try {
+            return $this->exifParser->generateExif($filename);
+        } catch (Throwable $throwable) {
+            $this->errorLogger->log($throwable, ErrorLoggerInterface::TYPE_LOG);
+
+            return [];
+        }
     }
 
     public function upload(UploadedFile $uploadedFile): ?Image

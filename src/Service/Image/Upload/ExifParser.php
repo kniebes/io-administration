@@ -31,8 +31,8 @@ class ExifParser
         if (isset($fileData['EXIF']['ExposureTime'])) {
             $exposure = $fileData['EXIF']['ExposureTime'].'s';
         }
-        if ($model === 'Google Pixel 7 Pro') {
-            $exposure = $fileData['EXIF']['ShutterSpeedValue'].'s';
+        if ($model === 'Google Pixel 7 Pro' && isset($fileData['EXIF']['ShutterSpeedValue'])) {
+            $exposure = $fileData['EXIF']['ShutterSpeedValue'] . 's';
         }
 
         $lon = $lat = $alt = $googlemap = $openStreetMap = '';
