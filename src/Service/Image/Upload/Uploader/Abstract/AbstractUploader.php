@@ -7,6 +7,7 @@ use App\Entity\ImageExif;
 use App\Entity\ImageVersion;
 use App\Enum\ImageExifLabel;
 use App\Service\ErrorLogger\Interface\ErrorLoggerInterface;
+use App\Service\Image\ImageFileRemover;
 use App\Service\Image\ImageService;
 use App\Service\Image\Upload\ExifParser;
 use App\Service\Image\Upload\Uploader\Exception\ImageSizeException;
@@ -31,6 +32,7 @@ abstract class AbstractUploader
         protected readonly SluggerInterface $slugger,
         protected readonly ExifParser $exifParser,
         protected readonly ErrorLoggerInterface $errorLogger,
+        protected readonly ImageFileRemover $imageFileRemover,
         #[Autowire(env: 'PHOTO_DOMAIN_PATH')] protected readonly string $photoDomainPath,
         #[Autowire(env: 'PHOTO_HOST')] protected readonly string $photoHost,
     ) {
@@ -105,6 +107,7 @@ abstract class AbstractUploader
                         $this->errorLogger->log($exception, ErrorLoggerInterface::TYPE_LOG);
                     }
                 }
+                $sourceImage->clear();
             }
 
             foreach ($exif as $key => $value) {
@@ -126,7 +129,9 @@ abstract class AbstractUploader
             $this->entityManager->flush();
         } catch (Throwable $throwable) {
             $this->errorLogger->log($throwable);
-            $this->removeWrittenFiles(file: $file, image: $image);
+            $this->imageFileRemover->removePaths(
+                $image instanceof Image ? $this->imageFileRemover->collectPaths($image) : ($file instanceof File ? [$file->getPathname()] : [])
+            );
 
             return null;
         }
@@ -163,6 +168,7 @@ abstract class AbstractUploader
         $versionImage->writeImage($versionPath);
 
         $metrics = $this->getImageMetrics(new File($versionPath));
+        $versionImage->clear();
 
         return new ImageVersion()
             ->setVersionIdentifier((string) $length)
@@ -241,31 +247,6 @@ abstract class AbstractUploader
         }
 
         return $candidate;
-    }
-
-    protected function removeWrittenFiles(?File $file, ?Image $image): void
-    {
-        $paths = [];
-
-        if ($file instanceof File) {
-            $paths[] = $file->getPathname();
-        }
-
-        if ($image instanceof Image) {
-            foreach ($image->getVersions() as $imageVersion) {
-                $paths[] = $this->photoDomainPath . $imageVersion->getUrl();
-            }
-        }
-
-        foreach ($paths as $path) {
-            try {
-                if (is_file($path)) {
-                    unlink($path);
-                }
-            } catch (Throwable $throwable) {
-                $this->errorLogger->log($throwable);
-            }
-        }
     }
 
     protected function matchExifLabel(string $key): ?ImageExifLabel
