@@ -62,11 +62,17 @@ final class ImageController extends AbstractController
             limit: 12
         );
 
+        $imageIds = array_map(
+            static fn (Image $image): int => $image->getId(),
+            iterator_to_array($pagination->getItems(), preserve_keys: false),
+        );
+
         return $this->render(
             view: 'image/index.html.twig',
             parameters: [
                 'pagination' => $pagination,
                 'filterForm' => $filterForm,
+                'blogPostCounts' => $this->imageRepository->countBlogPostsByImageIds($imageIds),
             ]
         );
     }

@@ -80,7 +80,7 @@
                             <form method="post"
                                   data-turbo-frame="_top"
                                   action="{{ path('image_delete', {id: image.id}) }}"
-                                  data-turbo-confirm="{{ 'image.index.delete.confirm'|trans({'%count%': image.blogPosts|length}) }}">
+                                  data-turbo-confirm="{{ 'image.index.delete.confirm'|trans({'%count%': blogPostCounts[image.id] ?? 0}) }}">
                                 <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
                                        value="{{ csrf_token('delete-image-' ~ image.id) }}">
                                 <button type="submit"

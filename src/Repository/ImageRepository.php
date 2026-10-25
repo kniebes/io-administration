@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\BlogPostImageMapping;
 use App\Entity\ImageVersion;
 use App\Model\Filter\ImageIndexFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -29,6 +30,33 @@ class ImageRepository extends ServiceEntityRepository
         $entityManager = $this->getEntityManager();
         $entityManager->persist($image);
         $entityManager->flush();
+    }
+
+    /**
+     * @param list<int> $imageIds
+     * @return array<int, int>
+     */
+    public function countBlogPostsByImageIds(array $imageIds): array
+    {
+        if ($imageIds === []) {
+            return [];
+        }
+
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('IDENTITY(mapping.image) AS imageId', 'COUNT(mapping.id) AS blogPostCount')
+            ->from(BlogPostImageMapping::class, 'mapping')
+            ->where('mapping.image IN (:imageIds)')
+            ->groupBy('mapping.image')
+            ->setParameter(key: 'imageIds', value: $imageIds)
+            ->getQuery()
+            ->getArrayResult();
+
+        $blogPostCounts = [];
+        foreach ($rows as $row) {
+            $blogPostCounts[(int) $row['imageId']] = (int) $row['blogPostCount'];
+        }
+
+        return $blogPostCounts;
     }
 
     public function createFilterQuery(?ImageIndexFilter $filter = null): Query
