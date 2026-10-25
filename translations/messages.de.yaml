@@ -124,16 +124,16 @@ image:
         submit: Speichern
         submit_in_progress: Schreiben…
         modal_toggle:
-            data: Zusatzdaten
+            taxonomy: Taxonomie
+            license: Lizenz
             exif: Exif-Daten
-            tags: Tags
             translations: Übersetzungen
             custom_fields: Zusatzfelder
         modal:
             header:
-                categories: Kategorien
+                taxonomy: Taxonomie
+                license: Lizenz
                 exif: Exif-Daten
-                tags: Tags
                 translations: Übersetzungen
                 custom_fields: Zusatzfelder
             legend:

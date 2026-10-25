@@ -47,14 +47,18 @@
             </div>
         </div>
 
-        <aside class="backdrop" id="tags-settings">
+        <aside class="backdrop" id="taxonomy-settings">
             <div class="modal default-width">
-                <header>{{ 'image.form.modal.header.tags'|trans }}</header>
+                <header>{{ 'image.form.modal.header.taxonomy'|trans }}</header>
                 <fieldset>
                     <legend>{{ 'image.form.modal.legend.tags'|trans }}</legend>
                     <div id="image-tags-picker">
                         {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
                     </div>
+                </fieldset>
+                <fieldset>
+                    <legend>{{ 'image.form.modal.legend.categories'|trans }}</legend>
+                    {{ form_row(form.categories) }}
                 </fieldset>
                 <footer>
                     <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
@@ -75,13 +79,9 @@
             </div>
         </aside>
 
-        <aside class="backdrop" id="category-settings">
+        <aside class="backdrop" id="license-settings">
             <div class="modal default-width">
-                <header>{{ 'image.form.modal.header.categories'|trans }}</header>
-                <fieldset>
-                    <legend>{{ 'image.form.modal.legend.categories'|trans }}</legend>
-                    {{ form_row(form.categories) }}
-                </fieldset>
+                <header>{{ 'image.form.modal.header.license'|trans }}</header>
                 <fieldset>
                     <legend>{{ 'image.form.modal.legend.license'|trans }}</legend>
                     {{ form_row(form.license) }}
