@@ -72,10 +72,25 @@
             <div class="image-table">
                 {% for image in pagination %}
                     <div class="image-item">
-                        <a data-turbo-frame="_top" href="{{ path('image_edit', { id: image.id }) }}">
+                        <a class="image-link" data-turbo-frame="_top" href="{{ path('image_edit', { id: image.id }) }}">
                             <img src="{{ getImagePreviewUrl(image) }}" alt="{{ image.altText }}"/>
-                            <span class="image-info">{{ image.title }}</span>
                         </a>
+                        <div class="image-info">
+                            <span class="image-title">{{ image.title }}</span>
+                            <form method="post"
+                                  data-turbo-frame="_top"
+                                  action="{{ path('image_delete', {id: image.id}) }}"
+                                  data-turbo-confirm="{{ 'image.index.delete.confirm'|trans({'%count%': image.blogPosts|length}) }}">
+                                <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
+                                       value="{{ csrf_token('delete-image-' ~ image.id) }}">
+                                <button type="submit"
+                                        class="delete"
+                                        title="{{ 'image.index.action.delete'|trans }}"
+                                        aria-label="{{ 'image.index.action.delete'|trans }}">
+                                    {{ ux_icon('lucide:trash-2', {'aria-hidden': 'true'}) }}
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 {% endfor %}
             </div>

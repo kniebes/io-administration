@@ -8,6 +8,7 @@ use App\Form\Filter\ImageIndexFilterType;
 use App\Form\ImageFormType;
 use App\Model\Filter\ImageIndexFilter;
 use App\Repository\ImageRepository;
+use App\Service\Image\ImageRemover;
 use App\Service\Image\Upload\Uploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -34,6 +35,7 @@ final class ImageController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly Uploader $uploader,
         private readonly TranslatorInterface $translator,
+        private readonly ImageRemover $imageRemover,
     ) {
     }
 
@@ -140,6 +142,25 @@ final class ImageController extends AbstractController
             ],
             status: Response::HTTP_CREATED,
         );
+    }
+
+    #[Route(
+        path: '/image/delete/{id}',
+        name: 'image_delete',
+        methods: ['POST']
+    )]
+    public function delete(Request $request, Image $image): Response
+    {
+        $isValidToken = $this->isCsrfTokenValid(
+            id: 'delete-image-' . $image->getId(),
+            token: $request->request->get('_csrf_token'),
+        );
+
+        if ($isValidToken) {
+            $this->imageRemover->remove($image);
+        }
+
+        return $this->redirectToRoute(route: 'image_index');
     }
 
     private function createUploadErrorResponse(string $messageKey, int $status): JsonResponse

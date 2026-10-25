@@ -115,6 +115,10 @@ image:
             legend: Filter
             reset: Filter löschen
             search_query: Suchbegriff
+        action:
+            delete: Bild löschen
+        delete:
+            confirm: '{0}Bild wirklich unwiderruflich löschen?|{1}Bild wirklich unwiderruflich löschen? Es wird aus einem Blogpost entfernt.|]1,Inf[Bild wirklich unwiderruflich löschen? Es wird aus %count% Blogposts entfernt.'
         upload:
             label: Bilder hochladen
             uploading: lädt …
