@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use DateTimeImmutable;
+use App\Service\Tag\TagResolver;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Blog;
@@ -37,6 +37,7 @@ final class BlogPostFormType extends AbstractType
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly SluggerInterface $slugger,
+        private readonly TagResolver $tagResolver,
     )
     {
     }
@@ -300,7 +301,7 @@ final class BlogPostFormType extends AbstractType
         $tags = [];
 
         foreach ($event->getForm()->get('tags') as $tagRow) {
-            $tag = $this->resolveTag((string) ($tagRow->getData() ?? ''));
+            $tag = $this->tagResolver->resolve((string) ($tagRow->getData() ?? ''));
 
             if ($tag instanceof Tag && !in_array($tag, $tags, true)) {
                 $tags[] = $tag;
@@ -352,41 +353,5 @@ final class BlogPostFormType extends AbstractType
 
         $data['slug'] = $this->slugger->slug($title)->lower()->toString();
         $event->setData($data);
-    }
-
-    private function resolveTag(string $value): ?Tag
-    {
-        if (ctype_digit($value)) {
-            $tag = $this->entityManager->find(Tag::class, (int) $value);
-
-            if ($tag instanceof Tag) {
-                return $tag;
-            }
-        }
-
-        $term = trim($value);
-
-        if ($term === '') {
-            return null;
-        }
-
-        $slug = $this->slugger->slug($term)->lower()->toString();
-        $tag = $this->entityManager->getRepository(Tag::class)->findOneBy(['slug' => $slug]);
-
-        if ($tag instanceof Tag) {
-            return $tag;
-        }
-
-        $now = new DateTimeImmutable();
-        $tag = (new Tag())
-            ->setTerm($term)
-            ->setSlug($slug)
-            ->setCreated($now)
-            ->setUpdated($now);
-
-        $this->entityManager->persist($tag);
-        $this->entityManager->flush();
-
-        return $tag;
     }
 }

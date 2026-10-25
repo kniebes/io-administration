@@ -19,4 +19,10 @@ readonly class ImagePreview
     {
         return $this->imageService->getPreviewUrlWithWidth(imageEntity: $image, width: $width);
     }
+
+    #[AsTwigFunction('getImageOriginalUrl')]
+    public function getImageOriginalUrl(Image $image): string
+    {
+        return $this->imageService->getOriginalUrl(imageEntity: $image);
+    }
 }

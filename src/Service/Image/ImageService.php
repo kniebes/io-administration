@@ -47,6 +47,11 @@ class ImageService
         return $this->generateImageUrl(host: $imageEntity->getHost(), url: $selectedVersion->getUrl());
     }
 
+    public function getOriginalUrl(Image $imageEntity): string
+    {
+        return $this->generateImageUrl(host: $imageEntity->getHost(), url: $imageEntity->getUrl());
+    }
+
     private function generateImageUrl(string $host, string $url): string
     {
         return sprintf('%s%s', $host, $url);

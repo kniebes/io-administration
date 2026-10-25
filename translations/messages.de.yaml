@@ -10,6 +10,7 @@ breadcrumb:
     blog_post_index: Blogposts
     blog_post_add: Neuer Post
     image_index: Bilder
+    image_add: Neues Bild
 
 navigation:
     blog_post_index: Posts
@@ -115,19 +116,36 @@ image:
             reset: Filter löschen
             search_query: Suchbegriff
     form:
+        title_new: Neues Bild
         title: Titel
         altText: Text für alt-Attribut
         description: Bildbeschreibung
+        tags: Tags
         submit: Speichern
+        submit_in_progress: Schreiben…
         modal_toggle:
             data: Zusatzdaten
             exif: Exif-Daten
             tags: Tags
+            translations: Übersetzungen
+            custom_fields: Zusatzfelder
         modal:
             header:
                 categories: Kategorien
                 exif: Exif-Daten
+                tags: Tags
+                translations: Übersetzungen
+                custom_fields: Zusatzfelder
             legend:
                 categories: Kategorien
                 license: Lizenz
+                tags: Tags
+        translation:
+            title: Titel
+            altText: Text für alt-Attribut
+            description: Bildbeschreibung
+
+language:
+    de: Deutsch
+    en: Englisch
 

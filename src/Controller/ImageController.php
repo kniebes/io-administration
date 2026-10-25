@@ -3,24 +3,30 @@
 namespace App\Controller;
 
 use App\Entity\Image;
+use App\Event\ImagePreSaveEvent;
 use App\Form\Filter\ImageIndexFilterType;
 use App\Form\ImageFormType;
 use App\Model\Filter\ImageIndexFilter;
 use App\Repository\ImageRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Turbo\TurboBundle;
 
 #[IsGranted('ROLE_USER')]
-class ImageController extends AbstractController
+final class ImageController extends AbstractController
 {
     public function __construct(
         private readonly PaginatorInterface $paginator,
         private readonly ImageRepository $imageRepository,
-
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -65,9 +71,53 @@ class ImageController extends AbstractController
     {
         $form = $this->createForm(type: ImageFormType::class, data: $image);
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->eventDispatcher->dispatch(new ImagePreSaveEvent($image));
+            $this->entityManager->flush();
+
+            if ($this->isTurboStreamRequest($request)) {
+                return $this->renderEditStream(request: $request, success: true, form: $form, image: $image);
+            }
+
+            return $this->redirectToRoute(route: 'image_edit', parameters: ['id' => $image->getId()]);
+        }
+
+        if ($form->isSubmitted() && $this->isTurboStreamRequest($request)) {
+            return $this->renderEditStream(request: $request, success: false, form: $form, image: $image);
+        }
+
         return $this->render(view: 'image/edit.html.twig', parameters: [
             'form' => $form,
             'image' => $image,
+        ]);
+    }
+
+    private function isTurboStreamRequest(Request $request): bool
+    {
+        return $request->getPreferredFormat() === TurboBundle::STREAM_FORMAT;
+    }
+
+    private function renderEditStream(
+        Request $request,
+        bool $success,
+        FormInterface $form,
+        Image $image,
+    ): Response {
+        $request->setRequestFormat(TurboBundle::STREAM_FORMAT);
+
+        $errors = [];
+
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return $this->render(view: 'image/_edit.stream.html.twig', parameters: [
+            'form' => $form,
+            'image' => $image,
+            'success' => $success,
+            'savedAt' => $image->getUpdated(),
+            'errors' => $errors,
         ]);
     }
 }
