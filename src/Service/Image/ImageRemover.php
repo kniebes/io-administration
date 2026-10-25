@@ -26,15 +26,16 @@ readonly class ImageRemover
             $paths[] = $this->photoDomainPath . $imageVersion->getUrl();
         }
 
-        $this->entityManager->createQueryBuilder()
-            ->delete(BlogPostImageMapping::class, 'mapping')
-            ->where('mapping.image = :image')
-            ->setParameter('image', $image)
-            ->getQuery()
-            ->execute();
+        $this->entityManager->wrapInTransaction(function () use ($image): void {
+            $this->entityManager->createQueryBuilder()
+                ->delete(BlogPostImageMapping::class, 'mapping')
+                ->where('mapping.image = :image')
+                ->setParameter('image', $image)
+                ->getQuery()
+                ->execute();
 
-        $this->entityManager->remove($image);
-        $this->entityManager->flush();
+            $this->entityManager->remove($image);
+        });
 
         foreach ($paths as $path) {
             try {
