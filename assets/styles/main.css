@@ -37,6 +37,8 @@
     --button-text-color: #333;
     --submit-background-color: black;
     --submit-text-color: white;
+    --close-background-color: rgba(232, 232, 232, .8);
+    --close-text-color: back;
 
     /* Akzente */
     --tag-background-color: #d0ffd0;
@@ -184,8 +186,8 @@ button {
 }
 
 .close {
-    background: var(--submit-background-color);
-    color: var(--submit-text-color);
+    background: var(--close-background-color);
+    color: var(--close-text-color);
     width: auto;
     transition: all .2s ease-in;
     cursor: pointer;

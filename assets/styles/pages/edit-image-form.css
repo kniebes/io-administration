@@ -1,0 +1,15 @@
+.preview-image {
+}
+
+.preview-image img {
+    display: block;
+    width: 100%;
+    max-width: calc(var(--content-width) + 2ch);
+    height: auto;
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    background-color: var(--default-input-background-color);
+    border: none;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+}

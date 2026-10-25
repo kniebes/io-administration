@@ -23,6 +23,10 @@ class Link
     #[Groups(['blog_post:read'])]
     private ?int $id = null;
 
+    #[ORM\Column(name: 'published_date', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['blog_post:read', 'blog_post:read:compact'])]
+    private ?DateTimeImmutable $publishedDate = null;
+
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['blog_post:read'])]
     private string $url = '';
@@ -74,6 +78,18 @@ class Link
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getPublishedDate(): ?DateTimeImmutable
+    {
+        return $this->publishedDate;
+    }
+
+    public function setPublishedDate(?DateTimeImmutable $publishedDate): Link
+    {
+        $this->publishedDate = $publishedDate;
+
+        return $this;
     }
 
     /**

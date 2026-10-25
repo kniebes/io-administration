@@ -46,7 +46,7 @@ export default class extends Controller {
         const hasExactMatch = tags.some((tag) => tag.term.toLowerCase() === query.toLowerCase());
 
         if (!hasExactMatch) {
-            this.suggestionsTarget.append(this.buildSuggestion(query, query, true));
+            this.suggestionsTarget.append(this.buildSuggestion(`new:${query}`, query, true));
         }
     }
 

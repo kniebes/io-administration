@@ -157,6 +157,7 @@
 }
 
 .checkbox-elements,
+#image_form_categories,
 #blog_post_form_categories {
     display: flex;
     gap: 20px;

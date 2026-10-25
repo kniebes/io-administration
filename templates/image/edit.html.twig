@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ image and image.id ? image.title : 'image.form.title_new'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/common/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/pages/edit-form.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/pages/edit-image-form.css') }}">
+{% endblock %}
+
+{% block breadcrumb_elements %}
+    <li><a href="{{ path('image_index') }}">{{ 'breadcrumb.image_index'|trans }}</a></li>
+    <li><span>{% if image.title %}{{ image.title }}{% else %}{{ 'breadcrumb.image_add'|trans }}{% endif %}</span></li>
+{% endblock %}
+
+{% block body %}
+    <main class="container" data-controller="modal">
+
+        {{ form_start(form) }}
+        <div class="wrapper">
+            <div class="editor">
+                <p class="preview-image">
+                    <a href="{{ getImageOriginalUrl(image) }}" target="_blank">
+                        <img src="{{ getImagePreviewUrl(image) }}" alt="{{ image.altText }}">
+                    </a>
+                </p>
+                <p>{{ form_row(form.title) }}</p>
+                <p>{{ form_row(form.altText) }}</p>
+                <p>{{ form_row(form.description) }}</p>
+            </div>
+
+            <div class="sidebar">
+                <p>
+                    <button type="submit" data-turbo-submits-with="{{ 'image.form.submit_in_progress'|trans }}">{{ 'button.submit'|trans }}</button>
+                </p>
+                <div id="image-modal-toggles">
+                    {% include 'image/_modal_toggles.html.twig' with {image: image} %}
+                </div>
+
+                <div id="image-save-info">
+                    {% include 'blog_post/_save_info.html.twig' with {
+                        success: image.updated is not null,
+                        savedAt: image.updated,
+                    } %}
+                </div>
+            </div>
+        </div>
+
+        <aside class="backdrop" id="taxonomy-settings">
+            <div class="modal default-width">
+                <header>{{ 'image.form.modal.header.taxonomy'|trans }}</header>
+                <fieldset>
+                    <legend>{{ 'image.form.modal.legend.tags'|trans }}</legend>
+                    <div id="image-tags-picker">
+                        {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>{{ 'image.form.modal.legend.categories'|trans }}</legend>
+                    {{ form_row(form.categories) }}
+                </fieldset>
+                <footer>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="exif-settings">
+            <div class="modal default-width">
+                <header>{{ 'image.form.modal.header.exif'|trans }}</header>
+                {% for exif in image.exif %}
+                    {{ exif.label.name }}: {{ exif.value }}<br>
+                {% endfor %}
+                <footer>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="license-settings">
+            <div class="modal default-width">
+                <header>{{ 'image.form.modal.header.license'|trans }}</header>
+                <fieldset>
+                    <legend>{{ 'image.form.modal.legend.license'|trans }}</legend>
+                    {{ form_row(form.license) }}
+                </fieldset>
+                <footer>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="translation-settings">
+            <div class="modal default-width">
+                <header>{{ 'image.form.modal.header.translations'|trans }}</header>
+                {% for language in form.vars.translationLanguages %}
+                    {% set translationForm = form['translation_' ~ language.value] %}
+                    <fieldset>
+                        <legend>{{ ('language.' ~ language.value)|trans }}</legend>
+                        <p>{{ form_row(translationForm.title) }}</p>
+                        <p>{{ form_row(translationForm.altText) }}</p>
+                        <p>{{ form_row(translationForm.description) }}</p>
+                    </fieldset>
+                {% endfor %}
+                <footer>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
+        <aside class="backdrop" id="custom-fields-settings">
+            <div class="modal default-width">
+                <header>{{ 'image.form.modal.header.custom_fields'|trans }}</header>
+                <div id="image-custom-fields">
+                    {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}
+                </div>
+                <footer>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+        {{ form_end(form) }}
+    </main>
+{% endblock %}

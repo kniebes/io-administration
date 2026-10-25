@@ -36,6 +36,9 @@
     background-color: var(--image-item-background);
     border-radius: var(--default-border-radius);
     box-shadow: var(--default-box-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
     @media only screen and (max-width: 2880px) {
         width: calc(25% - 2rem);
     }
@@ -50,13 +53,11 @@
     }
 }
 
-.image-item a {
+.image-item a.image-link {
+    flex: 1;
+    min-height: 0;
     width: 100%;
-    height: 100%;
     display: flex;
-    align-content: center;
-    flex-direction: column;
-    gap: .2rem;
     text-decoration: none;
     color: var(--text-color);
 }
@@ -70,7 +71,41 @@
 
 .image-item .image-info {
     height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 0 .5ch;
     background: var(--image-info-background);
+}
+
+.image-item .image-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.image-item .image-info form {
+    margin: 0;
+}
+
+.image-item .image-info button.delete {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    width: auto;
+    color: var(--muted-text-color);
+    transition: color .2s ease-in;
+}
+
+.image-item .image-info button.delete:hover {
+    color: var(--warning-color);
 }
 
 .count,
@@ -79,18 +114,85 @@ fieldset {
 }
 
 .upload {
+    box-sizing: border-box;
     background-color: transparent;
     border: 2px dashed var(--empty-input-border-color);
     border-radius: var(--default-border-radius);
-    padding: 10px 8px;
+    padding: 1rem;
     color: var(--very-muted-text-color);
     text-decoration: none;
+    text-align: center;
     box-shadow: none;
     max-width: 640px;
     width: 640px;
-    height: 50px;
     margin: 0 auto;
-    font-size: 2rem;
-    line-height: 50px;
+    font-size: 1rem;
     cursor: pointer;
+}
+
+.upload.dragover {
+    border-color: var(--text-color);
+    background-color: var(--highlight-background-color);
+    color: var(--text-color);
+}
+
+.upload-status {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    max-width: 640px;
+    width: 640px;
+    margin: .5rem auto 0;
+    padding: 0;
+    list-style: none;
+    font-family: ui-monospace, monospace;
+    font-size: .9rem;
+}
+
+.upload-status li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .5rem 1ch;
+    background-color: var(--default-input-background-color);
+    border-left: 3px solid transparent;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+}
+
+.upload-status__name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.upload-status__state {
+    flex-shrink: 0;
+    color: var(--muted-text-color);
+}
+
+.upload-status li.done {
+    border-left-color: var(--status-published-color);
+}
+
+.upload-status li.error {
+    border-left-color: var(--error-color);
+}
+
+.upload-status li.error .upload-status__state {
+    color: var(--error-color);
+}
+
+.upload-status a.button {
+    display: inline-flex;
+    align-items: center;
+    padding: .3rem .6rem;
+    background: var(--submit-background-color);
+    color: var(--submit-text-color);
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--default-box-shadow);
+    text-decoration: none;
+    transition: all .2s ease-in;
 }

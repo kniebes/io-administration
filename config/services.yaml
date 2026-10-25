@@ -19,6 +19,10 @@ services:
         arguments:
             - !tagged_iterator app.io_tag_encoder
 
+    App\Service\Image\Upload\Uploader:
+        arguments:
+            - !tagged_iterator app.image_uploader
+
     League\CommonMark\CommonMarkConverter:
 
     App\Service\Image\ResponsiveImageTag\Interface\ResponsiveImageTagInterface:

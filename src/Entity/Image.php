@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Enum\ImageLicense;
+use App\Enum\Language;
 use App\Repository\ImageRepository;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -273,6 +274,20 @@ class Image
         });
 
         return $imageVersion->first();
+    }
+
+    public function getTranslations(): Collection
+    {
+        return $this->translations;
+    }
+
+    public function getTranslation(Language $language): ?ImageTranslation
+    {
+        $translation = $this->translations->findFirst(
+            static fn (int $key, ImageTranslation $translation): bool => $translation->getLanguage() === $language,
+        );
+
+        return $translation instanceof ImageTranslation ? $translation : null;
     }
 
     public function addTranslation(ImageTranslation $translation): Image

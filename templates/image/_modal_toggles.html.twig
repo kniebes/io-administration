@@ -1,0 +1,28 @@
+<a href="#" class="{% if image.tags|length == 0 and image.categories|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="taxonomy-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.taxonomy'|trans }}</h3>
+    {% for tag in image.tags %}<span>{{ tag.term }}</span>{% endfor %}
+    {% for category in image.categories %}<span>{{ category.term }}</span>{% endfor %}
+</a>
+
+<a href="#" class="modal-toggle default-input" data-modal="license-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.license'|trans }}</h3>
+    <span>{{ image.license.value }}</span>
+</a>
+
+<a href="#" class="{% if image.exif|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="exif-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.exif'|trans }}</h3>
+    <span>
+    {% for exif in image.exif %}{{ exif.label.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+    </span>
+</a>
+
+
+<a href="#" class="{% if image.translations|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="translation-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.translations'|trans }}</h3>
+    {% for translation in image.translations %}<span>{{ ('language.' ~ translation.language.value)|trans }}</span>{% endfor %}
+</a>
+
+<a href="#" class="{% if image.customFields|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="custom-fields-settings" data-action="click->modal#open">
+    <h3>{{ 'image.form.modal_toggle.custom_fields'|trans }}</h3>
+    {% for key, value in image.customFields %}<span>{{ key }}</span>{% endfor %}
+</a>

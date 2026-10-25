@@ -10,11 +10,16 @@ breadcrumb:
     blog_post_index: Blogposts
     blog_post_add: Neuer Post
     image_index: Bilder
+    image_add: Neues Bild
 
 navigation:
     blog_post_index: Posts
     blog_post_add: Neuer Post
     image_index: Bilder
+
+button:
+    submit: Speichern
+    close: Schließen
 
 blogpost:
     status:
@@ -64,9 +69,7 @@ blogpost:
         images: Bilder
         placeholder: Bitte wählen
         publish_requirement: Zum Veröffentlichen werden Blog und Typ benötigt.
-        submit: Speichern
         submit_in_progress: Schreiben…
-        cancel: Abbrechen
         tags_picker:
             placeholder: Tag suchen oder anlegen
             create: '%term% anlegen'
@@ -112,5 +115,51 @@ image:
             legend: Filter
             reset: Filter löschen
             search_query: Suchbegriff
+        action:
+            delete: Bild löschen
+        delete:
+            confirm: '{0}Bild wirklich unwiderruflich löschen?|{1}Bild wirklich unwiderruflich löschen? Es wird aus einem Blogpost entfernt.|]1,Inf[Bild wirklich unwiderruflich löschen? Es wird aus %count% Blogposts entfernt.'
+        upload:
+            label: Bilder hochladen
+            uploading: lädt …
+            edit: Bearbeiten
+            error:
+                csrf: Sitzung abgelaufen, bitte Seite neu laden.
+                invalid_file: Datei ungültig oder zu groß.
+                unsupported_type: Dateityp wird nicht unterstützt.
+                failed: Upload fehlgeschlagen.
+                network: Verbindung fehlgeschlagen.
+    form:
+        title_new: Neues Bild
+        title: Titel
+        altText: Text für alt-Attribut
+        description: Bildbeschreibung
+        tags: Tags
+        submit: Speichern
+        submit_in_progress: Schreiben…
+        modal_toggle:
+            taxonomy: Taxonomie
+            license: Lizenz
+            exif: Exif-Daten
+            translations: Übersetzungen
+            custom_fields: Zusatzfelder
+        modal:
+            header:
+                taxonomy: Taxonomie
+                license: Lizenz
+                exif: Exif-Daten
+                translations: Übersetzungen
+                custom_fields: Zusatzfelder
+            legend:
+                categories: Kategorien
+                license: Lizenz
+                tags: Tags
+        translation:
+            title: Titel
+            altText: Text für alt-Attribut
+            description: Bildbeschreibung
 
+language:
+    de: Deutsch
+    en: Englisch
 
