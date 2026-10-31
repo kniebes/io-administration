@@ -1,0 +1,9 @@
+<a href="#" class="{% if link.alternateUrl is empty %}empty {% endif %}modal-toggle default-input" data-modal="alternate-url-settings" data-action="click->modal#open">
+    <h3>{{ 'link.form.modal_toggle.alternate_url'|trans }}</h3>
+    {% if link.alternateUrl is not empty %}<span>{{ link.alternateUrl }}</span>{% endif %}
+</a>
+
+<a href="#" class="{% if link.customFields|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="custom-fields-settings" data-action="click->modal#open">
+    <h3>{{ 'link.form.modal_toggle.custom_fields'|trans }}</h3>
+    {% for key, value in link.customFields %}<span>{{ key }}</span>{% endfor %}
+</a>

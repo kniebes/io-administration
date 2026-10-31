@@ -31,6 +31,10 @@ class Link
     #[Groups(['blog_post:read'])]
     private string $url = '';
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['blog_post:read'])]
+    private ?string $title = null;
+
     #[ORM\Column(name: 'alternate_url', length: 255, nullable: true)]
     #[Groups(['blog_post:read'])]
     private ?string $alternateUrl = null;
@@ -108,6 +112,18 @@ class Link
     public function setUrl(string $url): Link
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): Link
+    {
+        $this->title = $title;
 
         return $this;
     }

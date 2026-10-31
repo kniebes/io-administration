@@ -4,7 +4,9 @@ namespace App\Repository;
 
 use App\Entity\Link;
 use App\Enum\LinkType;
+use App\Model\Filter\LinkIndexFilter;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -25,5 +27,28 @@ class LinkRepository extends ServiceEntityRepository
             ->setParameter('type', LinkType::BlogPostLink)
             ->getQuery()
             ->getResult();
+    }
+
+    public function createFilterQuery(?LinkIndexFilter $filter = null): Query
+    {
+        $queryBuilder = $this->createQueryBuilder('link')
+            ->where('link.type = :type')
+            ->setParameter(key: 'type', value: LinkType::Bookmark)
+            ->orderBy(sort: 'link.publishedDate', order: 'DESC');
+
+        $searchQuery = trim((string) $filter?->getSearchQuery());
+        if ($searchQuery !== '') {
+            $searchableFields = ['link.title', 'link.url', 'link.alternateUrl', 'link.description', 'link.quote'];
+            $queryBuilder
+                ->andWhere($queryBuilder->expr()->orX(
+                    ...array_map(
+                        static fn (string $field): string => $field . ' LIKE :searchQuery',
+                        $searchableFields
+                    )
+                ))
+                ->setParameter(key: 'searchQuery', value: '%' . $searchQuery . '%');
+        }
+
+        return $queryBuilder->getQuery();
     }
 }

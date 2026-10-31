@@ -11,11 +11,13 @@ breadcrumb:
     blog_post_add: Neuer Post
     image_index: Bilder
     image_add: Neues Bild
+    link_index: Links
 
 navigation:
     blog_post_index: Posts
     blog_post_add: Neuer Post
     image_index: Bilder
+    link_index: Links
 
 button:
     submit: Speichern
@@ -158,6 +160,48 @@ image:
             title: Titel
             altText: Text für alt-Attribut
             description: Bildbeschreibung
+
+link:
+    index:
+        title: Links
+        count: 'Anzahl der Links: %count%'
+        filter:
+            legend: Filter
+            search_query: Suchbegriff
+            aria:
+                search_query: Suchbegriff
+            submit: Filtern
+            reset: Filter löschen
+        head:
+            title: Titel
+            publishedDate: Veröffentlicht
+            actions: Aktionen
+        action:
+            edit: Link bearbeiten
+            delete: Link löschen
+        delete:
+            confirm: Link wirklich unwiderruflich löschen?
+    add:
+        legend: Neuer Link
+        url: URL
+        submit: Laden
+        submit_in_progress: Lade Metadaten…
+        error:
+            fetch: Metadaten für diese URL konnten nicht geladen werden.
+    form:
+        title: Titel
+        url: URL
+        alternateUrl: Alternative URL
+        description: Beschreibung
+        quote: Zitat
+        submit_in_progress: Schreiben…
+        modal_toggle:
+            alternate_url: Alternative URL
+            custom_fields: Zusatzfelder
+        modal:
+            header:
+                alternate_url: Alternative URL
+                custom_fields: Zusatzfelder
 
 language:
     de: Deutsch

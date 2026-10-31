@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'link.index.title'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/pages/blog-post-index.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/common/pagination.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/common/data-table.css') }}">
+{% endblock %}
+
+{% block breadcrumb_elements %}
+    <li><span>{{ 'breadcrumb.link_index'|trans }}</span></li>
+{% endblock %}
+
+
+{% block body %}
+    <main class="container">
+
+        {{ form_start(addForm, {attr: {class: 'filter'}}) }}
+        <fieldset>
+            <legend>{{ 'link.add.legend'|trans }}</legend>
+            <div class="filter-form-elements">
+                {{ form_widget(addForm.url, {attr: {placeholder: 'link.add.url'|trans, 'aria-label': 'link.add.url'|trans}}) }}
+            </div>
+            {% if addForm.url.vars.errors|length > 0 %}
+                <div class="field-errors">{{ form_errors(addForm.url) }}</div>
+            {% endif %}
+            <div class="filter-action">
+                <button type="submit" data-turbo-submits-with="{{ 'link.add.submit_in_progress'|trans }}">{{ 'link.add.submit'|trans }}</button>
+            </div>
+        </fieldset>
+        {{ form_end(addForm) }}
+
+        <turbo-frame id="link-list">
+            {{ form_start(filterForm, {
+                action: path('link_index'),
+                attr: {
+                    class: 'filter',
+                    'data-turbo-action': 'advance'
+                }
+            }) }}
+            <fieldset>
+                <legend>{{ 'link.index.filter.legend'|trans }}</legend>
+                <div class="filter-form-elements">
+                    {{ form_row(filterForm.searchQuery) }}
+                </div>
+                <div class="filter-action">
+                    <button type="submit">{{ 'link.index.filter.submit'|trans }}</button>
+                    {{ form_widget(filterForm.reset) }}
+                </div>
+            </fieldset>
+            {{ form_end(filterForm) }}
+
+            <div class="count">
+                {{ 'link.index.count'|trans({'%count%': pagination.getTotalItemCount}) }}
+            </div>
+
+            <div class="page-navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+
+            <table class="data">
+                <thead>
+                <tr>
+                    <th>{{ 'link.index.head.title'|trans }}</th>
+                    <th>{{ 'link.index.head.publishedDate'|trans }}</th>
+                    <th class="right">{{ 'link.index.head.actions'|trans }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for link in pagination %}
+                    <tr {% if loop.index is odd %}class="color"{% endif %}>
+                        <td class="title"><a data-turbo-frame="_top"
+                                             href="{{ path('link_edit', {id: link.id}) }}">{{ link.title ?: link.url }}</a>
+                        </td>
+                        <td class="datetime">{{ link.publishedDate ? link.publishedDate|date('Y-m-d H:i:s') : '' }}</td>
+                        <td class="actions">
+                            <a data-turbo-frame="_top"
+                               href="{{ path('link_edit', {id: link.id}) }}"
+                               title="{{ 'link.index.action.edit'|trans }}"
+                               aria-label="{{ 'link.index.action.edit'|trans }}">
+                                {{ ux_icon('lucide:pencil', {'aria-hidden': 'true'}) }}
+                            </a>
+                            <form method="post"
+                                  data-turbo-frame="_top"
+                                  action="{{ path('link_delete', {id: link.id}) }}"
+                                  data-turbo-confirm="{{ 'link.index.delete.confirm'|trans }}">
+                                <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
+                                       value="{{ csrf_token('delete-link-' ~ link.id) }}">
+                                <button type="submit"
+                                        class="delete"
+                                        title="{{ 'link.index.action.delete'|trans }}"
+                                        aria-label="{{ 'link.index.action.delete'|trans }}">
+                                    {{ ux_icon('lucide:trash-2', {'aria-hidden': 'true'}) }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="page-navigation">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        </turbo-frame>
+
+    </main>
+{% endblock %}
