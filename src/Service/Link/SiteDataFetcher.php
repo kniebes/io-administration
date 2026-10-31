@@ -20,6 +20,8 @@ readonly class SiteDataFetcher
         try {
             $response = $this->httpClient->request(method: 'GET', url: self::API_URL, options: [
                 'query' => ['url' => $url],
+                'timeout' => 5,
+                'max_duration' => 10,
             ]);
 
             if ($response->getStatusCode() !== 200) {

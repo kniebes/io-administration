@@ -8,6 +8,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Url;
 
@@ -23,6 +24,7 @@ final class LinkAddFormType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                     new Url(),
+                    new Length(max: 255),
                 ],
             ])
         ;

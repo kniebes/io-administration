@@ -46,7 +46,7 @@ class LinkRepository extends ServiceEntityRepository
                         $searchableFields
                     )
                 ))
-                ->setParameter(key: 'searchQuery', value: '%' . $searchQuery . '%');
+                ->setParameter(key: 'searchQuery', value: '%' . addcslashes($searchQuery, '%_\\') . '%');
         }
 
         return $queryBuilder->getQuery();

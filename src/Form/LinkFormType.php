@@ -15,6 +15,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Url;
 
@@ -43,6 +44,9 @@ final class LinkFormType extends AbstractType
             ->add('title', TextType::class, [
                 'label' => 'link.form.title',
                 'required' => false,
+                'constraints' => [
+                    new Length(max: 255),
+                ],
             ])
             ->add('url', UrlType::class, [
                 'label' => 'link.form.url',
@@ -51,6 +55,7 @@ final class LinkFormType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                     new Url(),
+                    new Length(max: 255),
                 ],
             ])
             ->add('alternateUrl', UrlType::class, [
@@ -58,6 +63,7 @@ final class LinkFormType extends AbstractType
                 'required' => false,
                 'constraints' => [
                     new Url(),
+                    new Length(max: 255),
                 ],
             ])
             ->add('description', TextareaType::class, [

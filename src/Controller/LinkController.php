@@ -80,8 +80,10 @@ final class LinkController extends AbstractController
             try {
                 $siteData = $this->siteDataFetcher->fetch($link->getUrl());
 
+                $title = $siteData['title'] ?? null;
+
                 $link
-                    ->setTitle($siteData['title'] ?? null)
+                    ->setTitle(is_string($title) ? mb_substr($title, 0, 255) : null)
                     ->setQuote($siteData['description'] ?? null);
 
                 $this->eventDispatcher->dispatch(new LinkPreSaveEvent($link));

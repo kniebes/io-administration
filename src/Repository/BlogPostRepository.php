@@ -25,7 +25,7 @@ class BlogPostRepository extends ServiceEntityRepository
         if ($searchQuery !== '') {
             $queryBuilder
                 ->andWhere('p.searchableText LIKE :searchQuery')
-                ->setParameter(key: 'searchQuery', value: '%' . $searchQuery . '%');
+                ->setParameter(key: 'searchQuery', value: '%' . addcslashes($searchQuery, '%_\\') . '%');
         }
 
         if ($filter?->getStatus() !== null) {
