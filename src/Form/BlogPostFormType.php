@@ -312,7 +312,15 @@ final class BlogPostFormType extends AbstractType
             }
         }
 
-        $blogPost->setTags(new ArrayCollection($tags));
+        foreach ($blogPost->getTags()->toArray() as $existingTag) {
+            if (!in_array($existingTag, $tags, true)) {
+                $blogPost->removeTag($existingTag);
+            }
+        }
+
+        foreach ($tags as $tag) {
+            $blogPost->addTag($tag);
+        }
     }
 
     private function applySubmittedCustomFields(FormEvent $event): void

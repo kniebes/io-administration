@@ -31,6 +31,10 @@ class Link
     #[Groups(['blog_post:read'])]
     private string $url = '';
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['blog_post:read'])]
+    private ?string $title = null;
+
     #[ORM\Column(name: 'alternate_url', length: 255, nullable: true)]
     #[Groups(['blog_post:read'])]
     private ?string $alternateUrl = null;
@@ -44,6 +48,11 @@ class Link
      */
     #[ORM\ManyToMany(targetEntity: BlogPost::class, mappedBy: 'links')]
     private Collection $blogPosts;
+
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'links')]
+    #[ORM\JoinTable(name: 'link_tag')]
+    #[Groups(['blog_post:read'])]
+    private Collection $tags;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups(['blog_post:read'])]
@@ -73,6 +82,7 @@ class Link
     public function __construct()
     {
         $this->blogPosts = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,6 +110,34 @@ class Link
         return $this->blogPosts;
     }
 
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function setTags(Collection $tags): Link
+    {
+        $this->tags = $tags;
+
+        return $this;
+    }
+
+    public function addTag(Tag $tag): Link
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): Link
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
     public function getUrl(): string
     {
         return $this->url;
@@ -108,6 +146,18 @@ class Link
     public function setUrl(string $url): Link
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): Link
+    {
+        $this->title = $title;
 
         return $this;
     }
