@@ -9,7 +9,6 @@ use App\Entity\Tag;
 use App\Enum\ImageLicense;
 use App\Enum\Language;
 use App\Service\Tag\TagResolver;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -202,7 +201,15 @@ final class ImageFormType extends AbstractType
             }
         }
 
-        $image->setTags(new ArrayCollection($tags));
+        foreach ($image->getTags()->toArray() as $existingTag) {
+            if (!in_array($existingTag, $tags, true)) {
+                $image->removeTag($existingTag);
+            }
+        }
+
+        foreach ($tags as $tag) {
+            $image->addTag($tag);
+        }
     }
 
     private function applySubmittedCustomFields(FormEvent $event): void

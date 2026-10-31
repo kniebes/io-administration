@@ -194,6 +194,7 @@ button {
 }
 
 input[type="text"],
+input[type="url"],
 textarea {
     font-size: 15px;
     font-weight: 400;

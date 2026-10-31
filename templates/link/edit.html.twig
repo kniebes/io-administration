@@ -42,6 +42,19 @@
             </div>
         </div>
 
+        <aside class="backdrop" id="tags-settings">
+            <div class="modal default-width">
+                <header>{{ 'link.form.modal.header.tags'|trans }}</header>
+                <div id="link-tags-picker">
+                    {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+                </div>
+                <footer>
+                    <button class="close" type="button" data-action="click->modal#close">{{ 'button.close'|trans }}</button>
+                    <button type="submit" data-action="click->modal#closeOnSubmit">{{ 'button.submit'|trans }}</button>
+                </footer>
+            </div>
+        </aside>
+
         <aside class="backdrop" id="alternate-url-settings">
             <div class="modal default-width">
                 <header>{{ 'link.form.modal.header.alternate_url'|trans }}</header>

@@ -10,6 +10,12 @@
     </template>
 </turbo-stream>
 
+<turbo-stream action="update" target="link-tags-picker">
+    <template>
+        {% include 'blog_post/_tags_picker.html.twig' with {form: form} %}
+    </template>
+</turbo-stream>
+
 <turbo-stream action="update" target="link-custom-fields">
     <template>
         {% include 'blog_post/_custom_fields.html.twig' with {form: form} %}

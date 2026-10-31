@@ -1,3 +1,8 @@
+<a href="#" class="{% if link.tags|length == 0 %}empty {% endif %}modal-toggle default-input" data-modal="tags-settings" data-action="click->modal#open">
+    <h3>{{ 'link.form.modal_toggle.tags'|trans }}</h3>
+    {% for tag in link.tags %}<span>{{ tag.term }}</span>{% endfor %}
+</a>
+
 <a href="#" class="{% if link.alternateUrl is empty %}empty {% endif %}modal-toggle default-input" data-modal="alternate-url-settings" data-action="click->modal#open">
     <h3>{{ 'link.form.modal_toggle.alternate_url'|trans }}</h3>
     {% if link.alternateUrl is not empty %}<span>{{ link.alternateUrl }}</span>{% endif %}

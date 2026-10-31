@@ -3,10 +3,14 @@
 namespace App\Form;
 
 use App\Entity\Link;
+use App\Entity\Tag;
+use App\Service\Tag\TagResolver;
+use Doctrine\ORM\EntityManagerInterface;
 use JsonException;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
@@ -14,6 +18,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -21,11 +27,18 @@ use Symfony\Component\Validator\Constraints\Url;
 
 final class LinkFormType extends AbstractType
 {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TagResolver $tagResolver,
+    ) {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $link = $options['data'] ?? null;
         $customFieldItems = [];
         $jsonCustomFieldKeys = [];
+        $existingTagIds = [];
 
         if ($link instanceof Link) {
             foreach ($link->getCustomFields() as $key => $value) {
@@ -35,6 +48,10 @@ final class LinkFormType extends AbstractType
                 }
 
                 $customFieldItems[] = ['key' => (string) $key, 'value' => $value];
+            }
+
+            foreach ($link->getTags() as $tag) {
+                $existingTagIds[] = (string) $tag->getId();
             }
         }
 
@@ -74,6 +91,20 @@ final class LinkFormType extends AbstractType
                 'label' => 'link.form.quote',
                 'required' => false,
             ])
+            ->add('tags', CollectionType::class, [
+                'label' => 'link.form.tags',
+                'entry_type' => HiddenType::class,
+                'entry_options' => [
+                    'label' => false,
+                    'required' => false,
+                ],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'prototype' => true,
+                'required' => false,
+                'mapped' => false,
+                'data' => $existingTagIds,
+            ])
             ->add('customFields', CollectionType::class, [
                 'label' => 'blogpost.form.custom_fields.label',
                 'entry_type' => CustomFieldItemType::class,
@@ -88,7 +119,43 @@ final class LinkFormType extends AbstractType
             ])
         ;
 
+        $builder->addEventListener(FormEvents::SUBMIT, $this->applySubmittedTags(...));
         $builder->addEventListener(FormEvents::SUBMIT, $this->applySubmittedCustomFields(...));
+    }
+
+    public function finishView(FormView $view, FormInterface $form, array $options): void
+    {
+        $tagIds = [];
+
+        foreach ($view->children['tags']->children as $tagRowView) {
+            $value = (string) ($tagRowView->vars['value'] ?? '');
+
+            if (str_starts_with($value, TagResolver::NEW_TAG_PREFIX)) {
+                $tagRowView->vars['tagTerm'] = substr($value, strlen(TagResolver::NEW_TAG_PREFIX));
+            }
+
+            if (ctype_digit($value)) {
+                $tagIds[] = (int) $value;
+            }
+        }
+
+        if ($tagIds === []) {
+            return;
+        }
+
+        $tagTermsById = [];
+
+        foreach ($this->entityManager->getRepository(Tag::class)->findBy(['id' => $tagIds]) as $tag) {
+            $tagTermsById[$tag->getId()] = $tag->getTerm();
+        }
+
+        foreach ($view->children['tags']->children as $tagRowView) {
+            $value = (string) ($tagRowView->vars['value'] ?? '');
+
+            if (ctype_digit($value) && isset($tagTermsById[(int) $value])) {
+                $tagRowView->vars['tagTerm'] = $tagTermsById[(int) $value];
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -99,6 +166,35 @@ final class LinkFormType extends AbstractType
                 new UniqueEntity(fields: ['url'], errorPath: 'url'),
             ],
         ]);
+    }
+
+    private function applySubmittedTags(FormEvent $event): void
+    {
+        $link = $event->getData();
+
+        if (!$link instanceof Link) {
+            return;
+        }
+
+        $tags = [];
+
+        foreach ($event->getForm()->get('tags') as $tagRow) {
+            $tag = $this->tagResolver->resolve((string) ($tagRow->getData() ?? ''));
+
+            if ($tag instanceof Tag && !in_array($tag, $tags, true)) {
+                $tags[] = $tag;
+            }
+        }
+
+        foreach ($link->getTags()->toArray() as $existingTag) {
+            if (!in_array($existingTag, $tags, true)) {
+                $link->removeTag($existingTag);
+            }
+        }
+
+        foreach ($tags as $tag) {
+            $link->addTag($tag);
+        }
     }
 
     private function applySubmittedCustomFields(FormEvent $event): void

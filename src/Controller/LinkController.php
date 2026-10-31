@@ -84,7 +84,7 @@ final class LinkController extends AbstractController
 
                 $link
                     ->setTitle(is_string($title) ? mb_substr($title, 0, 255) : null)
-                    ->setQuote($siteData['description'] ?? null);
+                    ->setQuote((string) $siteData['description'] ?? null);
 
                 $this->eventDispatcher->dispatch(new LinkPreSaveEvent($link));
                 $this->entityManager->persist($link);

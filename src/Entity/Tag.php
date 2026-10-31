@@ -35,6 +35,9 @@ class Tag
     #[ORM\ManyToMany(targetEntity: Image::class, mappedBy: 'tags')]
     private Collection $images;
 
+    #[ORM\ManyToMany(targetEntity: Link::class, mappedBy: 'tags')]
+    private Collection $links;
+
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['blog_post:read'])]
     private ?string $term = null;
@@ -85,6 +88,7 @@ class Tag
     {
         $this->blogPosts = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->links = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -106,6 +110,11 @@ class Tag
     public function getImages(): Collection
     {
         return $this->images;
+    }
+
+    public function getLinks(): Collection
+    {
+        return $this->links;
     }
 
 

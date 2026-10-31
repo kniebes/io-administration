@@ -191,15 +191,18 @@ link:
     form:
         title: Titel
         url: URL
+        tags: Tags
         alternateUrl: Alternative URL
         description: Beschreibung
         quote: Zitat
         submit_in_progress: Schreiben…
         modal_toggle:
+            tags: Tags
             alternate_url: Alternative URL
             custom_fields: Zusatzfelder
         modal:
             header:
+                tags: Tags
                 alternate_url: Alternative URL
                 custom_fields: Zusatzfelder
 
